@@ -2,10 +2,10 @@ package net.bigyous.gptgodmc.GPT.Json;
 
 public class FunctionCall {
     private String name;
-    private String arguments;
+    private Schema args;
 
-    public String getArguments() {
-        return arguments;
+    public Schema getArguments() {
+        return args;
     }
 
     public String getName() {

@@ -10,7 +10,7 @@ public class File {
     private String createTime;
     private String updateTime;
     private String expirationTime;
-    private byte[] sha256Hash;
+    private String sha256Hash;
     private String uri;
     private State state;
     private String error;

@@ -14,13 +14,10 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.github.mizosoft.methanol.Methanol;
-import com.github.mizosoft.methanol.MultipartBodyPublisher;
-import com.github.mizosoft.methanol.MutableRequest;
 import com.google.gson.Gson;
 
 import net.bigyous.gptgodmc.GPTGOD;
 import net.bigyous.gptgodmc.GPT.Json.FileUploadResponse;
-import net.bigyous.gptgodmc.GPT.Json.TranscriptionResponse;
 
 // helper for gemini file api
 // https://ai.google.dev/gemini-api/docs/audio?lang=rest
@@ -64,7 +61,7 @@ public class GoogleFile {
             String metadataJson = "{\"file\": {\"display_name\": \"" + displayName + "\"}}";
 
             HttpRequest metadataRequest = HttpRequest.newBuilder()
-                    .uri(URI.create(BASE_URL + "?key=" + apiKey))
+                    .uri(URI.create(BASE_URL + "/upload/v1beta/files" + "?key=" + apiKey))
                     .header("X-Goog-Upload-Protocol", "resumable")
                     .header("X-Goog-Upload-Command", "start")
                     .header("X-Goog-Upload-Header-Content-Length", String.valueOf(numBytes))
@@ -85,7 +82,7 @@ public class GoogleFile {
 
             HttpRequest uploadRequest = HttpRequest.newBuilder()
                     .uri(URI.create(uploadUrl))
-                    .header("Content-Length", String.valueOf(numBytes))
+                    // .header("Content-Length", String.valueOf(numBytes))
                     .header("X-Goog-Upload-Offset", "0")
                     .header("X-Goog-Upload-Command", "upload, finalize")
                     .header("Content-Type", mimeType)

@@ -27,11 +27,14 @@ import net.bigyous.gptgodmc.EventLogger;
 import net.bigyous.gptgodmc.GPTGOD;
 import net.bigyous.gptgodmc.StructureManager;
 import net.bigyous.gptgodmc.WorldManager;
+import net.bigyous.gptgodmc.GPT.Json.Candidate;
 import net.bigyous.gptgodmc.GPT.Json.Choice;
+import net.bigyous.gptgodmc.GPT.Json.FunctionCall;
 import net.bigyous.gptgodmc.GPT.Json.FunctionDeclaration;
+import net.bigyous.gptgodmc.GPT.Json.GenerateContentResponse;
 import net.bigyous.gptgodmc.GPT.Json.GptFunction;
-import net.bigyous.gptgodmc.GPT.Json.GptResponse;
 import net.bigyous.gptgodmc.GPT.Json.GptTool;
+import net.bigyous.gptgodmc.GPT.Json.Part;
 import net.bigyous.gptgodmc.GPT.Json.Schema;
 import net.bigyous.gptgodmc.GPT.Json.Tool;
 import net.bigyous.gptgodmc.GPT.Json.ToolCall;
@@ -438,26 +441,37 @@ public class GptActions {
     }
 
     public static void processResponse(String response) {
-        GptResponse responseObject = gson.fromJson(response, GptResponse.class);
-        for (Choice choice : responseObject.getChoices()) {
-            if (choice.getMessage().getTool_calls() == null) {
+        GenerateContentResponse responseObject = gson.fromJson(response, GenerateContentResponse.class);
+        for (Candidate choice : responseObject.getCandidates()) {
+            Part[] parts = choice.getContent().getParts();
+            if (parts == null) {
                 continue;
             }
-            for (ToolCall call : choice.getMessage().getTool_calls()) {
-                run(call.getFunction().getName(), call.getFunction().getArguments());
+            for (Part call : parts) {
+                FunctionCall func = call.getFunctionCall();
+                if(func == null) {
+                    continue;
+                }
+                // dumb workaround for now to avoid having to change every functions input type to schema for the moment
+                run(func.getName(), gson.toJson(func.getArguments()));
             }
         }
     }
 
     public static void processResponse(String response, Map<String, FunctionDeclaration> functions) {
-        GptResponse responseObject = gson.fromJson(response, GptResponse.class);
-        for (Choice choice : responseObject.getChoices()) {
-            if (choice.getMessage().getTool_calls() == null) {
+        GenerateContentResponse responseObject = gson.fromJson(response, GenerateContentResponse.class);
+        for (Candidate cand : responseObject.getCandidates()) {
+            Part[] parts = cand.getContent().getParts();
+            if (parts == null) {
                 continue;
             }
-            for (ToolCall call : choice.getMessage().getTool_calls()) {
+            for (Part call : parts) {
+                FunctionCall func = call.getFunctionCall();
+                if(func == null) {
+                    continue;
+                }
                 Bukkit.getScheduler().runTask(plugin, () -> {
-                    functions.get(call.getFunction().getName()).runFunction(call.getFunction().getArguments());
+                    functions.get(func.getName()).runFunction(gson.toJson(func.getArguments()));
                 });
             }
         }

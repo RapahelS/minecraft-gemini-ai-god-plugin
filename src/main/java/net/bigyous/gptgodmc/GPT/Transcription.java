@@ -48,8 +48,14 @@ public class Transcription {
             }
 
             // Create the content request object
-            GenerateContentRequest contentRequest = new GenerateContentRequest();
-            contentRequest.addFileWithPrompt("transcribe this audio clip", "audio/mp3", file.getUri());
+            GenerateContentRequest contentRequest = new GenerateContentRequest()
+                .setSystemInstruction("""
+                    you are a voice chat transcriber. 
+                    Try to transcrive what you hear from the input audio as closly as possible. 
+                    If no words are heard then you may return descriptions of what you hear or do 
+                    not hear inbetween of astrix cahracters e.x. *birds chirping* or *nothing*.
+                    """)
+                .addFileWithPrompt("transcribe this audio clip", "audio/mp3", file.getUri());
             String jsonBody = gson.toJson(contentRequest);
 
             HttpRequest request = HttpRequest.newBuilder()
@@ -60,6 +66,8 @@ public class Transcription {
                     .build();
             
             HttpResponse<String> response = client.send(request, BodyHandlers.ofString());
+
+            System.out.println("Received transcription response:\n" + response.body());
 
             return gson.fromJson(response.body(), GenerateContentResponse.class).getText();
         } catch (FileNotFoundException e) {

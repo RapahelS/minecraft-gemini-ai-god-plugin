@@ -11,8 +11,8 @@ public class Part {
     // @SerializedName("inlineData")
     // private Blob inlineData;
 
-    // @SerializedName("functionCall")
-    // private FunctionCall functionCall;
+    @SerializedName("functionCall")
+    private FunctionCall functionCall;
 
     // @SerializedName("functionResponse")
     // private FunctionResponse functionResponse;
@@ -28,6 +28,10 @@ public class Part {
 
     public String getText() {
         return text;
+    }
+
+    public FunctionCall getFunctionCall() {
+        return functionCall;
     }
 
     // constructors for the various union types

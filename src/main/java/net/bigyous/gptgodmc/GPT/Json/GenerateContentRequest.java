@@ -12,7 +12,7 @@ public class GenerateContentRequest {
     // Required. The content of the current conversation with the model.
     // For single-turn queries, this is a single instance.
     // For multi-turn queries like chat, this is a repeated field that contains the conversation history and the latest request.
-    private ArrayList<Content> contents;
+    private ArrayList<Content> contents = new ArrayList<Content>();
     
     // tools Optional. A list of Tools the Model may use to generate the next response. A Tool is a piece of code that enables the system to interact with external systems to perform an action, or set of actions, outside of knowledge and scope of the Model. Supported Tools are Function and codeExecution. Refer to the Function calling and the Code execution guides to learn more.
     private Tool[] tools;
@@ -40,25 +40,24 @@ public class GenerateContentRequest {
     // private CachedContent cachedContent; 
 
     public GenerateContentRequest() {
-        this.contents = new ArrayList<Content>();
-
     }
 
     public GenerateContentRequest(Tool[] tools) {
         this.tools = tools;
     }
 
-    public void setSystemInstruction(String systemInstruction) {
+    public GenerateContentRequest setSystemInstruction(String systemInstruction) {
         this.systemInstruction = new Content(systemInstruction);
+        return this;
     }
 
     // shortcut to append a prompt and file to message contents
-    public void addFileWithPrompt(String text, String mimeType, String fileUri) {
+    public GenerateContentRequest addFileWithPrompt(String text, String mimeType, String fileUri) {
         Part textPart = new Part(text);
         Part fileDataPart = new Part(new FileData(mimeType, fileUri));
 
         contents.add(new Content(new Part[] { textPart, fileDataPart }));
-
+        return this;
     }
 
     public void setTools(Tool[] tools) {

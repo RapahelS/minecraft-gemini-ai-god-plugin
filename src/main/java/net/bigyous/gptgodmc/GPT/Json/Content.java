@@ -17,6 +17,7 @@ public class Content {
     }
 
     public Content(Part[] parts) {
+        this.parts = parts;
         role = Role.user;
     }
 
