@@ -1,11 +1,11 @@
 package net.bigyous.gptgodmc.GPT;
 
+import java.net.URI;
+import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
 
 import com.github.mizosoft.methanol.Methanol;
-import com.github.mizosoft.methanol.MultipartBodyPublisher;
-import com.github.mizosoft.methanol.MutableRequest;
 
 import java.nio.file.Path;
 
@@ -18,29 +18,50 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import net.bigyous.gptgodmc.GPTGOD;
-import net.bigyous.gptgodmc.GPT.Json.TranscriptionResponse;
+import net.bigyous.gptgodmc.GPT.Json.GenerateContentRequest;
+import net.bigyous.gptgodmc.GPT.Json.GenerateContentResponse;
+import net.bigyous.gptgodmc.GPT.Json.GptModel;
 
 public class Transcription {
+
+    private static String BASE_URL = "https://generativelanguage.googleapis.com";
     private static Gson gson = new Gson();
     private static Methanol client = Methanol.create();
     private static FileConfiguration config = JavaPlugin.getPlugin(GPTGOD.class).getConfig();
+
     public static String Transcribe(Path audioPath) {
         if (config.getString("openAiKey").isBlank()) {
             GPTGOD.LOGGER.warn("No API Key");
             return "something";
         }
 
+        String apiKey = config.getString("geminiKey");
+        GptModel model = GPTModels.getSecondaryModel();
+
         try {
-            MultipartBodyPublisher body = MultipartBodyPublisher.newBuilder()
-                .filePart("file", audioPath)
-                .textPart("model", "whisper-1")
-                .textPart("language", config.getString("language"))
-                .build();
-            MutableRequest request = MutableRequest.POST("https://api.openai.com/v1/audio/transcriptions", body)
-                .header("Authorization", "Bearer " + config.getString("openAiKey"))
-                .header("Content-Type", "multipart/form-data");
-            HttpResponse<String> response =  client.send(request, BodyHandlers.ofString());
-            return gson.fromJson(response.body(), TranscriptionResponse.class).getText();
+
+            GoogleFile file = new GoogleFile(audioPath);
+
+            if (!file.tryUpload()) {
+                GPTGOD.LOGGER.error("Transcription failed during upload");
+                return "something";
+            }
+
+            // Create the content request object
+            GenerateContentRequest contentRequest = new GenerateContentRequest();
+            contentRequest.addFileWithPrompt("transcribe this audio clip", "audio/mp3", file.getUri());
+            String jsonBody = gson.toJson(contentRequest);
+
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create("https://generativelanguage.googleapis.com/v1beta/models/" + model.getName()
+                            + ":generateContent?key=" + apiKey))
+                    .header("Content-Type", "application/json")
+                    .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
+                    .build();
+            
+            HttpResponse<String> response = client.send(request, BodyHandlers.ofString());
+
+            return gson.fromJson(response.body(), GenerateContentResponse.class).getText();
         } catch (FileNotFoundException e) {
             GPTGOD.LOGGER.error("Attempted to Transcribe non-existant file", e);
             e.printStackTrace();
@@ -52,4 +73,5 @@ public class Transcription {
         }
         return "something";
     }
+
 }

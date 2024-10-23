@@ -13,13 +13,13 @@ public class GPTModels {
 
     public static GptModel getMainModel(){
         String modelName;
-        if (config.isSet("gpt-model-name")) {
-            modelName = config.getString("gpt-model-name");
-        } else if (config.isSet("use-gpt-4")) {
+        if (config.isSet("model-name")) {
+            modelName = config.getString("model-name");
+        } else if (config.isSet("use-full-model")) {
             // for passivity
-            modelName = config.getBoolean("use-gpt-4")? "gpt-4o": "gpt-4o-mini";
+            modelName = config.getBoolean("use-full-model")? "gemini-1.5-pro": "gemini-1.5-flash";
         } else {
-            throw new RuntimeException("Please set a value for gpt-model-name.");
+            throw new RuntimeException("Please set a value for model-name or use-full-model.");
         }
 
         int tokenLimit;
@@ -28,8 +28,31 @@ public class GPTModels {
             tokenLimit = config.getInt("gpt-model-token-limit");
         } else {
             tokenLimit = switch (modelName) {
-                case "gpt-4o", "gpt-4o-2024-08-06" -> 100000;
-                case "gpt-4o-mini" -> 85000;
+                case "gemini-1.5-pro", "gemini-1.5-pro-002" -> 2000000;
+                case "gemini-1.5-flash" -> 850000;
+                default -> throw new RuntimeException(String.format("Could not automatically determine token limit for %s. Please set gpt-model-token-limit in the config.", modelName));
+            };
+        }
+        return new GptModel(modelName, tokenLimit) ;
+    }
+
+    public static GptModel getSecondaryModel(){
+        String modelName;
+        if (config.isSet("secondary-model-name")) {
+            modelName = config.getString("secondary-model-name");
+        } else {
+            // for passivity
+            modelName = "gemini-1.5-flash";
+        }
+
+        int tokenLimit;
+
+        if (config.isSet("gpt-command-model-token-limit")) {
+            tokenLimit = config.getInt("gpt-command-model-token-limit");
+        } else {
+            tokenLimit = switch (modelName) {
+                case "gemini-1.5-pro", "gemini-1.5-pro-002" -> 2000000;
+                case "gemini-1.5-flash" -> 850000;
                 default -> throw new RuntimeException(String.format("Could not automatically determine token limit for %s. Please set gpt-model-token-limit in the config.", modelName));
             };
         }

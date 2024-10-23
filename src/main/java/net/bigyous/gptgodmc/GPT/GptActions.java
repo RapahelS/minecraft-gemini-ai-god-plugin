@@ -1,5 +1,6 @@
 package net.bigyous.gptgodmc.GPT;
 
+import java.sql.Types;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -27,10 +28,12 @@ import net.bigyous.gptgodmc.GPTGOD;
 import net.bigyous.gptgodmc.StructureManager;
 import net.bigyous.gptgodmc.WorldManager;
 import net.bigyous.gptgodmc.GPT.Json.Choice;
+import net.bigyous.gptgodmc.GPT.Json.FunctionDeclaration;
 import net.bigyous.gptgodmc.GPT.Json.GptFunction;
 import net.bigyous.gptgodmc.GPT.Json.GptResponse;
 import net.bigyous.gptgodmc.GPT.Json.GptTool;
-import net.bigyous.gptgodmc.GPT.Json.Parameter;
+import net.bigyous.gptgodmc.GPT.Json.Schema;
+import net.bigyous.gptgodmc.GPT.Json.Tool;
 import net.bigyous.gptgodmc.GPT.Json.ToolCall;
 import net.bigyous.gptgodmc.interfaces.Function;
 import net.bigyous.gptgodmc.loggables.GPTActionLoggable;
@@ -52,11 +55,12 @@ public class GptActions {
     private static Gson gson = new Gson();
     private static JavaPlugin plugin = JavaPlugin.getPlugin(GPTGOD.class);
     private static Boolean useTts = plugin.getConfig().getBoolean("tts");
+
     private static void staticWhisper(String playerName, String message) {
         Player player = GPTGOD.SERVER.getPlayerExact(playerName);
         player.sendRichMessage("<i>You hear something whisper to you...</i>");
         player.sendMessage(message);
-        if(useTts){
+        if (useTts) {
             TextToSpeech.makeSpeech(message, player);
         }
         EventLogger.addLoggable(new GPTActionLoggable(
@@ -68,12 +72,13 @@ public class GptActions {
                 .decoration(TextDecoration.BOLD, true));
         GPTGOD.SERVER.broadcast(Component.text(message, NamedTextColor.LIGHT_PURPLE)
                 .decoration(TextDecoration.BOLD, true));
-        if(useTts){
+        if (useTts) {
             TextToSpeech.makeSpeech(message, null);
         }
         EventLogger.addLoggable(new GPTActionLoggable(String.format("announced \"%s\"", message)));
     }
-    // in hindsight, I should have used an interface or abstract class to do this but oh well...
+    // in hindsight, I should have used an interface or abstract class to do this
+    // but oh well...
 
     private static Function<String> whisper = (String args) -> {
         TypeToken<Map<String, String>> mapType = new TypeToken<Map<String, String>>() {
@@ -225,14 +230,15 @@ public class GptActions {
         Map<String, String> argsMap = gson.fromJson(args, mapType);
         String objective = argsMap.get("objective");
 
-        Score score = GPTGOD.GPT_OBJECTIVES.getScore(objective.length() > 45 ? objective.substring(0, 44) : objective );
+        Score score = GPTGOD.GPT_OBJECTIVES.getScore(objective.length() > 45 ? objective.substring(0, 44) : objective);
         score.setScore(plugin.getConfig().getInt("objectiveDecay"));
         // decrement the score by one every minute until the score reaches zero
         GptObjectiveTracker tracker = new GptObjectiveTracker(score);
         tracker.setTaskId(Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, tracker, 0, 1200));
-        if (GPTGOD.GPT_OBJECTIVES.getDisplaySlot() == null) GPTGOD.GPT_OBJECTIVES.setDisplaySlot(DisplaySlot.SIDEBAR);
+        if (GPTGOD.GPT_OBJECTIVES.getDisplaySlot() == null)
+            GPTGOD.GPT_OBJECTIVES.setDisplaySlot(DisplaySlot.SIDEBAR);
         EventLogger.addLoggable(new GPTActionLoggable(String.format("set objective %s", objective)));
-        
+
     };
     private static Function<String> clearObjective = (String args) -> {
         TypeToken<Map<String, String>> mapType = new TypeToken<Map<String, String>>() {
@@ -240,11 +246,12 @@ public class GptActions {
         Map<String, String> argsMap = gson.fromJson(args, mapType);
         String objective = argsMap.get("objective");
         GPTGOD.GPT_OBJECTIVES.getScore(objective).resetScore();
-        if(GPTGOD.SCOREBOARD.getEntries().stream().filter(entry -> GPTGOD.SERVER.getPlayer(entry) == null).count() < 1){
+        if (GPTGOD.SCOREBOARD.getEntries().stream().filter(entry -> GPTGOD.SERVER.getPlayer(entry) == null)
+                .count() < 1) {
             GPTGOD.GPT_OBJECTIVES.setDisplaySlot(null);
         }
         EventLogger.addLoggable(new GPTActionLoggable(String.format("declared objective %s as completed", objective)));
-        
+
     };
     private static Function<String> detonateStructure = (String args) -> {
         JsonObject argObject = JsonParser.parseString(args).getAsJsonObject();
@@ -254,93 +261,113 @@ public class GptActions {
         StructureManager.getStructure(structure).getLocation().createExplosion(power, setFire, true);
         EventLogger.addLoggable(new GPTActionLoggable(String.format("detonated Structure: %s", structure)));
     };
-    private static Map<String, GptFunction> functionMap = Map.ofEntries(
-            Map.entry("whisper", new GptFunction("whisper",
+    private static Map<String, FunctionDeclaration> functionMap = Map.ofEntries(
+            Map.entry("whisper", new FunctionDeclaration("whisper",
                     "privately send a message to a player. Avoid repeating things that have already been said. Keep messages short, concise, and no more than 100 characters.",
-                    Map.of("playerName", new Parameter("string", "name of the player to privately send to"),
-                            "message", new Parameter("string", "the message")),
+                    new Schema(
+                            Map.of(
+                                    "playerName",
+                                    new Schema(Schema.Type.STRING, "name of the player to privately send to"),
+                                    "message", new Schema(Schema.Type.STRING, "the message"))),
                     whisper)),
-            Map.entry("announce", new GptFunction("announce",
+            Map.entry("announce", new FunctionDeclaration("announce",
                     "brodcast a message to all players. Avoid repeating things that have already been said. Keep messages short, concise, and no more than 100 characters.",
-                    Map.of("message", new Parameter("string", "the message")),
+                    new Schema(Map.of("message", new Schema(Schema.Type.STRING, "the message"))),
                     announce)),
-            Map.entry("giveItem", new GptFunction("giveItem", "give a player any amount of an item",
-                    Map.of("playerName", new Parameter("string", "name of the Player"),
-                            "itemId", new Parameter("string", "the name of the minecraft item"),
-                            "count", new Parameter("number", "amount of the item")),
+            Map.entry("giveItem", new FunctionDeclaration("giveItem", "give a player any amount of an item",
+                    new Schema(Map.of("playerName", new Schema(Schema.Type.STRING, "name of the Player"),
+                            "itemId", new Schema(Schema.Type.STRING, "the name of the minecraft item"),
+                            "count", new Schema(Schema.Type.INTEGER, "amount of the item"))),
                     giveItem)),
-            Map.entry("command", new GptFunction("command",
+            Map.entry("command", new FunctionDeclaration("command",
                     "Describe a series of events you would like to take place, taking into consideration the limitations of minecraft",
-                    Collections.singletonMap("prompt", new Parameter("string", "a description of what will happen")),
+                    new Schema(Collections.singletonMap("prompt",
+                            new Schema(Schema.Type.STRING, "a description of what will happen"))),
                     command)),
-            Map.entry("smite", new GptFunction("smite", "Strike a player down with lightning, reserve this punishment for repeat offenders",
-                    Map.of("playerName", new Parameter("string", "the player's name"),
-                            "power", new Parameter("number", "the strength of this smiting")),
-                    smite)),
+            Map.entry("smite",
+                    new FunctionDeclaration("smite",
+                            "Strike a player down with lightning, reserve this punishment for repeat offenders",
+                            new Schema(Map.of("playerName", new Schema(Schema.Type.STRING, "the player's name"),
+                                    "power", new Schema(Schema.Type.INTEGER, "the strength of this smiting"))),
+                            smite)),
             Map.entry("transformStructure",
-                    new GptFunction("transformStructure", "replace all the blocks in a structure with any block",
-                            Map.of("structure", new Parameter("string", "name of the structure"),
-                                    "block", new Parameter("string", "The name of the minecraft block")),
+                    new FunctionDeclaration("transformStructure",
+                            "replace all the blocks in a structure with any block",
+                            new Schema(Map.of("structure", new Schema(Schema.Type.STRING, "name of the structure"),
+                                    "block", new Schema(Schema.Type.STRING, "The name of the minecraft block"))),
                             transformStructure)),
-            Map.entry("spawnEntity", new GptFunction("spawnEntity",
+            Map.entry("spawnEntity", new FunctionDeclaration("spawnEntity",
                     "spawn any minecraft entity next to a player or structure",
-                    Map.of("position", new Parameter("string", "name of the Player or Structure"),
+                    new Schema(Map.of("position", new Schema(Schema.Type.STRING, "name of the Player or Structure"),
                             "entity",
-                            new Parameter("string",
+                            new Schema(Schema.Type.STRING,
                                     "the name of the minecraft entity name will be underscore deliminated eg. \"mushroom_cow\""),
-                            "count", new Parameter("number", "the amount of the entity that will be spawned"),
+                            "count", new Schema(Schema.Type.INTEGER, "the amount of the entity that will be spawned"),
                             "customName",
-                            new Parameter("string",
-                                    "(optional) custom name that will be given to the spawned entities, set to null to leave entities unnamed")),
+                            new Schema(Schema.Type.STRING,
+                                    "(optional) custom name that will be given to the spawned entities, set to null to leave entities unnamed"))),
                     spawnEntity)),
-            Map.entry("summonSupplyChest", new GptFunction("summonSupplyChest",
+            Map.entry("summonSupplyChest", new FunctionDeclaration("summonSupplyChest",
                     "spawn chest full of items for use in a project next to a player",
-                    Map.of("items",
-                            new Parameter("array",
+                    new Schema(Map.of("items",
+                            new Schema(Schema.Type.ARRAY,
                                     "names of the minecraft items you would like to put in the chest, each item takes up one of 8 slots",
-                                    "string"),
-                            "fullStacks", new Parameter("boolean", "put the maximum stack size of each item?"),
+                                    Schema.Type.STRING),
+                            "fullStacks", new Schema(Schema.Type.BOOLEAN, "put the maximum stack size of each item?"),
                             "playerName",
-                            new Parameter("string", "The name of the player that will recieve this chest")),
+                            new Schema(Schema.Type.STRING, "The name of the player that will recieve this chest"))),
                     summonSupplyChest)),
             Map.entry("revive",
-                    new GptFunction("revive", "bring a player back from the dead",
-                            Map.of("playerName", new Parameter("string", "The name of the player")), revive)),
-            Map.entry("teleport", new GptFunction("teleport", "teleport a player to another player or a structure",
-                    Map.of("playerName", new Parameter("string", "name of the player to be teleported"),
-                            "destination",
-                            new Parameter("string",
-                                    "The name of the player or Structure the player will be sent to")),
-                    teleport)),
-            Map.entry("setObjective", new GptFunction("setObjective", "set an objective for players to complete. base this off of the behaviors observed in the logs. objectives can't be longer than 45 characters", 
-            Map.of("objective", new Parameter("string", "the objective to set, if it's for a specific player, be sure to include their name")), setObjective)),
-            Map.entry("clearObjective", new GptFunction("clearObjective", "set an objective as complete. Follow this up with a reward", 
-            Map.of("objective", new Parameter("string", "the objective to mark as complete")), clearObjective)),
-            Map.entry("detonateStructure", new GptFunction("detonateStructure", "cause an explosion at a Structure",
-                    Map.of("structure", new Parameter("string", "name of the structure"),
-                            "setFire", new Parameter("boolean", "will this explosion cause fires?"),
-                            "power",
-                            new Parameter("number", "the strength of this explosion where 4 is the strength of TNT")),
-                    detonateStructure)));
-    private static Map<String, GptFunction> speechFunctionMap = new HashMap<>(functionMap);
-    private static Map<String, GptFunction> actionFunctionMap = new HashMap<>(functionMap);
+                    new FunctionDeclaration("revive", "bring a player back from the dead",
+                            new Schema(Map.of("playerName", new Schema(Schema.Type.STRING, "The name of the player"))),
+                            revive)),
+            Map.entry("teleport",
+                    new FunctionDeclaration("teleport", "teleport a player to another player or a structure",
+                            new Schema(Map.of("playerName",
+                                    new Schema(Schema.Type.STRING, "name of the player to be teleported"),
+                                    "destination",
+                                    new Schema(Schema.Type.STRING,
+                                            "The name of the player or Structure the player will be sent to"))),
+                            teleport)),
+            Map.entry("setObjective", new FunctionDeclaration("setObjective",
+                    "set an objective for players to complete. base this off of the behaviors observed in the logs. objectives can't be longer than 45 characters",
+                    new Schema(Map.of("objective", new Schema(Schema.Type.STRING,
+                            "the objective to set, if it's for a specific player, be sure to include their name"))),
+                    setObjective)),
+            Map.entry("clearObjective",
+                    new FunctionDeclaration("clearObjective",
+                            "set an objective as complete. Follow this up with a reward",
+                            new Schema(Map.of("objective", new Schema(Schema.Type.STRING, "the objective to mark as complete"))),
+                            clearObjective)),
+            Map.entry("detonateStructure",
+                    new FunctionDeclaration("detonateStructure", "cause an explosion at a Structure",
+                    new Schema(Map.of("structure", new Schema(Schema.Type.STRING, "name of the structure"),
+                                    "setFire", new Schema(Schema.Type.BOOLEAN, "will this explosion cause fires?"),
+                                    "power",
+                                    new Schema(Schema.Type.INTEGER,
+                                            "the strength of this explosion where 4 is the strength of TNT"))),
+                            detonateStructure)));
+    private static Map<String, FunctionDeclaration> speechFunctionMap = new HashMap<>(functionMap);
+    private static Map<String, FunctionDeclaration> actionFunctionMap = new HashMap<>(functionMap);
 
-    private static GptTool[] tools;
-    private static GptTool[] actionTools;
-    private static GptTool[] speechTools;
-    private static final List<String> speechActionKeys = Arrays.asList("announce", "whisper", "setObjective", "clearObjective");
+    private static Tool[] tools;
+    private static Tool[] actionTools;
+    private static Tool[] speechTools;
+    private static final List<String> speechActionKeys = Arrays.asList("announce", "whisper", "setObjective",
+            "clearObjective");
     private static final List<String> persistentActionKeys = Arrays.asList("command");
 
-    public static GptTool[] wrapFunctions(Map<String, GptFunction> functions) {
-        GptFunction[] funcList = functions.values().toArray(new GptFunction[functions.size()]);
-        GptTool[] toolList = new GptTool[functions.size()];
+    // todo: experiment with wrapping a list of functions in a single tool for google
+    public static Tool[] wrapFunctions(Map<String, FunctionDeclaration> functions) {
+        FunctionDeclaration[] funcList = functions.values().toArray(new FunctionDeclaration[functions.size()]);
+        Tool[] toolList = new Tool[functions.size()];
         for (int i = 0; i < funcList.length; i++) {
-            toolList[i] = new GptTool(funcList[i]);
+            toolList[i] = new Tool(funcList[i]);
         }
         return toolList;
     }
 
-    public static GptTool[] GetAllTools() {
+    public static Tool[] GetAllTools() {
         if (tools[0] != null) {
             return tools;
         }
@@ -348,20 +375,22 @@ public class GptActions {
         return tools;
     }
 
-    public static GptTool[] GetActionTools() {
+    public static Tool[] GetActionTools() {
         if (actionTools == null || actionTools[0] == null) {
             actionFunctionMap.keySet().removeAll(speechActionKeys);
             actionFunctionMap.keySet().removeAll(persistentActionKeys);
             actionTools = wrapFunctions(actionFunctionMap);
         }
-        GptTool[] newTools = GPTUtils.randomToolSubset(actionTools, 3);
-        GptTool[] persistentTools = persistentActionKeys.stream().map(key -> {return new GptTool(functionMap.get(key));}).toArray(GptTool[]::new);
+        Tool[] newTools = GPTUtils.randomToolSubset(actionTools, 3);
+        Tool[] persistentTools = persistentActionKeys.stream().map(key -> {
+            return new Tool(functionMap.get(key));
+        }).toArray(Tool[]::new);
         // I could do this nicer, but I don't feel like it
         newTools = GPTUtils.concatWithArrayCopy(newTools, persistentTools);
         return newTools;
     }
 
-    public static GptTool[] GetSpeechTools() {
+    public static Tool[] GetSpeechTools() {
         if (speechTools != null && speechTools[0] != null) {
             return speechTools;
         }
@@ -372,7 +401,7 @@ public class GptActions {
 
     private static void dispatch(String command, CommandSender console) {
         // can't let GPT turn off mob spawning
-        if(command.contains("doMobSpawning")){
+        if (command.contains("doMobSpawning")) {
             return;
         }
         command = command.charAt(0) == '/' ? command.substring(1) : command;
@@ -411,7 +440,7 @@ public class GptActions {
     public static void processResponse(String response) {
         GptResponse responseObject = gson.fromJson(response, GptResponse.class);
         for (Choice choice : responseObject.getChoices()) {
-            if(choice.getMessage().getTool_calls() == null){
+            if (choice.getMessage().getTool_calls() == null) {
                 continue;
             }
             for (ToolCall call : choice.getMessage().getTool_calls()) {
@@ -420,10 +449,10 @@ public class GptActions {
         }
     }
 
-    public static void processResponse(String response, Map<String, GptFunction> functions) {
+    public static void processResponse(String response, Map<String, FunctionDeclaration> functions) {
         GptResponse responseObject = gson.fromJson(response, GptResponse.class);
         for (Choice choice : responseObject.getChoices()) {
-            if(choice.getMessage().getTool_calls() == null){
+            if (choice.getMessage().getTool_calls() == null) {
                 continue;
             }
             for (ToolCall call : choice.getMessage().getTool_calls()) {
@@ -436,7 +465,7 @@ public class GptActions {
 
     private int calculateFunctionTokens() {
         int sum = 0;
-        for (GptFunction function : functionMap.values()) {
+        for (FunctionDeclaration function : functionMap.values()) {
             sum += function.calculateFunctionTokens();
         }
         return sum;

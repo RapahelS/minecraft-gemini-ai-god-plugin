@@ -6,6 +6,8 @@
 
 openAiKey: ""
 
+geminiKey: ""
+
 # language in ISO-639 format https://en.wikipedia.org/wiki/List_of_ISO_639_language_codes
 language: en
 
@@ -25,8 +27,10 @@ startingWorld: "island"
 # can be found here: https://openai.com/api/pricing/
 gpt-model-name: gpt-4o
 
+model-name: gemini-1.5-pro
+
 # gpt model token limit
-gpt-model-token-limit: 100000
+gpt-model-token-limit: 1000000
 
 # whether or not the mod will make calls to GPT
 enabled: true

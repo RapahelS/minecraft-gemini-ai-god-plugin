@@ -10,6 +10,7 @@ import net.bigyous.gptgodmc.GPT.GptActions;
 import net.bigyous.gptgodmc.GPT.Personality;
 import net.bigyous.gptgodmc.GPT.Prompts;
 import net.bigyous.gptgodmc.GPT.Json.GptTool;
+import net.bigyous.gptgodmc.GPT.Json.Tool;
 import net.bigyous.gptgodmc.utils.GPTUtils;
 
 import java.util.ArrayList;
@@ -45,7 +46,7 @@ public class GameLoop {
         personality = Personality.generatePersonality();
         PROMPT = Prompts.getGamemodePrompt(GPTGOD.gameMode);
         String actionPrompt = String.format(ACTION_PROMPT_TEMPLATE, PROMPT, personality);
-        Action_GPT_API.addContext(actionPrompt, "prompt");
+        Action_GPT_API.setSystemContext(actionPrompt);
 
         // the roles system and user are each one token so we add two to this number
         staticTokens = GPTUtils.countTokens(actionPrompt) + 2;
@@ -78,10 +79,9 @@ public class GameLoop {
     }
 
     private static void sendSpeechActions() {
-        Speech_GPT_API.addContext(String.format(SPEECH_PROMPT_TEPLATE, PROMPT, getPreviousActions(), personality),
-                "prompt", 0);
+        Speech_GPT_API.setSystemContext(String.format(SPEECH_PROMPT_TEPLATE, PROMPT, getPreviousActions(), personality));
         if(EventLogger.hasSummary()){
-            Speech_GPT_API.addLogs("Server History: " + EventLogger.getSummary(), "summary", 1);
+            Speech_GPT_API.addLogs("Server History: " + EventLogger.getSummary(), "summary");
         }
         Speech_GPT_API.send();
     }
@@ -95,10 +95,10 @@ public class GameLoop {
             }
             int nonLogTokens = staticTokens;
             if (EventLogger.hasSummary()) {
-                Action_GPT_API.addLogs("Server History: " + EventLogger.getSummary(), "summary", 1);
+                Action_GPT_API.addLogs("Server History: " + EventLogger.getSummary(), "summary");
                 nonLogTokens += GPTUtils.countTokens(EventLogger.getSummary()) + 1;
             }
-            GptTool[] actionTools = GptActions.GetActionTools();
+            Tool[] actionTools = GptActions.GetActionTools();
             Action_GPT_API.setTools(actionTools);
             nonLogTokens += GPTUtils.calculateToolTokens(actionTools);
             EventLogger.cull(Action_GPT_API.getMaxTokens() - nonLogTokens);

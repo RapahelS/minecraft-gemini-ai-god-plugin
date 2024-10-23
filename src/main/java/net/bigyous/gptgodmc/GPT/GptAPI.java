@@ -22,34 +22,43 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import net.bigyous.gptgodmc.GPTGOD;
+import net.bigyous.gptgodmc.GPT.Json.Content;
+import net.bigyous.gptgodmc.GPT.Json.FunctionDeclaration;
+import net.bigyous.gptgodmc.GPT.Json.GenerateContentRequest;
 import net.bigyous.gptgodmc.GPT.Json.GptFunction;
 import net.bigyous.gptgodmc.GPT.Json.GptModel;
-import net.bigyous.gptgodmc.GPT.Json.GptRequest;
 import net.bigyous.gptgodmc.GPT.Json.GptTool;
 import net.bigyous.gptgodmc.GPT.Json.ModelSerializer;
 import net.bigyous.gptgodmc.GPT.Json.ParameterExclusion;
+import net.bigyous.gptgodmc.GPT.Json.Tool;
+import net.bigyous.gptgodmc.GPT.Json.ToolConfig;
 
 public class GptAPI {
     private GsonBuilder gson = new GsonBuilder();
-    private GptRequest body;
-    private String CHATGPTURL = "https://api.openai.com/v1/chat/completions";
+
+    private GptModel model;
+    private GenerateContentRequest body;
+    private String BASE_URL = "https://generativelanguage.googleapis.com/v1beta/models/";
     private Map<String, Integer> messageMap = new HashMap<String, Integer>();
     private boolean isSending = false;
     private static ExecutorService pool = Executors.newCachedThreadPool();
 
     public GptAPI(GptModel model) {
-        this.body = new GptRequest(model, GptActions.GetAllTools());
+        this.model = model;
+        this.body = new GenerateContentRequest(GptActions.GetAllTools());
         gson.registerTypeAdapter(GptModel.class, new ModelSerializer());
         gson.setExclusionStrategies(new ParameterExclusion());
     }
 
-    public GptAPI(GptModel model, GptTool[] customTools) {
-        this.body = new GptRequest(model, customTools);
+    public GptAPI(GptModel model, Tool[] customTools) {
+        this.model = model;
+        this.body = new GenerateContentRequest(customTools);
+        
         gson.registerTypeAdapter(GptModel.class, new ModelSerializer());
         gson.setExclusionStrategies(new ParameterExclusion());
     }
 
-    public GptAPI(GptRequest request) {
+    public GptAPI(GenerateContentRequest request) {
         this.body = request;
         gson.registerTypeAdapter(GptModel.class, new ModelSerializer());
         gson.setExclusionStrategies(new ParameterExclusion());
@@ -60,27 +69,33 @@ public class GptAPI {
             this.body.replaceMessage(messageMap.get(name), context);
             return this;
         }
-        this.body.addMessage("system", context);
+        this.body.addMessage(Content.Role.user, context);
         this.messageMap.put(name, this.body.getMessagesSize() - 1);
         return this;
     }
 
-    public GptAPI addContext(String context, String name, int index) {
-        if (this.messageMap.containsKey(name)) {
-            this.body.replaceMessage(messageMap.get(name), context);
-            return this;
-        }
-        this.body.addMessage("system", context);
-        for (String key : messageMap.keySet()) {
-            if (messageMap.get(key) == index) {
-                messageMap.replace(key, index + 1);
-            }
-        }
-        this.messageMap.put(name, index);
+    // sets the system direction parameter
+    public GptAPI setSystemContext(String context) {
+        this.body.setSystemInstruction(context);
         return this;
     }
 
-    public GptAPI setTools(GptTool[] tools) {
+    // public GptAPI addContext(String context, String name, int index) {
+    //     if (this.messageMap.containsKey(name)) {
+    //         this.body.replaceMessage(messageMap.get(name), context);
+    //         return this;
+    //     }
+    //     this.body.addMessage("system", context);
+    //     for (String key : messageMap.keySet()) {
+    //         if (messageMap.get(key) == index) {
+    //             messageMap.replace(key, index + 1);
+    //         }
+    //     }
+    //     this.messageMap.put(name, index);
+    //     return this;
+    // }
+
+    public GptAPI setTools(Tool[] tools) {
         this.body.setTools(tools);
         return this;
     }
@@ -90,7 +105,7 @@ public class GptAPI {
             this.body.replaceMessage(messageMap.get(name), Logs);
             return this;
         }
-        this.body.addMessage("user", Logs);
+        this.body.addMessage(Content.Role.user, Logs);
         this.messageMap.put(name, this.body.getMessagesSize() - 1);
         return this;
     }
@@ -104,7 +119,7 @@ public class GptAPI {
             this.body.replaceMessage(messageMap.get(name), Logs);
             return this;
         }
-        this.body.addMessage("user", Logs, index);
+        this.body.addMessage(Content.Role.user, Logs, index);
         for (String key : messageMap.keySet()) {
             if (messageMap.get(key) == index) {
                 messageMap.replace(key, index + 1);
@@ -114,21 +129,21 @@ public class GptAPI {
         return this;
     }
 
-    public GptAPI setToolChoice(Object tool_choice) {
-        this.body.setTool_choice(tool_choice);
+    public GptAPI setToolChoice(String tool_choice) {
+        this.body.setToolConfig(new ToolConfig(new String[]{tool_choice}));
         return this;
     }
 
-    public void removeLastMessage() {
-        this.body.removeLastMessage();
-    }
+    // public void removeLastMessage() {
+    //     this.body.removeLastMessage();
+    // }
 
     public int getMaxTokens() {
-        return body.getModel().getTokenLimit();
+        return model.getTokenLimit();
     }
 
     public String getModelName() {
-        return body.getModel().getName();
+        return model.getName();
     }
 
     public void send() {
@@ -138,8 +153,8 @@ public class GptAPI {
             FileConfiguration config = JavaPlugin.getPlugin(GPTGOD.class).getConfig();
             StringEntity data = new StringEntity(gson.create().toJson(body), ContentType.APPLICATION_JSON);
             GPTGOD.LOGGER.info("POSTING " + gson.setPrettyPrinting().create().toJson(body));
-            HttpPost post = new HttpPost(CHATGPTURL);
-            post.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + config.getString("openAiKey"));
+            HttpPost post = new HttpPost(BASE_URL + model.getName() + ":generateContent" + "?key=" + config.getString("geminiKey"));
+            post.setHeader(HttpHeaders.CONTENT_TYPE, "application/json");
             GPTGOD.LOGGER.info("Making POST request");
             post.setEntity(data);
             try {
@@ -164,15 +179,15 @@ public class GptAPI {
         });
     }
 
-    public void send(Map<String, GptFunction> functions) {
+    public void send(Map<String, FunctionDeclaration> functions) {
         CloseableHttpClient client = HttpClientBuilder.create().build();
         pool.execute(() -> {
             this.isSending = true;
             FileConfiguration config = JavaPlugin.getPlugin(GPTGOD.class).getConfig();
             StringEntity data = new StringEntity(gson.create().toJson(body), ContentType.APPLICATION_JSON);
             GPTGOD.LOGGER.info("POSTING " + gson.setPrettyPrinting().create().toJson(body));
-            HttpPost post = new HttpPost(CHATGPTURL);
-            post.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + config.getString("openAiKey"));
+            HttpPost post = new HttpPost(BASE_URL + model.getName() + ":generateContent" + "?key=" + config.getString("geminiKey"));
+            post.setHeader(HttpHeaders.CONTENT_TYPE, "application/json");
             GPTGOD.LOGGER.info("Making POST request");
             post.setEntity(data);
             try {

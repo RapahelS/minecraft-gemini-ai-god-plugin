@@ -7,6 +7,8 @@ public class GptRequest {
     private ArrayList<GptMessage> messages;
     private GptTool[] tools;
     private Object tool_choice = "auto";
+
+
     public GptRequest(GptModel model, GptTool[] tools){
         this.model = model;
         this.tools = tools;
@@ -40,9 +42,9 @@ public class GptRequest {
         this.messages = new ArrayList<GptMessage>();
     }
 
-    public void removeLastMessage(){
-        this.messages.remove(messages.size()-1);
-    }
+    // public void removeLastMessage(){
+    //     this.messages.remove(messages.size()-1);
+    // }
 
     public void setTool_choice(Object tool_choice) {
         this.tool_choice = tool_choice;
