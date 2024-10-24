@@ -28,16 +28,12 @@ import net.bigyous.gptgodmc.GPTGOD;
 import net.bigyous.gptgodmc.StructureManager;
 import net.bigyous.gptgodmc.WorldManager;
 import net.bigyous.gptgodmc.GPT.Json.Candidate;
-import net.bigyous.gptgodmc.GPT.Json.Choice;
 import net.bigyous.gptgodmc.GPT.Json.FunctionCall;
 import net.bigyous.gptgodmc.GPT.Json.FunctionDeclaration;
 import net.bigyous.gptgodmc.GPT.Json.GenerateContentResponse;
-import net.bigyous.gptgodmc.GPT.Json.GptFunction;
-import net.bigyous.gptgodmc.GPT.Json.GptTool;
 import net.bigyous.gptgodmc.GPT.Json.Part;
 import net.bigyous.gptgodmc.GPT.Json.Schema;
 import net.bigyous.gptgodmc.GPT.Json.Tool;
-import net.bigyous.gptgodmc.GPT.Json.ToolCall;
 import net.bigyous.gptgodmc.interfaces.Function;
 import net.bigyous.gptgodmc.loggables.GPTActionLoggable;
 import net.bigyous.gptgodmc.utils.GPTUtils;
@@ -83,7 +79,7 @@ public class GptActions {
     // in hindsight, I should have used an interface or abstract class to do this
     // but oh well...
 
-    private static Function<String> whisper = (String args) -> {
+    private static Function<JsonObject> whisper = (JsonObject args) -> {
         TypeToken<Map<String, String>> mapType = new TypeToken<Map<String, String>>() {
         };
         Map<String, String> argsMap = gson.fromJson(args, mapType);
@@ -91,15 +87,11 @@ public class GptActions {
         staticWhisper(argsMap.get("playerName"), message);
         return;
     };
-    private static Function<String> announce = (String args) -> {
-        TypeToken<Map<String, String>> mapType = new TypeToken<Map<String, String>>() {
-        };
-        Map<String, String> argsMap = gson.fromJson(args, mapType);
-        String message = argsMap.get("message");
+    private static Function<JsonObject> announce = (JsonObject args) -> {
+        String message = gson.fromJson(args.get("message"), String.class);
         staticAnnounce(message);
     };
-    private static Function<String> giveItem = (String args) -> {
-        JsonObject argObject = JsonParser.parseString(args).getAsJsonObject();
+    private static Function<JsonObject> giveItem = (JsonObject argObject) -> {
         String playerName = gson.fromJson(argObject.get("playerName"), String.class);
         String itemId = gson.fromJson(argObject.get("itemId"), String.class);
         int count = gson.fromJson(argObject.get("count"), Integer.class);
@@ -111,16 +103,13 @@ public class GptActions {
         player.sendRichMessage(String.format("<i>A %s appeared in your inventory</i>", itemId));
         EventLogger.addLoggable(new GPTActionLoggable(String.format("gave %d %s to %s", count, itemId, playerName)));
     };
-    private static Function<String> command = (String args) -> {
-        TypeToken<Map<String, String>> mapType = new TypeToken<Map<String, String>>() {
-        };
-        Map<String, String> argsMap = gson.fromJson(args, mapType);
-        GenerateCommands.generate(argsMap.get("prompt"));
+    private static Function<JsonObject> command = (JsonObject args) -> {
+        String prompt = gson.fromJson(args.get("prompt"), String.class);
+        GenerateCommands.generate(prompt);
         EventLogger
-                .addLoggable(new GPTActionLoggable(String.format("commanded \"%s\" to happen", argsMap.get("prompt"))));
+                .addLoggable(new GPTActionLoggable(String.format("commanded \"%s\" to happen", prompt)));
     };
-    private static Function<String> smite = (String args) -> {
-        JsonObject argObject = JsonParser.parseString(args).getAsJsonObject();
+    private static Function<JsonObject> smite = (JsonObject argObject) -> {
         String playerName = gson.fromJson(argObject.get("playerName"), String.class);
         int power = gson.fromJson(argObject.get("power"), Integer.class);
         Player player = GPTGOD.SERVER.getPlayer(playerName);
@@ -129,8 +118,7 @@ public class GptActions {
         }
         EventLogger.addLoggable(new GPTActionLoggable(String.format("smited %s", playerName)));
     };
-    private static Function<String> spawnEntity = (String args) -> {
-        JsonObject argObject = JsonParser.parseString(args).getAsJsonObject();
+    private static Function<JsonObject> spawnEntity = (JsonObject argObject) -> {
         String position = gson.fromJson(argObject.get("position"), String.class);
         String entityName = gson.fromJson(argObject.get("entity"), String.class);
         int count = gson.fromJson(argObject.get("count"), Integer.class);
@@ -155,10 +143,9 @@ public class GptActions {
                 new GPTActionLoggable(String.format("summoned %d %s%s near %s", count, entityName,
                         customName != null ? String.format(" named: %s,", customName) : "", position)));
     };
-    private static Function<String> summonSupplyChest = (String args) -> {
+    private static Function<JsonObject> summonSupplyChest = (JsonObject argObject) -> {
         TypeToken<List<String>> stringArrayType = new TypeToken<List<String>>() {
         };
-        JsonObject argObject = JsonParser.parseString(args).getAsJsonObject();
         String playerName = gson.fromJson(argObject.get("playerName"), String.class);
         List<String> itemNames = gson.fromJson(argObject.get("items"), stringArrayType);
         boolean fullStacks = gson.fromJson(argObject.get("fullStacks"), Boolean.class) != null
@@ -188,8 +175,7 @@ public class GptActions {
                 String.join(", ", itemNames), playerName)));
 
     };
-    private static Function<String> transformStructure = (String args) -> {
-        JsonObject argObject = JsonParser.parseString(args).getAsJsonObject();
+    private static Function<JsonObject> transformStructure = (JsonObject argObject) -> {
         String structure = gson.fromJson(argObject.get("structure"), String.class);
         String blockType = gson.fromJson(argObject.get("block"), String.class);
         StructureManager.getStructure(structure).getBlocks()
@@ -199,7 +185,7 @@ public class GptActions {
                         String.format("turned all the blocks in Structure %s to %s", structure, blockType)));
 
     };
-    private static Function<String> revive = (String args) -> {
+    private static Function<JsonObject> revive = (JsonObject args) -> {
         TypeToken<Map<String, String>> mapType = new TypeToken<Map<String, String>>() {
         };
         Map<String, String> argsMap = gson.fromJson(args, mapType);
@@ -214,7 +200,7 @@ public class GptActions {
         player.setGameMode(GameMode.SURVIVAL);
         EventLogger.addLoggable(new GPTActionLoggable(String.format("revived %s", playerName)));
     };
-    private static Function<String> teleport = (String args) -> {
+    private static Function<JsonObject> teleport = (JsonObject args) -> {
         TypeToken<Map<String, String>> mapType = new TypeToken<Map<String, String>>() {
         };
         Map<String, String> argsMap = gson.fromJson(args, mapType);
@@ -227,7 +213,7 @@ public class GptActions {
         player.teleport(destination);
         EventLogger.addLoggable(new GPTActionLoggable(String.format("teleported %s to %s", playerName, destName)));
     };
-    private static Function<String> setObjective = (String args) -> {
+    private static Function<JsonObject> setObjective = (JsonObject args) -> {
         TypeToken<Map<String, String>> mapType = new TypeToken<Map<String, String>>() {
         };
         Map<String, String> argsMap = gson.fromJson(args, mapType);
@@ -243,7 +229,7 @@ public class GptActions {
         EventLogger.addLoggable(new GPTActionLoggable(String.format("set objective %s", objective)));
 
     };
-    private static Function<String> clearObjective = (String args) -> {
+    private static Function<JsonObject> clearObjective = (JsonObject args) -> {
         TypeToken<Map<String, String>> mapType = new TypeToken<Map<String, String>>() {
         };
         Map<String, String> argsMap = gson.fromJson(args, mapType);
@@ -256,8 +242,7 @@ public class GptActions {
         EventLogger.addLoggable(new GPTActionLoggable(String.format("declared objective %s as completed", objective)));
 
     };
-    private static Function<String> detonateStructure = (String args) -> {
-        JsonObject argObject = JsonParser.parseString(args).getAsJsonObject();
+    private static Function<JsonObject> detonateStructure = (JsonObject argObject) -> {
         String structure = gson.fromJson(argObject.get("structure"), String.class);
         boolean setFire = gson.fromJson(argObject.get("setFire"), Boolean.class);
         int power = gson.fromJson(argObject.get("power"), Integer.class);
@@ -340,11 +325,12 @@ public class GptActions {
             Map.entry("clearObjective",
                     new FunctionDeclaration("clearObjective",
                             "set an objective as complete. Follow this up with a reward",
-                            new Schema(Map.of("objective", new Schema(Schema.Type.STRING, "the objective to mark as complete"))),
+                            new Schema(Map.of("objective",
+                                    new Schema(Schema.Type.STRING, "the objective to mark as complete"))),
                             clearObjective)),
             Map.entry("detonateStructure",
                     new FunctionDeclaration("detonateStructure", "cause an explosion at a Structure",
-                    new Schema(Map.of("structure", new Schema(Schema.Type.STRING, "name of the structure"),
+                            new Schema(Map.of("structure", new Schema(Schema.Type.STRING, "name of the structure (not a player name)"),
                                     "setFire", new Schema(Schema.Type.BOOLEAN, "will this explosion cause fires?"),
                                     "power",
                                     new Schema(Schema.Type.INTEGER,
@@ -360,7 +346,8 @@ public class GptActions {
             "clearObjective");
     private static final List<String> persistentActionKeys = Arrays.asList("command");
 
-    // todo: experiment with wrapping a list of functions in a single tool for google
+    // todo: experiment with wrapping a list of functions in a single tool for
+    // google
     public static Tool[] wrapFunctions(Map<String, FunctionDeclaration> functions) {
         FunctionDeclaration[] funcList = functions.values().toArray(new FunctionDeclaration[functions.size()]);
         Tool[] toolList = new Tool[functions.size()];
@@ -432,7 +419,7 @@ public class GptActions {
         dispatch(command, console);
     }
 
-    public static int run(String functionName, String jsonArgs) {
+    public static int run(String functionName, JsonObject jsonArgs) {
         GPTGOD.LOGGER.info(String.format("running function \"%s\" with json arguments \"%s\"", functionName, jsonArgs));
         Bukkit.getScheduler().runTask(plugin, () -> {
             functionMap.get(functionName).runFunction(jsonArgs);
@@ -449,11 +436,12 @@ public class GptActions {
             }
             for (Part call : parts) {
                 FunctionCall func = call.getFunctionCall();
-                if(func == null) {
+                if (func == null) {
                     continue;
                 }
-                // dumb workaround for now to avoid having to change every functions input type to schema for the moment
-                run(func.getName(), gson.toJson(func.getArguments()));
+                System.out
+                        .println("Trying to execute function " + func.getName() + " with args: " + func.getArguments());
+                run(func.getName(), func.getArguments());
             }
         }
     }
@@ -467,11 +455,13 @@ public class GptActions {
             }
             for (Part call : parts) {
                 FunctionCall func = call.getFunctionCall();
-                if(func == null) {
+                if (func == null) {
                     continue;
                 }
                 Bukkit.getScheduler().runTask(plugin, () -> {
-                    functions.get(func.getName()).runFunction(gson.toJson(func.getArguments()));
+                    System.out.println("Trying to execute function " + func.getName() + " from map with args: "
+                            + func.getArguments());
+                    functions.get(func.getName()).runFunction(func.getArguments());
                 });
             }
         }

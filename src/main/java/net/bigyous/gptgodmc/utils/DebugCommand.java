@@ -5,9 +5,14 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonParser;
+
 import net.bigyous.gptgodmc.GPT.GptActions;
 
 public class DebugCommand implements CommandExecutor{
+
+    Gson gson = new Gson();
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args){
@@ -19,7 +24,7 @@ public class DebugCommand implements CommandExecutor{
         String commandName = args[0];
         String jsonArgs = args[1];
 
-        GptActions.run(commandName, jsonArgs);
+        GptActions.run(commandName, JsonParser.parseString(jsonArgs).getAsJsonObject());
         return true;
     }
 

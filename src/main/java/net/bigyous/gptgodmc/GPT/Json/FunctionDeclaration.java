@@ -1,5 +1,7 @@
 package net.bigyous.gptgodmc.GPT.Json;
 
+import com.google.gson.JsonObject;
+
 import net.bigyous.gptgodmc.GPTGOD;
 import net.bigyous.gptgodmc.interfaces.Function;
 import net.bigyous.gptgodmc.utils.GPTUtils;
@@ -9,9 +11,9 @@ public class FunctionDeclaration {
     private String description;
     private Schema parameters;
     // excluded from serialization
-    private transient Function<String> function;
+    private transient Function<JsonObject> function;
 
-    public FunctionDeclaration(String name, String description, Schema parameters, Function<String> function) {
+    public FunctionDeclaration(String name, String description, Schema parameters, Function<JsonObject> function) {
         this.name = name;
         this.description = description;
         this.parameters = parameters;
@@ -42,17 +44,16 @@ public class FunctionDeclaration {
         this.parameters = parameters;
     }
 
-    public Function<String> getFunction() {
+    public Function<JsonObject> getFunction() {
         return function;
     }
 
-    public void runFunction(String jsonArgs){
+    public void runFunction(JsonObject jsonArgs){
         GPTGOD.LOGGER.info(String.format("%s invoked", this.name));
         function.run(jsonArgs);
     }
 
     public int calculateFunctionTokens(){
         return GPTUtils.countTokens(name) + GPTUtils.countTokens(description) + parameters.calculateParameterTokens();
-
     }
 }

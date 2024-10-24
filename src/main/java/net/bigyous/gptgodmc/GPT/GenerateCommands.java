@@ -1,6 +1,7 @@
 package net.bigyous.gptgodmc.GPT;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 
 import net.bigyous.gptgodmc.GPTGOD;
@@ -19,11 +20,10 @@ import java.util.Map;
 
 public class GenerateCommands {
         private static Gson gson = new Gson();
-        private static Function<String> inputCommands = (String args) -> {
+        private static Function<JsonObject> inputCommands = (JsonObject args) -> {
                 TypeToken<Map<String, String[]>> mapType = new TypeToken<Map<String, String[]>>() {
                 };
-                Map<String, String[]> argsMap = gson.fromJson(args, mapType);
-                String[] commands = argsMap.get("commands");
+                String[] commands = gson.fromJson(args.get("commands"), String[].class);
                 GptActions.executeCommands(commands);
         };
 

@@ -1,10 +1,12 @@
 package net.bigyous.gptgodmc.GPT.Json;
 
+import com.google.gson.JsonObject;
+
 public class FunctionCall {
     private String name;
-    private Schema args;
+    private JsonObject args;
 
-    public Schema getArguments() {
+    public JsonObject getArguments() {
         return args;
     }
 
