@@ -5,7 +5,6 @@ import org.bukkit.entity.Entity;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.inventory.ItemStack;
 
-import net.bigyous.gptgodmc.GPT.Moderation;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 
 public class RenameEntityEvent extends BaseLoggable implements UserInputLoggable {

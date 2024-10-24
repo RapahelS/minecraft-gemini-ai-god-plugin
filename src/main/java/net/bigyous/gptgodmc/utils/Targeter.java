@@ -1,6 +1,5 @@
 package net.bigyous.gptgodmc.utils;
 
-import org.bukkit.entity.Player;
 import org.bukkit.util.BlockIterator;
 import org.bukkit.util.Vector;
 

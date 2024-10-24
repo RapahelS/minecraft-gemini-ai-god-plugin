@@ -3,7 +3,6 @@ package net.bigyous.gptgodmc.loggables;
 import java.time.Instant;
 
 import net.bigyous.gptgodmc.utils.GPTUtils;
-import net.bigyous.gptgodmc.GPT.Moderation;
 
 public class ChatLoggable implements Loggable, UserInputLoggable {
     /**

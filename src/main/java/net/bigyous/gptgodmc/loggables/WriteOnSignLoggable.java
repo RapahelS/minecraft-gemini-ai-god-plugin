@@ -1,7 +1,6 @@
 package net.bigyous.gptgodmc.loggables;
 import org.bukkit.event.block.SignChangeEvent;
 
-import net.bigyous.gptgodmc.GPT.Moderation;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 public class WriteOnSignLoggable extends BaseLoggable implements UserInputLoggable {

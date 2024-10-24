@@ -57,9 +57,10 @@ public class Transcription {
                     """)
                 .addFileWithPrompt("transcribe this audio clip", "audio/mp3", file.getUri());
             String jsonBody = gson.toJson(contentRequest);
+            System.out.println("jsonBody");
 
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create("https://generativelanguage.googleapis.com/v1beta/models/" + model.getName()
+                    .uri(URI.create(BASE_URL + "/v1beta/models/" + model.getName()
                             + ":generateContent?key=" + apiKey))
                     .header("Content-Type", "application/json")
                     .POST(HttpRequest.BodyPublishers.ofString(jsonBody))

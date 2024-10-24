@@ -2,14 +2,10 @@ package net.bigyous.gptgodmc.GPT;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import com.google.gson.reflect.TypeToken;
 
 import net.bigyous.gptgodmc.GPTGOD;
 import net.bigyous.gptgodmc.StructureManager;
 import net.bigyous.gptgodmc.GPT.Json.FunctionDeclaration;
-import net.bigyous.gptgodmc.GPT.Json.GptFunctionReference;
-import net.bigyous.gptgodmc.GPT.Json.GptTool;
-import net.bigyous.gptgodmc.GPT.Json.Parameter;
 import net.bigyous.gptgodmc.GPT.Json.Schema;
 import net.bigyous.gptgodmc.GPT.Json.Tool;
 import net.bigyous.gptgodmc.enums.GptGameMode;

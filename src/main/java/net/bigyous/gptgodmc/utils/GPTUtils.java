@@ -9,7 +9,6 @@ import com.knuddels.jtokkit.api.EncodingRegistry;
 import com.knuddels.jtokkit.api.EncodingType;
 
 import net.bigyous.gptgodmc.GPT.Json.FunctionDeclaration;
-import net.bigyous.gptgodmc.GPT.Json.GptTool;
 import net.bigyous.gptgodmc.GPT.Json.Tool;
 public class GPTUtils {
     private static EncodingRegistry registry = Encodings.newLazyEncodingRegistry();

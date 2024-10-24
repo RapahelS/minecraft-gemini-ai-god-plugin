@@ -18,16 +18,13 @@ import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import net.bigyous.gptgodmc.GPTGOD;
 import net.bigyous.gptgodmc.GPT.Json.Content;
 import net.bigyous.gptgodmc.GPT.Json.FunctionDeclaration;
 import net.bigyous.gptgodmc.GPT.Json.GenerateContentRequest;
-import net.bigyous.gptgodmc.GPT.Json.GptFunction;
 import net.bigyous.gptgodmc.GPT.Json.GptModel;
-import net.bigyous.gptgodmc.GPT.Json.GptTool;
 import net.bigyous.gptgodmc.GPT.Json.ModelSerializer;
 import net.bigyous.gptgodmc.GPT.Json.ParameterExclusion;
 import net.bigyous.gptgodmc.GPT.Json.Tool;

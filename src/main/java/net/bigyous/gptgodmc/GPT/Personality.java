@@ -1,6 +1,5 @@
 package net.bigyous.gptgodmc.GPT;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import net.bigyous.gptgodmc.GPTGOD;

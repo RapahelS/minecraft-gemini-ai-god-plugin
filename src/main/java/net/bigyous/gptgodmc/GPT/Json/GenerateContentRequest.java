@@ -2,9 +2,6 @@ package net.bigyous.gptgodmc.GPT.Json;
 
 import java.util.ArrayList;
 
-import org.checkerframework.checker.units.qual.A;
-import org.checkerframework.common.returnsreceiver.qual.This;
-
 // Class to represent the structure of the JSON request to gemini
 // for generating content responses
 // https://ai.google.dev/api/generate-content#method:-models.generatecontent

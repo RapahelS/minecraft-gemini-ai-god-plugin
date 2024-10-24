@@ -2,8 +2,6 @@ package net.bigyous.gptgodmc.loggables;
 
 import org.bukkit.event.player.PlayerItemConsumeEvent;
 
-import net.kyori.adventure.text.TextComponent;
-
 public class EatingLoggable extends BaseLoggable{
     protected String entityName;
     protected String itemName;

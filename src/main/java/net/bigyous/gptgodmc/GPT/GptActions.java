@@ -1,6 +1,5 @@
 package net.bigyous.gptgodmc.GPT;
 
-import java.sql.Types;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -38,7 +37,6 @@ import net.bigyous.gptgodmc.interfaces.Function;
 import net.bigyous.gptgodmc.loggables.GPTActionLoggable;
 import net.bigyous.gptgodmc.utils.GPTUtils;
 import net.bigyous.gptgodmc.utils.GptObjectiveTracker;
-import net.kyori.adventure.pointer.Pointered;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -46,7 +44,6 @@ import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonParser;
 import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 

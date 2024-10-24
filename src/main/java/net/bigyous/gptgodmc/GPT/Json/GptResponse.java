@@ -1,7 +1,5 @@
 package net.bigyous.gptgodmc.GPT.Json;
 
-import java.util.Map;
-
 public class GptResponse {
     private String id;
     private String object;

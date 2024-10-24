@@ -9,7 +9,6 @@ import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Boss;
 import org.bukkit.entity.Enemy;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.Monster;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 

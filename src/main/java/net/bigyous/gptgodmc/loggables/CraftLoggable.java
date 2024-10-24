@@ -1,7 +1,6 @@
 package net.bigyous.gptgodmc.loggables;
 
 import org.bukkit.entity.HumanEntity;
-import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.CraftItemEvent;
 
 public class CraftLoggable extends BaseLoggable {

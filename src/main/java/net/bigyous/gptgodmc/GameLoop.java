@@ -9,7 +9,6 @@ import net.bigyous.gptgodmc.GPT.GptAPI;
 import net.bigyous.gptgodmc.GPT.GptActions;
 import net.bigyous.gptgodmc.GPT.Personality;
 import net.bigyous.gptgodmc.GPT.Prompts;
-import net.bigyous.gptgodmc.GPT.Json.GptTool;
 import net.bigyous.gptgodmc.GPT.Json.Tool;
 import net.bigyous.gptgodmc.utils.GPTUtils;
 

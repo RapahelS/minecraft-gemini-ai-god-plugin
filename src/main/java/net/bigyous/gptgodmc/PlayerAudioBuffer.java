@@ -40,6 +40,7 @@ public class PlayerAudioBuffer {
     // doesn't work in bukkit
     public void encode(){
         Mp3Encoder encoder = api.createMp3Encoder(AudioFileManager.FORMAT, AudioFileManager.BIT_RATE, 0, AudioFileManager.getPlayerOutputStream(player, this.bufferId));
+        if(encoder==null){return;}
         try {
             encoder.encode(samples);
             encoder.close();

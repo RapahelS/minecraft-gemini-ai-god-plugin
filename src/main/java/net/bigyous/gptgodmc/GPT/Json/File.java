@@ -1,7 +1,5 @@
 package net.bigyous.gptgodmc.GPT.Json;
 
-
-
 public class File {
     private String name;
     private String displayName;

@@ -3,9 +3,7 @@ package net.bigyous.gptgodmc.loggables;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.AnvilInventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 
-import net.bigyous.gptgodmc.GPT.Moderation;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 
 public class RenameItemLoggable extends BaseLoggable implements UserInputLoggable{

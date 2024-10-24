@@ -1,7 +1,5 @@
 package net.bigyous.gptgodmc.GPT.Json;
 
-import com.google.gson.annotations.SerializedName;
-
 public class GenerateContentResponse {
     Candidate[] candidates;
     PromptFeedback promptFeedback;
@@ -17,8 +15,6 @@ public class GenerateContentResponse {
     }
 }
 
-
-
 class PromptFeedback {
 
 }
@@ -30,10 +26,6 @@ class UsageMetadata {
     private int candidatesTokenCount;
     private int totalTokenCount;
 }
-
-
-
-
 
 class SafetyRating {
     // Define the structure of SafetyRating object
@@ -47,4 +39,3 @@ class CitationMetadata {
 class LogprobsResult {
     // Define the structure of LogprobsResult object
 }
-
