@@ -21,7 +21,6 @@ public class SummarizeLogs {
                         Keep track of the reputation of each player, if information in the logs isn't important to the plot omit it. Do not add any extra flourishes, just state the facts, pay attention to actions that align with any objectives listed in the objectives and promises that god makes to the players.
                         These logs are the history of the server so keep everything in the past tense.
                         """;
-        private static Gson gson = new Gson();
         private static Function<JsonObject> submitSummary = (JsonObject argObject) -> {
                 
                 // JsonObject argObject = JsonParser.parseString(args).getAsJsonObject();
