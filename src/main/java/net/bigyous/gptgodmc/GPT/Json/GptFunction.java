@@ -5,13 +5,15 @@ import net.bigyous.gptgodmc.interfaces.Function;
 import net.bigyous.gptgodmc.utils.GPTUtils;
 import java.util.Map;
 
+import com.google.gson.JsonObject;
+
 public class GptFunction {
     private String name;
     private String description;
     private FunctionParameters parameters;
-    private transient Function<String> function;
+    private transient Function<JsonObject> function;
 
-    public GptFunction (String name, String description, Map<String, Parameter> params, Function<String> function){
+    public GptFunction (String name, String description, Map<String, Parameter> params, Function<JsonObject> function){
         this.name = name;
         this.description = description;
         this.parameters = new FunctionParameters("object", params);
@@ -42,11 +44,11 @@ public class GptFunction {
         this.parameters = parameters;
     }
 
-    public Function<String> getFunction() {
+    public Function<JsonObject> getFunction() {
         return function;
     }
 
-    public void runFunction(String jsonArgs){
+    public void runFunction(JsonObject jsonArgs){
         GPTGOD.LOGGER.info(String.format("%s invoked", this.name));
         function.run(jsonArgs);
     }
