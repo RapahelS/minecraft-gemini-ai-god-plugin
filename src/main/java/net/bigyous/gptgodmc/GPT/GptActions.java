@@ -38,6 +38,7 @@ import net.bigyous.gptgodmc.interfaces.Function;
 import net.bigyous.gptgodmc.loggables.GPTActionLoggable;
 import net.bigyous.gptgodmc.utils.GPTUtils;
 import net.bigyous.gptgodmc.utils.GptObjectiveTracker;
+import net.kyori.adventure.pointer.Pointered;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -214,10 +215,7 @@ public class GptActions {
         EventLogger.addLoggable(new GPTActionLoggable(String.format("teleported %s to %s", playerName, destName)));
     };
     private static Function<JsonObject> setObjective = (JsonObject args) -> {
-        TypeToken<Map<String, String>> mapType = new TypeToken<Map<String, String>>() {
-        };
-        Map<String, String> argsMap = gson.fromJson(args, mapType);
-        String objective = argsMap.get("objective");
+        String objective = gson.fromJson(args.get("objective"), String.class);
 
         Score score = GPTGOD.GPT_OBJECTIVES.getScore(objective.length() > 45 ? objective.substring(0, 44) : objective);
         score.setScore(plugin.getConfig().getInt("objectiveDecay"));
@@ -230,10 +228,7 @@ public class GptActions {
 
     };
     private static Function<JsonObject> clearObjective = (JsonObject args) -> {
-        TypeToken<Map<String, String>> mapType = new TypeToken<Map<String, String>>() {
-        };
-        Map<String, String> argsMap = gson.fromJson(args, mapType);
-        String objective = argsMap.get("objective");
+        String objective = gson.fromJson(args.get("objective"), String.class);
         GPTGOD.GPT_OBJECTIVES.getScore(objective).resetScore();
         if (GPTGOD.SCOREBOARD.getEntries().stream().filter(entry -> GPTGOD.SERVER.getPlayer(entry) == null)
                 .count() < 1) {
@@ -241,6 +236,11 @@ public class GptActions {
         }
         EventLogger.addLoggable(new GPTActionLoggable(String.format("declared objective %s as completed", objective)));
 
+    };
+    private static Function<JsonObject> decreeMessage = (JsonObject args) -> {
+        String name = gson.fromJson(args.get("playerName"), String.class);
+        String message = gson.fromJson(args.get("message"), String.class);
+        GptActions.executeCommand(String.format("execute at %s run summon armor_stand ~ ~1 ~ {Invisible:1b,Invulnerable:1b,NoGravity:1b,Marker:1b,CustomName:'{\"text\":\"%s\",\"color\":\"red\",\"bold\":true,\"italic\":true,\"strikethrough\":false,\"underlined\":true}',CustomNameVisible:1b}", name, message));
     };
     private static Function<JsonObject> detonateStructure = (JsonObject argObject) -> {
         String structure = gson.fromJson(argObject.get("structure"), String.class);
@@ -250,6 +250,11 @@ public class GptActions {
         EventLogger.addLoggable(new GPTActionLoggable(String.format("detonated Structure: %s", structure)));
     };
     private static Map<String, FunctionDeclaration> functionMap = Map.ofEntries(
+            Map.entry("decree", new FunctionDeclaration("decree", "display a heavenly decree in front of a specific player in the world", new Schema(
+                Map.of(
+                        "playerName",
+                        new Schema(Schema.Type.STRING, "name of the player to send the decree to"),
+                        "message", new Schema(Schema.Type.STRING, "the message of this decree"))), decreeMessage)),
             Map.entry("whisper", new FunctionDeclaration("whisper",
                     "privately send a message to a player. Avoid repeating things that have already been said. Keep messages short, concise, and no more than 100 characters.",
                     new Schema(
@@ -343,7 +348,7 @@ public class GptActions {
     private static Tool[] actionTools;
     private static Tool[] speechTools;
     private static final List<String> speechActionKeys = Arrays.asList("announce", "whisper", "setObjective",
-            "clearObjective");
+            "clearObjective", "decree");
     private static final List<String> persistentActionKeys = Arrays.asList("command");
 
     // todo: experiment with wrapping a list of functions in a single tool for

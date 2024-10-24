@@ -21,8 +21,6 @@ import java.util.Map;
 public class GenerateCommands {
         private static Gson gson = new Gson();
         private static Function<JsonObject> inputCommands = (JsonObject args) -> {
-                TypeToken<Map<String, String[]>> mapType = new TypeToken<Map<String, String[]>>() {
-                };
                 String[] commands = gson.fromJson(args.get("commands"), String[].class);
                 GptActions.executeCommands(commands);
         };
