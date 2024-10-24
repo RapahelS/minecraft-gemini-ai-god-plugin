@@ -2,6 +2,8 @@ package net.bigyous.gptgodmc.GPT;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+
 import net.bigyous.gptgodmc.EventLogger;
 import net.bigyous.gptgodmc.GPTGOD;
 import net.bigyous.gptgodmc.GPT.Json.FunctionDeclaration;
@@ -21,8 +23,14 @@ public class SummarizeLogs {
                         """;
         private static Gson gson = new Gson();
         private static Function<JsonObject> submitSummary = (JsonObject argObject) -> {
-                GPTGOD.LOGGER.info("summary submitted with args: ", argObject);
-                EventLogger.setSummary(gson.fromJson(argObject.get("summary"), String.class));
+                
+                // JsonObject argObject = JsonParser.parseString(args).getAsJsonObject();
+
+                GPTGOD.LOGGER.info("summary submitted with args: " + argObject.toString());
+                
+                String summary = argObject.get("summary").getAsString();
+                
+                EventLogger.setSummary(summary);
         };
         private static Map<String, FunctionDeclaration> functionMap = Map.of("submitSummary",
                         new FunctionDeclaration("submitSummary",

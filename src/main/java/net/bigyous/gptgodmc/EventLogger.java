@@ -91,7 +91,7 @@ public class EventLogger {
     }
 
     public static void setSummary(String newSummary){
-        GPTGOD.LOGGER.info("new summary: ", newSummary);
+        GPTGOD.LOGGER.info("new summary: " + newSummary);
         summary = newSummary;
         generatingSummary = false;
         Bukkit.getScheduler().cancelTask(summarizeTaskID);
