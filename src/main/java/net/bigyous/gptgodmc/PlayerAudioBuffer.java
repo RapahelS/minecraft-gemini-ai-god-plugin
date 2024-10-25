@@ -1,6 +1,7 @@
 package net.bigyous.gptgodmc;
 
 import de.maxhenkel.voicechat.api.mp3.Mp3Encoder;
+import net.bigyous.gptgodmc.utils.GPTUtils;
 import net.bigyous.gptgodmc.utils.PCMtoWAV;
 
 import java.io.IOException;
@@ -10,6 +11,7 @@ import org.bukkit.entity.Player;
 
 public class PlayerAudioBuffer {
     private Player player;
+    private String timeStamp;
     private short[] samples;
     private VoicechatServerApi api;
     private int bufferId;
@@ -17,6 +19,7 @@ public class PlayerAudioBuffer {
     public PlayerAudioBuffer(short[] initialSamples, Player player, VoicechatServerApi api){
         this.samples = initialSamples;
         this.player = player;
+        this.timeStamp = GPTUtils.getPlayerTimeStamp(player);
         this.api = api;
         this.bufferId = AudioFileManager.getCurrentId();
     }   
@@ -27,6 +30,10 @@ public class PlayerAudioBuffer {
 
     public Player getPlayer() {
         return player;
+    }
+
+    public String getTimeStamp() {
+        return timeStamp;
     }
 
     public void addSamples(short[] addition){

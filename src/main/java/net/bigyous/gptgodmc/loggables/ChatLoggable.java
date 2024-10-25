@@ -13,14 +13,14 @@ public class ChatLoggable implements Loggable, UserInputLoggable {
     private Instant timestamp;
     private int tokens = -1;
 
-    public ChatLoggable(String playerName, String message) {
+    public ChatLoggable(String playerName, String minecraftTime, String message) {
         this.playerName = playerName;
         this.message = message;
         timestamp = Instant.now();
         // Moderation.moderateUserInput(message, this);
     }
 
-    public ChatLoggable(String playerName, String message, Instant timestamp) {
+    public ChatLoggable(String playerName, String minecraftTime, String message, Instant timestamp) {
         this.playerName = playerName;
         this.message = message;
         this.timestamp = timestamp;

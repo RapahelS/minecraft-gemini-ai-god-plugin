@@ -80,6 +80,11 @@ objectiveDecay: 6
 # default 40
 rate: 40
 
+# the amount of time that will pass between calls to transcribe voice chats
+# stops flickering microphones from spamming the api
+# and allows you to control how much spending you want for transcription
+transcription-rate: 20
+
 # The voice used by the TTS
 # https://platform.openai.com/docs/guides/text-to-speech/voice-options
 voice: onyx

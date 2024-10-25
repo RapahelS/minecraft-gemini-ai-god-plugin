@@ -98,6 +98,7 @@ public final class GPTGOD extends JavaPlugin {
     public void onDisable() {
         WorldManager.unload();
         if (voicechatPlugin != null) {
+            voicechatPlugin.stop();
             getServer().getServicesManager().unregister(voicechatPlugin);
             LOGGER.info("Successfully unregistered monitor plugin");
         }

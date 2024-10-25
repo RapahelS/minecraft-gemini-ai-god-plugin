@@ -47,14 +47,12 @@ public class GenerateCommands {
                                                         Example command to communicate something physically in the world: "execute at PlayerNameHere run summon armor_stand ~ ~1 ~ {Invisible:1b,Invulnerable:1b,NoGravity:1b,Marker:1b,CustomName:'{"text":"thou shalt not commit friendship","color":"red","bold":true,"italic":true,"strikethrough":false,"underlined":true}',CustomNameVisible:1b}". \
                                                         Do not use item frames with books to display text.
                                                         """)
+                        .setTools(tools)
                         .setToolChoice("inputCommands");
 
         public static void generate(String prompt) {
                 GPTGOD.LOGGER.info("generating commands with prompt: " + prompt);
-                String structures = Arrays.toString(StructureManager.getStructures().stream().map((String key) -> {
-                        return String.format("%s: (%s)", key,
-                                        StructureManager.getStructure(key).getLocation().toVector().toString());
-                }).toArray());
+                String structures = StructureManager.getDisplayString();
 
                 String teams = String.join(",", GPTGOD.SCOREBOARD.getTeams().stream().map(team -> {
                         return team.getName();

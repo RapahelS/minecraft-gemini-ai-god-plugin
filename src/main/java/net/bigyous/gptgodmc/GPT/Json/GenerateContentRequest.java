@@ -52,17 +52,21 @@ public class GenerateContentRequest {
     public GenerateContentRequest addFileWithPrompt(String text, String mimeType, String fileUri) {
         Part textPart = new Part(text);
         Part fileDataPart = new Part(new FileData(mimeType, fileUri));
-
-        contents.add(new Content(new Part[] { textPart, fileDataPart }));
+        ArrayList<Part> parts = new ArrayList<Part>();
+        parts.add(textPart);
+        parts.add(fileDataPart);
+        contents.add(new Content(parts));
         return this;
     }
 
-    public void setTools(Tool[] tools) {
+    public GenerateContentRequest setTools(Tool[] tools) {
         this.tools = tools;
+        return this;
     }
 
-    public void setToolConfig(ToolConfig toolConfig) {
+    public GenerateContentRequest setToolConfig(ToolConfig toolConfig) {
         this.toolConfig = toolConfig;
+        return this;
     }
 
     public void replaceMessage(int index, String message){

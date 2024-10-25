@@ -54,6 +54,13 @@ public class Schema {
         this.items = new Schema(subType);
     }
 
+     // parameter with description and subschjema (for arrays of objects with their own properties)
+    public Schema(Type type, String description, Map<String, Schema> subProperties) {
+        this.type = type;
+        this.description = description;
+        this.items = new Schema(subProperties);
+    }
+
     // Required field: type
     @SerializedName("type")
     private Type type;

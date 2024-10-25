@@ -1,5 +1,6 @@
 package net.bigyous.gptgodmc;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -183,6 +184,16 @@ public class StructureManager implements Listener {
         public String getStructure() {
             return structure;
         }
+    }
+
+    public static String getDisplayString() {
+        Object[] structures = StructureManager.getStructures().stream().map((String key) -> {
+            return String.format("%s: (%s)", key,
+                            StructureManager.getStructure(key).getLocation().toVector().toString());
+        }).toArray();
+
+        // explicitly tell the LLM if the array is empty
+        return (structures.length > 0) ? Arrays.toString(structures) : "NONE";
     }
 }
 

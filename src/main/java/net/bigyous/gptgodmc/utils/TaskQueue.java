@@ -18,7 +18,6 @@ class Task<T> implements Runnable
     }
 }
 
-
 public class TaskQueue<T> {
     private Function<T> task;
     private ExecutorService pool;

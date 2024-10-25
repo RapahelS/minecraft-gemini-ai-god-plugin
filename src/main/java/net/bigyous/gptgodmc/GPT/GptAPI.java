@@ -71,6 +71,11 @@ public class GptAPI {
         return this;
     }
 
+    public GptAPI addFileWithContext(String context, String fileMimeType, String fileUri) {
+        this.body.addFileWithPrompt(context, fileMimeType, fileUri);
+        return this;
+    }
+
     // sets the system direction parameter
     public GptAPI setSystemContext(String context) {
         this.body.setSystemInstruction(context);

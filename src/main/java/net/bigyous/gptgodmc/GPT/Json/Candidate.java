@@ -2,6 +2,8 @@ package net.bigyous.gptgodmc.GPT.Json;
 
 import com.google.gson.annotations.SerializedName;
 
+import net.bigyous.gptgodmc.GPTGOD;
+
 // https://ai.google.dev/api/generate-content#candidate
 public class Candidate {
     @SerializedName("content")
@@ -30,7 +32,12 @@ public class Candidate {
 
     // shortcut to the first model response
     public String getText() {
-        return content.getParts()[0].getText();
+        try {
+            return content.getParts().get(0).getText();
+        } catch(IndexOutOfBoundsException e) {
+            GPTGOD.LOGGER.error("index out of bounds getting response text", e);
+            return "";
+        }
     }
 
     // get the Content of the response

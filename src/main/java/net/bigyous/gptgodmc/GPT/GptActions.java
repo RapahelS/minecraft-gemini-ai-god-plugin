@@ -1,5 +1,6 @@
 package net.bigyous.gptgodmc.GPT;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -422,7 +423,7 @@ public class GptActions {
     }
 
     public static int run(String functionName, JsonObject jsonArgs) {
-        GPTGOD.LOGGER.info(String.format("running function \"%s\" with json arguments \"%s\"", functionName, jsonArgs));
+        GPTGOD.LOGGER.info(String.format("running function \"%s\" with json arguments \"%s\"", functionName, jsonArgs.toString()));
         Bukkit.getScheduler().runTask(plugin, () -> {
             functionMap.get(functionName).runFunction(jsonArgs);
         });
@@ -432,7 +433,7 @@ public class GptActions {
     public static void processResponse(String response) {
         GenerateContentResponse responseObject = gson.fromJson(response, GenerateContentResponse.class);
         for (Candidate choice : responseObject.getCandidates()) {
-            Part[] parts = choice.getContent().getParts();
+            ArrayList<Part> parts = choice.getContent().getParts();
             if (parts == null) {
                 continue;
             }
@@ -451,7 +452,7 @@ public class GptActions {
     public static void processResponse(String response, Map<String, FunctionDeclaration> functions) {
         GenerateContentResponse responseObject = gson.fromJson(response, GenerateContentResponse.class);
         for (Candidate cand : responseObject.getCandidates()) {
-            Part[] parts = cand.getContent().getParts();
+            ArrayList<Part> parts = cand.getContent().getParts();
             if (parts == null) {
                 continue;
             }

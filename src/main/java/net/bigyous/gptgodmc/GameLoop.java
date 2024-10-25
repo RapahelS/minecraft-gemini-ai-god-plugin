@@ -11,6 +11,7 @@ import net.bigyous.gptgodmc.GPT.Personality;
 import net.bigyous.gptgodmc.GPT.Prompts;
 import net.bigyous.gptgodmc.GPT.Json.Tool;
 import net.bigyous.gptgodmc.utils.GPTUtils;
+import net.bigyous.gptgodmc.utils.BukkitUtils;
 
 import java.util.ArrayList;
 
@@ -29,18 +30,13 @@ public class GameLoop {
     private static String personality;
     private static int rate = config.getInt("rate") < 1 ? 40 : config.getInt("rate");
 
-    // converts seconds into ticks
-    private static long seconds(long seconds) {
-        return seconds * 20;
-    }
-
     public static void init() {
         if (isRunning || !config.getBoolean("enabled"))
             return;
         Action_GPT_API = new GptAPI(GPTModels.getMainModel(), GptActions.GetActionTools());
         Speech_GPT_API = new GptAPI(GPTModels.getMainModel(), GptActions.GetSpeechTools());
-        BukkitTask task = GPTGOD.SERVER.getScheduler().runTaskTimerAsynchronously(plugin, new GPTTask(), seconds(30),
-                seconds(rate));
+        BukkitTask task = GPTGOD.SERVER.getScheduler().runTaskTimerAsynchronously(plugin, new GPTTask(), BukkitUtils.secondsToTicks(30),
+        BukkitUtils.secondsToTicks(rate));
         taskId = task.getTaskId();
         personality = Personality.generatePersonality();
         PROMPT = Prompts.getGamemodePrompt(GPTGOD.gameMode);

@@ -42,6 +42,7 @@ import net.bigyous.gptgodmc.loggables.SpecialBlockPlaceEventLoggable;
 import net.bigyous.gptgodmc.loggables.TameAnimalLoggable;
 import net.bigyous.gptgodmc.loggables.UseLoggable;
 import net.bigyous.gptgodmc.loggables.WriteOnSignLoggable;
+import net.bigyous.gptgodmc.utils.GPTUtils;
 import net.kyori.adventure.text.TextComponent;
 import net.bigyous.gptgodmc.loggables.FishingLoggable;
 import net.bigyous.gptgodmc.loggables.DropItemLoggable;
@@ -70,7 +71,7 @@ public class LoggableEventHandler implements Listener {
     @EventHandler
     public static void onChat(AsyncChatEvent event) {
 
-        EventLogger.addLoggable(new ChatLoggable(event.getPlayer().getName(), ((TextComponent)event.message()).content()));
+        EventLogger.addLoggable(new ChatLoggable(event.getPlayer().getName(), GPTUtils.getPlayerTimeStamp(event.getPlayer()), ((TextComponent)event.message()).content()));
         // dbg: dump logs
         // GPTGOD.LOGGER.info("=== DUMPED LOGS: ===");
         // GPTGOD.LOGGER.info(EventLogger.debugOut());
