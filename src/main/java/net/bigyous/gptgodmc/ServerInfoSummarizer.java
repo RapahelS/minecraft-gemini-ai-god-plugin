@@ -48,13 +48,14 @@ public class ServerInfoSummarizer {
     }
 
     private static String getStructures() {
-        StringBuilder sb = new StringBuilder();
-        for (String structure : StructureManager.getStructures()) {
-            sb.append(String.format("%s: size: %d builder: %s, ", structure,
-                StructureManager.getStructure(structure).getSize(),
-                    StructureManager.getStructure(structure).getBuilder().getName()));
-        }
-        return sb.toString();
+        // StringBuilder sb = new StringBuilder();
+        // for (String structure : StructureManager.getStructures()) {
+        //     sb.append(String.format("%s: size: %d builder: %s, ", structure,
+        //         StructureManager.getStructure(structure).getSize(),
+        //             StructureManager.getStructure(structure).getBuilder().getName()));
+        // }
+        // return sb.toString();
+        return StructureManager.getDisplayString();
     }
 
     private static String getDangerLevel(Player player) {
