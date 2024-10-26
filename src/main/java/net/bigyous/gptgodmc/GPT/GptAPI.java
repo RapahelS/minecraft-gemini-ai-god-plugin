@@ -163,7 +163,7 @@ public class GptAPI {
                 HttpResponse response = client.execute(post);
                 String out = new String(response.getEntity().getContent().readAllBytes());
                 EntityUtils.consume(response.getEntity());
-                GPTGOD.LOGGER.info("recieved response from OpenAI: " + out);
+                GPTGOD.LOGGER.info("recieved response from Gemini: " + out);
                 if (response.getStatusLine().getStatusCode() != 200) {
                     GPTGOD.LOGGER.warn("API call failed");
                     this.isSending = false;
@@ -196,7 +196,7 @@ public class GptAPI {
                 HttpResponse response = client.execute(post);
                 String out = new String(response.getEntity().getContent().readAllBytes());
                 EntityUtils.consume(response.getEntity());
-                GPTGOD.LOGGER.info("recieved response from OpenAI: " + out);
+                GPTGOD.LOGGER.info("recieved response from Gemini: " + out);
                 if (response.getStatusLine().getStatusCode() != 200) {
                     GPTGOD.LOGGER.warn("API call failed");
                     this.isSending = false;

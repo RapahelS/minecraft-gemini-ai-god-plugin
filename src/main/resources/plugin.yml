@@ -10,7 +10,7 @@ depend: [ voicechat ]
 
 commands:
   try:
-    description: tests out a GPTFunction as if called by OpenAi for debug purposes, can only be used in the server console
+    description: tests out a GPTFunction as if called by the Ai for debug purposes, can only be used in the server console
     usage: /try [function name] [Json formatted args]
   
   nickname:

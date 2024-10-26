@@ -39,7 +39,7 @@ shadowJar {
 ## Running
 
 - go to `plugins/gptgodmc/config.yml`
-- paste in your OpenAi API key
+- paste in your OpenAi API or Gemini key
 - run the server
 - launch minecraft with fabric
 - connect to the server at `localhost`
