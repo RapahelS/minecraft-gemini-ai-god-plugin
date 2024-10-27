@@ -83,6 +83,11 @@ public class GptAPI {
         return this;
     }
 
+    public GptAPI setSystemContext(String[] context) {
+        this.body.setSystemInstruction(context);
+        return this;
+    }
+
     // public GptAPI addContext(String context, String name, int index) {
     //     if (this.messageMap.containsKey(name)) {
     //         this.body.replaceMessage(messageMap.get(name), context);

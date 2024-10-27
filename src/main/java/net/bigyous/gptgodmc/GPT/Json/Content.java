@@ -28,6 +28,14 @@ public class Content {
         this.parts.add(new Part(message));
     }
 
+    public Content(String[] messages) {
+        this.role = Role.user;
+        this.parts = new ArrayList<Part>();
+        for(String msg : messages) {
+            this.parts.add(new Part(msg));
+        }
+    }
+
     public Content(Role role, String message) {
         this.role = role;
         this.parts = new ArrayList<Part>();

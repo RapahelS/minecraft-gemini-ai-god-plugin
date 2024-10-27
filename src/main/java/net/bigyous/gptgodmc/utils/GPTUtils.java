@@ -26,6 +26,14 @@ public class GPTUtils {
         return encoding.countTokens(message);
     }
 
+    public static int countTokens(String[] messages) {
+        int acumulator = 0;
+        for(String msg : messages) {
+            acumulator += countTokens(msg);
+        }
+        return acumulator;
+    }
+
     public static Tool[] randomToolSubset(Tool[] tools, int size) {
         Random r = new Random();
 

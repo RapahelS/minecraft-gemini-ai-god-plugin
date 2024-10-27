@@ -49,6 +49,11 @@ public class GenerateContentRequest {
         return this;
     }
 
+    public GenerateContentRequest setSystemInstruction(String[] systemInstructions) {
+        this.systemInstruction = new Content(systemInstructions);
+        return this;
+    }
+
     // shortcut to append a prompt and file to message contents
     public GenerateContentRequest addFileWithPrompt(String text, String mimeType, String fileUri) {
         Part textPart = new Part(text);
