@@ -2,6 +2,7 @@ package net.bigyous.gptgodmc.GPT;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService; 
 import java.util.concurrent.Executors; 
@@ -102,6 +103,16 @@ public class GptAPI {
         return this;
     }
 
+    public GptAPI addLogs(List<String> Logs, String name) {
+        if (this.messageMap.containsKey(name)) {
+            this.body.replaceMessage(messageMap.get(name), Logs);
+            return this;
+        }
+        this.body.addMessage(Content.Role.user, Logs);
+        this.messageMap.put(name, this.body.getMessagesSize() - 1);
+        return this;
+    }
+
     public GptAPI addLogs(String Logs, String name) {
         if (this.messageMap.containsKey(name)) {
             this.body.replaceMessage(messageMap.get(name), Logs);
@@ -113,6 +124,25 @@ public class GptAPI {
     }
 
     public GptAPI addLogs(String Logs, String name, int index) {
+        if(this.body.getMessagesSize() <= index){
+            addLogs(Logs, name);
+            return this;
+        }
+        if (this.messageMap.containsKey(name)) {
+            this.body.replaceMessage(messageMap.get(name), Logs);
+            return this;
+        }
+        this.body.addMessage(Content.Role.user, Logs, index);
+        for (String key : messageMap.keySet()) {
+            if (messageMap.get(key) == index) {
+                messageMap.replace(key, index + 1);
+            }
+        }
+        this.messageMap.put(name, index);
+        return this;
+    }
+
+    public GptAPI addLogs(List<String> Logs, String name, int index) {
         if(this.body.getMessagesSize() <= index){
             addLogs(Logs, name);
             return this;

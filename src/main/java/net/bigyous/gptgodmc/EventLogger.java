@@ -45,7 +45,7 @@ public class EventLogger {
 
     // remove logs until the total tokens fits within the limit of 
     public static void cull(int tokenLimit){
-        int serverInfoTokens = GPTUtils.countTokens(ServerInfoSummarizer.getStatusSummary());
+        int serverInfoTokens = GPTUtils.countTokens(ServerInfoSummarizer.compileStatus());
         while(totalTokens + serverInfoTokens > tokenLimit && !loggables.isEmpty()){
             Loggable oldest = loggables.first();
             totalTokens -= oldest.getTokens();
@@ -53,12 +53,12 @@ public class EventLogger {
         }
     }
 
-    public static List<String> flushLogs() {
+    public static List<String> getLogs() {
         List<String> logs = new ArrayList<>();
 
-        // Include status summary at beginning
+        // Include general status of server at beginning
         logs.add(
-            ServerInfoSummarizer.getStatusSummary()
+            ServerInfoSummarizer.compileStatus()
         );
         
         for (Loggable event: loggables) {
@@ -67,6 +67,11 @@ public class EventLogger {
                 logs.add(log);
             }
         }
+        return logs;
+    }
+
+    public static List<String> flushLogs() {
+        List<String> logs = getLogs();
 
         // Clear events
         

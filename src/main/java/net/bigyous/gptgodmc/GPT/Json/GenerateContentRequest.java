@@ -1,6 +1,7 @@
 package net.bigyous.gptgodmc.GPT.Json;
 
 import java.util.ArrayList;
+import java.util.List;
 
 // Class to represent the structure of the JSON request to gemini
 // for generating content responses
@@ -73,11 +74,31 @@ public class GenerateContentRequest {
         this.contents.set(index, new Content(this.contents.get(index).getRole(), message));
     }
 
+    public void replaceMessage(int index, List<String> message){
+        this.contents.set(index, new Content(this.contents.get(index).getRole(), message));
+    }
+
     public void addMessage(Content.Role role, String content){
         this.contents.add(new Content(role, content));
     }
 
+    public void addMessage(Content.Role role, String[] content) {
+        this.contents.add(new Content(role, content));
+    }
+
+    public void addMessage(Content.Role role, List<String> content) {
+        this.contents.add(new Content(role, content));
+    }
+
+    public void addMessage(Content.Role role, ArrayList<String> content) {
+        this.contents.add(new Content(role, content));
+    }
+
     public void addMessage(Content.Role role, String content, int index){
+        this.contents.add(index, new Content(role, content));
+    }
+
+    public void addMessage(Content.Role role, List<String> content, int index){
         this.contents.add(index, new Content(role, content));
     }
 

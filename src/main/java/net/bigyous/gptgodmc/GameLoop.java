@@ -14,6 +14,7 @@ import net.bigyous.gptgodmc.utils.GPTUtils;
 import net.bigyous.gptgodmc.utils.BukkitUtils;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class GameLoop {
     private static JavaPlugin plugin = JavaPlugin.getPlugin(GPTGOD.class);
@@ -90,16 +91,19 @@ public class GameLoop {
             }
             int nonLogTokens = staticTokens;
             if (EventLogger.hasSummary()) {
-                Action_GPT_API.addLogs("Server History: " + EventLogger.getSummary(), "summary");
+                Action_GPT_API.addLogs("Summary of old Server History: " + EventLogger.getSummary(), "summary");
+                Speech_GPT_API.addLogs("Summary of old server history: " + EventLogger.getSummary(), "summary");
                 nonLogTokens += GPTUtils.countTokens(EventLogger.getSummary()) + 1;
             }
             Tool[] actionTools = GptActions.GetActionTools();
             Action_GPT_API.setTools(actionTools);
             nonLogTokens += GPTUtils.calculateToolTokens(actionTools);
             EventLogger.cull(Action_GPT_API.getMaxTokens() - nonLogTokens);
-            String log = EventLogger.dump();
-            Action_GPT_API.addLogs("Current: " + log, "log");
-            Speech_GPT_API.addLogs("Current: " + log, "log");
+            // String log = EventLogger.dump(); // this inadvertantly clears old logs
+            List<String> logs = EventLogger.getLogs();
+            // logs.set(0, "Current Server Status");
+            Action_GPT_API.addLogs(logs, "log");
+            Speech_GPT_API.addLogs(logs, "log");
             previousActions = new ArrayList<>();
             Action_GPT_API.send();
             while (Action_GPT_API.isSending()) {

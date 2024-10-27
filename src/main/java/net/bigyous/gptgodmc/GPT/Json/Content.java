@@ -1,6 +1,7 @@
 package net.bigyous.gptgodmc.GPT.Json;
 
 import java.util.ArrayList;
+import java.util.List;
 
 // https://ai.google.dev/api/caching#Content
 public class Content {
@@ -31,6 +32,30 @@ public class Content {
         this.role = role;
         this.parts = new ArrayList<Part>();
         this.parts.add(new Part(message));
+    }
+
+    public Content(Role role, String[] messages) {
+        this.role = role;
+        this.parts = new ArrayList<Part>();
+        for(String msg : messages) {
+            this.parts.add(new Part(msg));
+        }
+    }
+
+    public Content(Role role, List<String> messages) {
+        this.role = role;
+        this.parts = new ArrayList<Part>();
+        for(String msg : messages) {
+            this.parts.add(new Part(msg));
+        }
+    }
+
+    public Content(Role role, ArrayList<String> messages) {
+        this.role = role;
+        this.parts = new ArrayList<Part>();
+        for(String msg : messages) {
+            this.parts.add(new Part(msg));
+        }
     }
 
     public ArrayList<Part> getParts() {

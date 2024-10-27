@@ -13,6 +13,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import net.bigyous.gptgodmc.enums.GptGameMode;
+import net.bigyous.gptgodmc.utils.GPTUtils;
 import net.bigyous.gptgodmc.utils.NicknameCommand;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 
@@ -109,18 +110,18 @@ public class ServerInfoSummarizer {
 
     private static String getWeather() {
         World world = WorldManager.getCurrentWorld();
-        return String.format("%s %s", world.isThundering() ? "Thunder" : "",
+        return String.format("%s%s", world.isThundering() ? "Thunder " : "",
                 world.isClearWeather() ? "Clear" : "Storm");
     }
 
     private static String getObjectives() {
-        return GPTGOD.SCOREBOARD.getObjectives().isEmpty() ? "" :
+        return GPTGOD.SCOREBOARD.getObjectives().isEmpty() ? "NONE" :
             String.format("Objectives: %s", String.join(",", GPTGOD.SCOREBOARD.getEntries().stream().filter(entry -> GPTGOD.SERVER.getPlayer(entry)==null).toList()));
     }
 
-    public static String getStatusSummary() {
+    public static String compileStatus() {
         StringBuilder sb = new StringBuilder("Server Status:\n");
-        sb.append(String.format("Time of day: %s\n", WorldManager.getCurrentWorld().isDayTime() ? "Day" : "Night"));
+        sb.append(String.format("Time of day: %s %s\n", WorldManager.getCurrentWorld().isDayTime() ? "Day" : "Night", GPTUtils.getWorldTimeStamp(WorldManager.getCurrentWorld())));
         sb.append(String.format("Weather: %s\n", getWeather()));
         sb.append("Structures: " + getStructures() + "\n");
         sb.append(getObjectives() + "\n");
