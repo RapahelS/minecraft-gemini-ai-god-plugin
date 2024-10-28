@@ -27,9 +27,17 @@ startingWorld: "island"
 # can be found here: https://openai.com/api/pricing/
 gpt-model-name: gpt-4o
 
+# gemini main model name
+# use flash for more rapid and cheaper responses
 model-name: gemini-1.5-pro
 
-model-tempurature: 1.0
+# secondary model (for transcriptions and command gen)
+secondary-model-name: gemini-1.5-flash
+
+# Gemini Model tempurature
+# turn up the heat
+# 1.0 or below is more behaved, above is more creative
+model-tempurature: 1.6
 
 # gpt model token limit
 gpt-model-token-limit: 1000000

@@ -41,6 +41,10 @@ public class Part {
     public Part(FileData fileData) {
         this.fileData = fileData;
     }
+
+    public Part(FunctionCall function) {
+        this.functionCall = function;
+    }
 }
 
 class FileData {

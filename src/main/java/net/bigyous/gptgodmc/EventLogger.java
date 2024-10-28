@@ -61,7 +61,7 @@ public class EventLogger {
             ServerInfoSummarizer.compileStatus()
         );
 
-        logs.add("Following is a list of event's that have occured on the server so far:");        
+        logs.add("Following is a list of event's that have occured on the server since the last action by god:");        
 
         for (Loggable event: loggables) {
             String log = event.getLog();

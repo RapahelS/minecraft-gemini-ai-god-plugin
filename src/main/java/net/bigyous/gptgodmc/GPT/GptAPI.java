@@ -194,14 +194,22 @@ public class GptAPI {
         return this;
     }
 
-    public void addResponse(Content responseContent) {
+    public GptAPI addResponse(Content responseContent) {
         GPTGOD.LOGGER.info("Adding response " + gson.create().toJson(responseContent));
         this.body.addMessage(responseContent);
+        return this;
     }
 
-    public void addMessage(String message) {
+    public GptAPI addMessage(String message) {
         GPTGOD.LOGGER.info("Adding prompt to get response: " + message);
         this.body.addMessage(Role.user, message);
+        return this;
+    }
+
+    public GptAPI addMessages(String[] messages) {
+        // GPTGOD.LOGGER.info("Adding prompt to get response: " + String.join("\n", messages) );
+        this.body.addMessage(Role.user, messages);
+        return this;
     }
 
     public GptAPI setToolChoice(String tool_choice) {

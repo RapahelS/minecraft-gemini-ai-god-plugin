@@ -116,13 +116,18 @@ public class GameLoop {
             }
             int nonLogTokens = staticTokens;
             if (EventLogger.hasSummary()) {
-                GPT_API.addLogs("Summary of old Server History: " + EventLogger.getSummary(), "summary");
+                GPT_API.addLogs("Summary of Server History: " + EventLogger.getSummary(), "summary");
                 nonLogTokens += GPTUtils.countTokens(EventLogger.getSummary()) + 1;
             }
             nonLogTokens += GPTUtils.calculateToolTokens(GptActions.GetAllTools());
             EventLogger.cull(GPT_API.getMaxTokens() - nonLogTokens);
-            List<String> logs = EventLogger.getLogs();
-            GPT_API.addLogs(logs, "log");
+
+            // List<String> logs = EventLogger.getLogs();
+            // GPT_API.addLogs(logs, "log");
+            // add logs in series with responses
+            List<String> logs = EventLogger.flushLogs();
+            GPT_API.addMessages(logs.toArray(new String[logs.size()]));
+
             if(!previousActions.isEmpty()) {
                 GPT_API.addLogs(getPreviousActions(), "previous_actions");
             }

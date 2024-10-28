@@ -2,15 +2,21 @@ package net.bigyous.gptgodmc.GPT;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 import net.bigyous.gptgodmc.GPTGOD;
 import net.bigyous.gptgodmc.StructureManager;
 import net.bigyous.gptgodmc.GPT.Json.FunctionDeclaration;
+import net.bigyous.gptgodmc.GPT.Json.Part;
 import net.bigyous.gptgodmc.GPT.Json.Schema;
 import net.bigyous.gptgodmc.GPT.Json.Tool;
+import net.bigyous.gptgodmc.GPT.Json.Content;
+import net.bigyous.gptgodmc.GPT.Json.FunctionCall;
+import net.bigyous.gptgodmc.GPT.Json.Content.Role;
 import net.bigyous.gptgodmc.enums.GptGameMode;
 import net.bigyous.gptgodmc.interfaces.Function;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
 
@@ -43,11 +49,38 @@ public class GenerateCommands {
                                                         Ensure that positionaly dependent code is executed relative to the specific player. \
                                                         Only use a tool call in one json response, other responses will be ignored. \
                                                         You MUST respond with a command. \
-                                                        Do not use any escape characters (slashes) in your response; The response must be both valid json and a valid minecraft command. \
-                                                        Example command to communicate something physically in the world: "execute at PlayerNameHere run summon armor_stand ~ ~1 ~ {Invisible:1b,Invulnerable:1b,NoGravity:1b,Marker:1b,CustomName:'{"text":"thou shalt not commit friendship","color":"red","bold":true,"italic":true,"strikethrough":false,"underlined":true}',CustomNameVisible:1b}". \
+                                                        The response must be valid minecraft command syntax. \
+                                                        Example command to communicate something physically in the world: execute at PlayerNameHere run summon armor_stand ~ ~1 ~ {Invisible:1b,Invulnerable:1b,NoGravity:1b,Marker:1b,CustomName:'{"text":"thou shalt not commit friendship","color":"red","bold":true,"italic":true,"strikethrough":false,"underlined":true}',CustomNameVisible:1b} \
                                                         Do not use item frames with books to display text.
+                                                        Pay VERY close attention to opening and closing delimeters in the syntax and make sure they match up
                                                         """)
                         .setTools(tools)
+                        // add an example of the correct type of output we are looking for
+                        .addMessages(new String[] {
+                                        "Players: [MoistPyro]",
+                                        "Structures: NONE",
+                                        "write Minecraft commands that: make a fireworks display all around MoistPyro"
+                        })
+                        .addResponse(new Content(Role.model,
+                                        new Part[] {
+                                                        new Part(new FunctionCall("inputCommands", JsonParser
+                                                        .parseString("""
+                                                                {
+                                                                        "commands": [
+                                                                                "execute at MoistPyro run summon firework_rocket ~ ~ ~ {Firework:{Flight:1,Explosions:[{Type:1,Colors:[15,14,13,12],Flicker:false,Trail:false}]}}",
+                                                                                "execute at MoistPyro run summon firework_rocket ~1 ~ ~ {Firework:{Flight:1,Explosions:[{Type:1,Colors:[1,2,3,4],Flicker:false,Trail:false}]}}",
+                                                                                "execute at MoistPyro run summon firework_rocket ~-1 ~ ~ {Firework:{Flight:1,Explosions:[{Type:1,Colors:[5,6,7,8],Flicker:false,Trail:false}]}}",
+                                                                                "execute at MoistPyro run summon firework_rocket ~ ~1 ~ {Firework:{Flight:1,Explosions:[{Type:1,Colors:[9,10,11,12],Flicker:false,Trail:false}]}}",
+                                                                                "execute at MoistPyro run summon firework_rocket ~ ~-1 ~ {Firework:{Flight:1,Explosions:[{Type:1,Colors:[13,14,15,0],Flicker:false,Trail:false}]}}",
+                                                                                "execute at MoistPyro run summon firework_rocket ~2 ~ ~ {Firework:{Flight:1,Explosions:[{Type:1,Colors:[15,14,13,12],Flicker:false,Trail:false}]}}",
+                                                                                "execute at MoistPyro run summon firework_rocket ~-2 ~ ~ {Firework:{Flight:1,Explosions:[{Type:1,Colors:[1,2,3,4],Flicker:false,Trail:false}]}}",
+                                                                                "execute at MoistPyro run summon firework_rocket ~ ~2 ~ {Firework:{Flight:1,Explosions:[{Type:1,Colors:[5,6,7,8],Flicker:false,Trail:false}]}}",
+                                                                                "execute at MoistPyro run summon firework_rocket ~ ~-2 ~ {Firework:{Flight:1,Explosions:[{Type:1,Colors:[9,10,11,12],Flicker:false,Trail:false}]}}"
+                                                                        ]
+                                                                }
+                                                        """)
+                                                        .getAsJsonObject()))
+                                        }))
                         .setToolChoice("inputCommands");
 
         public static void generate(String prompt) {

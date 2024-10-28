@@ -6,6 +6,11 @@ public class FunctionCall {
     private String name;
     private JsonObject args;
 
+    public FunctionCall(String name, JsonObject args) {
+        this.name = name;
+        this.args = args;
+    }
+
     public JsonObject getArguments() {
         return args;
     }
