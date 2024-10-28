@@ -184,6 +184,11 @@ public class GptAPI {
         this.body.addMessage(responseContent);
     }
 
+    public void addMessage(String message) {
+        GPTGOD.LOGGER.info("Adding prompt to get response: " + message);
+        this.body.addMessage(Role.user, message);
+    }
+
     public GptAPI setToolChoice(String tool_choice) {
         this.body.setToolConfig(new ToolConfig(new String[]{tool_choice}));
         return this;
@@ -199,6 +204,10 @@ public class GptAPI {
 
     public String getModelName() {
         return model.getName();
+    }
+
+    public boolean isLatestMessageFromModel() {
+        return this.body.isLatestMessageFromModel();
     }
 
     public void send() {

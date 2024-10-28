@@ -3,6 +3,8 @@ package net.bigyous.gptgodmc.GPT.Json;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.bigyous.gptgodmc.GPT.Json.Content.Role;
+
 // Class to represent the structure of the JSON request to gemini
 // for generating content responses
 // https://ai.google.dev/api/generate-content#method:-models.generatecontent
@@ -113,5 +115,9 @@ public class GenerateContentRequest {
 
     public int getMessagesSize(){
         return this.contents.size();
+    }
+
+    public boolean isLatestMessageFromModel() {
+        return contents.getLast().getRole() == Role.model;
     }
 }

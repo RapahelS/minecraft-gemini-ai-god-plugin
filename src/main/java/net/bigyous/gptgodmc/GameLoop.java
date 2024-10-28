@@ -126,6 +126,12 @@ public class GameLoop {
             if(!previousActions.isEmpty()) {
                 GPT_API.addLogs(getPreviousActions(), "previous_actions");
             }
+
+            // prompt the ai if the latest content is from the model
+            if(GPT_API.isLatestMessageFromModel()) {
+                GPT_API.addMessage("what would you like to do or say next?");
+            }
+
             GPT_API.send();
         }
 
