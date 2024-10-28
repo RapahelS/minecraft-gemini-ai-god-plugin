@@ -102,7 +102,7 @@ public class GameLoop {
         if (previousActions.isEmpty()) {
             return "";
         }
-        String out = " You Just: " + String.join(",", previousActions);
+        String out = " You (God) Just did the following actions: " + String.join(",", previousActions);
         previousActions = new ArrayList<String>();
         return out;
     }
@@ -123,6 +123,7 @@ public class GameLoop {
             EventLogger.cull(GPT_API.getMaxTokens() - nonLogTokens);
             List<String> logs = EventLogger.getLogs();
             GPT_API.addLogs(logs, "log");
+            GPT_API.addLogs(getPreviousActions(), "previous_actions");
             GPT_API.send();
         }
 
