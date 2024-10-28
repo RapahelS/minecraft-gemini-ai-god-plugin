@@ -84,7 +84,7 @@ public class GptActions {
         Map<String, String> argsMap = gson.fromJson(args, mapType);
         String message = argsMap.get("message");
         String playerName = argsMap.get("playerName");
-        if(playerName == null) {
+        if (playerName == null) {
             playerName = argsMap.get("player_name");
         }
         staticWhisper(playerName, message);
@@ -242,7 +242,9 @@ public class GptActions {
     private static Function<JsonObject> decreeMessage = (JsonObject args) -> {
         String name = gson.fromJson(args.get("playerName"), String.class);
         String message = gson.fromJson(args.get("message"), String.class);
-        GptActions.executeCommand(String.format("execute at %s run summon armor_stand ~ ~1 ~ {Invisible:1b,Invulnerable:1b,NoGravity:1b,Marker:1b,CustomName:'{\"text\":\"%s\",\"color\":\"red\",\"bold\":true,\"italic\":true,\"strikethrough\":false,\"underlined\":true}',CustomNameVisible:1b}", name, message));
+        GptActions.executeCommand(String.format(
+                "execute at %s run summon armor_stand ~ ~1 ~ {Invisible:1b,Invulnerable:1b,NoGravity:1b,Marker:1b,CustomName:'{\"text\":\"%s\",\"color\":\"red\",\"bold\":true,\"italic\":true,\"strikethrough\":false,\"underlined\":true}',CustomNameVisible:1b}",
+                name, message));
     };
     private static Function<JsonObject> detonateStructure = (JsonObject argObject) -> {
         String structure = gson.fromJson(argObject.get("structure"), String.class);
@@ -252,11 +254,14 @@ public class GptActions {
         EventLogger.addLoggable(new GPTActionLoggable(String.format("detonated Structure: %s", structure)));
     };
     private static Map<String, FunctionDeclaration> functionMap = Map.ofEntries(
-            Map.entry("decree", new FunctionDeclaration("decree", "display a heavenly decree in front of a specific player in the world. Use only to communicate displeasure in some action. Use no more than 12 words in the message.", new Schema(
-                Map.of(
-                        "playerName",
-                        new Schema(Schema.Type.STRING, "name of the player to send the decree to"),
-                        "message", new Schema(Schema.Type.STRING, "the message of this decree"))), decreeMessage)),
+            Map.entry("decree", new FunctionDeclaration("decree",
+                    "display a heavenly decree in front of a specific player in the world. Use only to communicate displeasure in some action. Use no more than 12 words in the message.",
+                    new Schema(
+                            Map.of(
+                                    "playerName",
+                                    new Schema(Schema.Type.STRING, "name of the player to send the decree to"),
+                                    "message", new Schema(Schema.Type.STRING, "the message of this decree"))),
+                    decreeMessage)),
             Map.entry("whisper", new FunctionDeclaration("whisper",
                     "privately send a message to a player. Avoid repeating things that have already been said. Keep messages short, concise, and no more than 100 characters.",
                     new Schema(
@@ -337,7 +342,8 @@ public class GptActions {
                             clearObjective)),
             Map.entry("detonateStructure",
                     new FunctionDeclaration("detonateStructure", "cause an explosion at a Structure",
-                            new Schema(Map.of("structure", new Schema(Schema.Type.STRING, "name of the structure (not a player name)"),
+                            new Schema(Map.of("structure",
+                                    new Schema(Schema.Type.STRING, "name of the structure (not a player name)"),
                                     "setFire", new Schema(Schema.Type.BOOLEAN, "will this explosion cause fires?"),
                                     "power",
                                     new Schema(Schema.Type.INTEGER,
@@ -365,7 +371,7 @@ public class GptActions {
     }
 
     public static Tool[] GetAllTools() {
-        if (tools!=null && tools[0] != null) {
+        if (tools != null && tools[0] != null) {
             return tools;
         }
         tools = wrapFunctions(functionMap);
@@ -427,56 +433,12 @@ public class GptActions {
     }
 
     public static int run(String functionName, JsonObject jsonArgs) {
-        GPTGOD.LOGGER.info(String.format("running function \"%s\" with json arguments \"%s\"", functionName, jsonArgs.toString()));
+        GPTGOD.LOGGER.info(
+                String.format("running function \"%s\" with json arguments \"%s\"", functionName, jsonArgs.toString()));
         Bukkit.getScheduler().runTask(plugin, () -> {
             functionMap.get(functionName).runFunction(jsonArgs);
         });
         return 1;
-    }
-
-    public static void processResponse(String response) {
-        GenerateContentResponse responseObject = gson.fromJson(response, GenerateContentResponse.class);
-        for (Candidate choice : responseObject.getCandidates()) {
-            ArrayList<Part> parts = choice.getContent().getParts();
-            if (parts == null) {
-                continue;
-            }
-            for (Part call : parts) {
-                FunctionCall func = call.getFunctionCall();
-                if (func == null) {
-                    continue;
-                }
-                System.out
-                        .println("Trying to execute function " + func.getName() + " with args: " + func.getArguments());
-                run(func.getName(), func.getArguments());
-            }
-        }
-    }
-
-    public static void processResponse(String response, Map<String, FunctionDeclaration> functions) {
-        GenerateContentResponse responseObject = gson.fromJson(response, GenerateContentResponse.class);
-        
-        if(responseObject.isError()) {
-            GPTGOD.LOGGER.error("error loading gemini response: " + responseObject.getError().toString());
-        }
-        
-        for (Candidate cand : responseObject.getCandidates()) {
-            ArrayList<Part> parts = cand.getContent().getParts();
-            if (parts == null) {
-                continue;
-            }
-            for (Part call : parts) {
-                FunctionCall func = call.getFunctionCall();
-                if (func == null) {
-                    continue;
-                }
-                Bukkit.getScheduler().runTask(plugin, () -> {
-                    System.out.println("Trying to execute function " + func.getName() + " from map with args: "
-                            + func.getArguments());
-                    functions.get(func.getName()).runFunction(func.getArguments());
-                });
-            }
-        }
     }
 
     private int calculateFunctionTokens() {

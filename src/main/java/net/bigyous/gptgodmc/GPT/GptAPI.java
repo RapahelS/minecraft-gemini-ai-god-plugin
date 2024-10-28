@@ -1,6 +1,7 @@
 package net.bigyous.gptgodmc.GPT;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,15 +20,20 @@ import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import net.bigyous.gptgodmc.GPTGOD;
+import net.bigyous.gptgodmc.GPT.Json.Candidate;
 import net.bigyous.gptgodmc.GPT.Json.Content;
+import net.bigyous.gptgodmc.GPT.Json.FunctionCall;
 import net.bigyous.gptgodmc.GPT.Json.FunctionDeclaration;
 import net.bigyous.gptgodmc.GPT.Json.GenerateContentRequest;
+import net.bigyous.gptgodmc.GPT.Json.GenerateContentResponse;
 import net.bigyous.gptgodmc.GPT.Json.GptModel;
 import net.bigyous.gptgodmc.GPT.Json.ModelSerializer;
 import net.bigyous.gptgodmc.GPT.Json.ParameterExclusion;
+import net.bigyous.gptgodmc.GPT.Json.Part;
 import net.bigyous.gptgodmc.GPT.Json.Tool;
 import net.bigyous.gptgodmc.GPT.Json.ToolConfig;
 
@@ -40,6 +46,7 @@ public class GptAPI {
     private Map<String, Integer> messageMap = new HashMap<String, Integer>();
     private boolean isSending = false;
     private static ExecutorService pool = Executors.newCachedThreadPool();
+    private static JavaPlugin plugin = JavaPlugin.getPlugin(GPTGOD.class);
 
     public GptAPI(GptModel model) {
         this.model = model;
@@ -203,7 +210,7 @@ public class GptAPI {
                     GPTGOD.LOGGER.warn("API call failed");
                     this.isSending = false;
                 }
-                GptActions.processResponse(out);
+                processResponse(out);
                 client.close();
                 // after everything finishes executing, the request is finished
                 Bukkit.getScheduler().runTaskLater(JavaPlugin.getPlugin(GPTGOD.class), () -> {
@@ -236,7 +243,7 @@ public class GptAPI {
                     GPTGOD.LOGGER.warn("API call failed");
                     this.isSending = false;
                 }
-                GptActions.processResponse(out, functions);
+                processResponse(out, functions);
                 client.close();
                 // after everything finishes, executing the request is finished
                 Bukkit.getScheduler().runTaskLater(JavaPlugin.getPlugin(GPTGOD.class), () -> {
@@ -256,5 +263,66 @@ public class GptAPI {
     // DEBUG method
     public void checkRequestBody() {
         GPTGOD.LOGGER.info("POSTING " + gson.setPrettyPrinting().create().toJson(body));
+    }
+
+    private void processResponse(String response) {
+        // shadow gson builder with gson
+        Gson gson = this.gson.create();
+
+        GenerateContentResponse responseObject = gson.fromJson(response, GenerateContentResponse.class);
+
+        if (responseObject.isError()) {
+            GPTGOD.LOGGER.error(responseObject.getError().toString());
+            return;
+        }
+
+        // run all candidates for now if their parts are not null
+        for (Candidate choice : responseObject.getCandidates()) {
+            ArrayList<Part> parts = choice.getContent().getParts();
+            if (parts == null) {
+                continue;
+            }
+
+            // add non null candidates to response history for multi-turn
+
+            for (Part call : parts) {
+                FunctionCall func = call.getFunctionCall();
+                if (func == null) {
+                    continue;
+                }
+                System.out
+                        .println("Trying to execute function " + func.getName() + " with args: " + func.getArguments());
+                GptActions.run(func.getName(), func.getArguments());
+            }
+        }
+    }
+
+    private void processResponse(String response, Map<String, FunctionDeclaration> functions) {
+        // shadow gson builder with gson
+        Gson gson = this.gson.create();
+
+        GenerateContentResponse responseObject = gson.fromJson(response, GenerateContentResponse.class);
+
+        if (responseObject.isError()) {
+            GPTGOD.LOGGER.error("error loading gemini response: " + responseObject.getError().toString());
+        }
+
+        for (Candidate cand : responseObject.getCandidates()) {
+            ArrayList<Part> parts = cand.getContent().getParts();
+            if (parts == null) {
+                continue;
+            }
+            for (Part call : parts) {
+                FunctionCall func = call.getFunctionCall();
+                if (func == null) {
+                    continue;
+                }
+                Bukkit.getScheduler().runTask(plugin, () -> {
+                    System.out.println("Trying to execute function " + func.getName() + " from map with args: "
+                            + func.getArguments());
+                    functions.get(func.getName()).runFunction(func.getArguments());
+                });
+            }
+        }
     }
 }
