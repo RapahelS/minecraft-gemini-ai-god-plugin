@@ -12,4 +12,12 @@ public class GoogError {
     public String toString() {
         return "Google Error " + status + " " + code + " " + message;
     }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public int getCode() {
+        return code;
+    }
 }

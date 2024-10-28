@@ -34,15 +34,26 @@ public class GenerateContentRequest {
 
 
     // generation config Optional. Configuration options for model generation and outputs.
-    // private GenerationConfig generationConfig;
+    private GenerationConfig generationConfig;
 
     // cached content Optional. The name of the content cached to use as context to serve the prediction. Format: cachedContents/{cachedContent}
     // private CachedContent cachedContent; 
 
     public GenerateContentRequest() {
+        this.generationConfig = new GenerationConfig(1.0);
     }
 
     public GenerateContentRequest(Tool tools) {
+        this.generationConfig = new GenerationConfig(1.0);
+        this.tools = new Tool[] {tools};
+    }
+
+    public GenerateContentRequest(double temp) {
+        this.generationConfig = new GenerationConfig(temp);
+    }
+
+    public GenerateContentRequest(Tool tools, double temp) {
+        this.generationConfig = new GenerationConfig(temp);
         this.tools = new Tool[] {tools};
     }
 

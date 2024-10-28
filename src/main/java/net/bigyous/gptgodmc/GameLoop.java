@@ -56,11 +56,12 @@ public class GameLoop {
     private static ArrayList<String> previousActions = new ArrayList<String>();
     private static String personality;
     private static int rate = config.getInt("rate") < 1 ? 40 : config.getInt("rate");
+    private static double tempurature = config.getDouble("model-tempurature") < 0.01 ? 1.0 : config.getDouble("model-tempurature");
 
     public static void init() {
         if (isRunning || !config.getBoolean("enabled"))
             return;
-        GPT_API = new GptAPI(GPTModels.getMainModel());
+        GPT_API = new GptAPI(GPTModels.getMainModel(), tempurature);
         BukkitTask task = GPTGOD.SERVER.getScheduler().runTaskTimerAsynchronously(plugin, new GPTTask(), BukkitUtils.secondsToTicks(30),
         BukkitUtils.secondsToTicks(rate));
         taskId = task.getTaskId();

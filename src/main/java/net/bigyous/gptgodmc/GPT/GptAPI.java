@@ -49,9 +49,24 @@ public class GptAPI {
     private static ExecutorService pool = Executors.newCachedThreadPool();
     private static JavaPlugin plugin = JavaPlugin.getPlugin(GPTGOD.class);
 
+    public GptAPI(GptModel model, double temperature) {
+        this.model = model;
+        this.body = new GenerateContentRequest(GptActions.GetAllTools(), temperature);
+        gson.registerTypeAdapter(GptModel.class, new ModelSerializer());
+        gson.setExclusionStrategies(new ParameterExclusion());
+    }
+
     public GptAPI(GptModel model) {
         this.model = model;
         this.body = new GenerateContentRequest(GptActions.GetAllTools());
+        gson.registerTypeAdapter(GptModel.class, new ModelSerializer());
+        gson.setExclusionStrategies(new ParameterExclusion());
+    }
+
+    public GptAPI(GptModel model, Tool customTools, double tempurature) {
+        this.model = model;
+        this.body = new GenerateContentRequest(customTools, tempurature);
+        
         gson.registerTypeAdapter(GptModel.class, new ModelSerializer());
         gson.setExclusionStrategies(new ParameterExclusion());
     }
@@ -293,6 +308,9 @@ public class GptAPI {
 
         if (responseObject.isError()) {
             GPTGOD.LOGGER.error(responseObject.getError().toString());
+            if(responseObject.getError().getStatus() == "INVALID_ARGUMENT") {
+                GPTGOD.LOGGER.info("GEMINI API RETURNED INVALID ARGUMENT! Suggestion: Double check that the gemini model names are correct.");
+            }
             return;
         }
 
