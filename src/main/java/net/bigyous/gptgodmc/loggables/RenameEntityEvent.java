@@ -15,6 +15,7 @@ public class RenameEntityEvent extends BaseLoggable implements UserInputLoggable
     private Entity actualEntity;
 
     public RenameEntityEvent(PlayerInteractEntityEvent event){
+        super();
         this.player = event.getPlayer().getName();
         ItemStack item = event.getPlayer().getInventory().getItem(event.getHand());
         this.isValid = item.getType().equals(Material.NAME_TAG) && item.hasItemMeta() && item.getItemMeta().hasDisplayName();

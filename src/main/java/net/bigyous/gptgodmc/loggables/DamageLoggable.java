@@ -14,6 +14,7 @@ public class DamageLoggable extends BaseLoggable {
     protected boolean isValid;
 
     public DamageLoggable(EntityDamageEvent event) {
+        super();
         this.entityName = event.getEntity().getName();
         this.damageAmount = event.getDamage();
         this.isValid = !event.getCause().equals(DamageCause.ENTITY_ATTACK) && !event.getCause().equals(DamageCause.ENTITY_SWEEP_ATTACK) && event.getEntityType().equals(EntityType.PLAYER);

@@ -4,6 +4,7 @@ public class EntityLoveLoggable extends BaseLoggable {
     private String player;
     private String entityType;
     public EntityLoveLoggable(EntityEnterLoveModeEvent event){
+        super();
         player = event.getHumanEntity().getName();
         entityType = event.getEntity().getName();
     }

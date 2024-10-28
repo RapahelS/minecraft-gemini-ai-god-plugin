@@ -39,6 +39,7 @@ public class SpecialBlockPlaceEventLoggable extends BaseLoggable {
     protected int quantity = 1;
     private boolean isValid = false;
     public SpecialBlockPlaceEventLoggable(BlockPlaceEvent event){
+        super();
         if(specialBlocks.contains(event.getBlock().getType()) || isInSpecialGroup(event.getBlock().getType())){
             this.player = event.getPlayer();
             this.block = event.getBlock();

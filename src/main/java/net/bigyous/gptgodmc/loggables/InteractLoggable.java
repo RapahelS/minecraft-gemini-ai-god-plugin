@@ -12,6 +12,7 @@ public class InteractLoggable extends BaseLoggable {
     private boolean isValid = false;
 
     public InteractLoggable(PlayerInteractEvent event){
+        super();
         this.playerName = event.getPlayer().getName();
         this.targetName = event.hasBlock()? event.getClickedBlock().getType().name(): null;
         this.itemName = event.hasItem()? ((TextComponent)event.getItem().displayName()).content(): null;

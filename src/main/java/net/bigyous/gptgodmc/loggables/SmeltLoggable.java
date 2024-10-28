@@ -9,6 +9,7 @@ public class SmeltLoggable extends BaseLoggable{
     private String block;
 
     public SmeltLoggable(InventoryBlockStartEvent event){
+        super();
         item = event.getSource().getType().toString();
         block = event.getBlock().getType().toString();
         if (event.getBlock() instanceof Container){

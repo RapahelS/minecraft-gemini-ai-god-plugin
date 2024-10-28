@@ -13,6 +13,7 @@ public class RenameItemLoggable extends BaseLoggable implements UserInputLoggabl
     protected boolean isValid = false;
     private ItemStack actualItem;
     public RenameItemLoggable(InventoryClickEvent event){
+        super();
         this.player = event.getView().getPlayer().getName();
         if(event.getInventory() instanceof AnvilInventory){
             if(event.getRawSlot() == 2){

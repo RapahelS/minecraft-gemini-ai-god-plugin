@@ -36,6 +36,7 @@ import net.bigyous.gptgodmc.GPT.Json.ParameterExclusion;
 import net.bigyous.gptgodmc.GPT.Json.Part;
 import net.bigyous.gptgodmc.GPT.Json.Tool;
 import net.bigyous.gptgodmc.GPT.Json.ToolConfig;
+import net.bigyous.gptgodmc.GPT.Json.Content.Role;
 
 public class GptAPI {
     private GsonBuilder gson = new GsonBuilder();
@@ -173,6 +174,10 @@ public class GptAPI {
         return this;
     }
 
+    public void addResponse(Content responseContent) {
+        this.body.addMessage(responseContent);
+    }
+
     public GptAPI setToolChoice(String tool_choice) {
         this.body.setToolConfig(new ToolConfig(new String[]{tool_choice}));
         return this;
@@ -284,6 +289,7 @@ public class GptAPI {
             }
 
             // add non null candidates to response history for multi-turn
+            this.addResponse(choice.getContent());
 
             for (Part call : parts) {
                 FunctionCall func = call.getFunctionCall();

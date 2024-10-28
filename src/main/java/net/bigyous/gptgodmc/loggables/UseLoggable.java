@@ -41,6 +41,7 @@ public class UseLoggable extends BaseLoggable{
         );
     
     public UseLoggable(PlayerInteractEvent event){
+        super();
         this.blockName = event.hasBlock()? event.getClickedBlock().getType().toString() : null;
         this.playerName = event.getPlayer().getName();
         this.item = event.hasItem() && toolItems.contains(event.getItem().getType())? event.getItem().getType().toString() : null;

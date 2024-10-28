@@ -31,6 +31,7 @@ public class ItemPickupLoggable extends BaseLoggable {
     protected List<Pickup> pickups = new ArrayList<>();
 
     public ItemPickupLoggable(PlayerAttemptPickupItemEvent event) {
+        super();
         playerName = event.getPlayer().getName();
 
         pickups.add(new Pickup(

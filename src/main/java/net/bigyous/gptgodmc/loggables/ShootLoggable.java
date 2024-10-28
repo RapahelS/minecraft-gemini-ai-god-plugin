@@ -13,7 +13,7 @@ public class ShootLoggable extends BaseLoggable {
     private String projectile;
     @SuppressWarnings("null")
     public ShootLoggable(EntityShootBowEvent event){
-        
+        super();
         isValid = event.getEntityType().equals(EntityType.PLAYER);
         if(isValid){
             LivingEntity ent = event.getEntity();

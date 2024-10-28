@@ -8,6 +8,7 @@ public class FishingLoggable extends BaseLoggable {
     private String fishedItemName;
 
     public FishingLoggable(PlayerFishEvent event){
+        super();
         this.playerName = event.getPlayer().getName();
         this.fishedItemName = event.getCaught() == null? null : event.getCaught().getName();
     }

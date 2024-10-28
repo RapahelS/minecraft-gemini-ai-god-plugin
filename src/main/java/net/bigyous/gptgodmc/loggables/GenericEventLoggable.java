@@ -4,6 +4,7 @@ public class GenericEventLoggable extends BaseLoggable{
     private String text;
 
     public GenericEventLoggable(String text){
+        super();
         this.text = text;
     }
 

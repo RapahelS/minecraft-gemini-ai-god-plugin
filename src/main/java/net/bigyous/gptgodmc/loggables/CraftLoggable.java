@@ -8,6 +8,7 @@ public class CraftLoggable extends BaseLoggable {
     protected String item;
     protected int count;
     public CraftLoggable(CraftItemEvent event){
+        super();
         HumanEntity crafter = event.getView().getPlayer();
         this.playerName = crafter.getName();
         this.count = event.getCurrentItem().getAmount();

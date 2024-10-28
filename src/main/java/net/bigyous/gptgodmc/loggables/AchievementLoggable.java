@@ -8,6 +8,7 @@ public class AchievementLoggable extends BaseLoggable {
     private String message;
     private boolean isValid;
     public AchievementLoggable(PlayerAdvancementDoneEvent event){
+        super();
         this.isValid = event.message() != null;
         this.message = isValid ? PlainTextComponentSerializer.plainText().serialize(event.message()) : null;
     }

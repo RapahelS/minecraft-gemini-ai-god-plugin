@@ -12,6 +12,7 @@ public class ExplosionLoggable extends BaseLoggable{
     private String nearbyStructure;
 
     public ExplosionLoggable(BlockExplodeEvent event){
+        super();
         StringBuilder sb = new StringBuilder();
         event.getBlock().getLocation().getNearbyPlayers(5).stream().forEach((Player player)-> {
             sb.append(player.getName() + ", ");
@@ -26,6 +27,7 @@ public class ExplosionLoggable extends BaseLoggable{
     }
 
     public ExplosionLoggable(EntityExplodeEvent event){
+        super();
         StringBuilder sb = new StringBuilder();
         event.getLocation().getNearbyPlayers(5).stream().forEach((Player player)-> {
             sb.append(player.getName() + ", ");

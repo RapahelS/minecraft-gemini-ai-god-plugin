@@ -7,6 +7,7 @@ public class WriteOnSignLoggable extends BaseLoggable implements UserInputLoggab
     private String playerName;
     private String text;
     public WriteOnSignLoggable(SignChangeEvent event){
+        super();
         this.playerName = event.getPlayer().getName();
         StringBuilder sb = new StringBuilder();
         event.lines().forEach( (Component component)-> {

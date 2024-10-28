@@ -10,6 +10,7 @@ public class KillLoggable extends BaseLoggable {
     boolean isValid;
 
     public KillLoggable(EntityDeathEvent event) {
+        super();
         Entity k = event.getEntity().getKiller();
         Entity v = event.getEntity();
         this.isValid = k != null && (isImportantCharacter(k) || isImportantCharacter(v));

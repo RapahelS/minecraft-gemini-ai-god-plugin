@@ -87,6 +87,10 @@ public class GenerateContentRequest {
         this.contents.add(new Content(role, content));
     }
 
+    public void addMessage(Content content){
+        this.contents.add(content);
+    }
+
     public void addMessage(Content.Role role, String[] content) {
         this.contents.add(new Content(role, content));
     }

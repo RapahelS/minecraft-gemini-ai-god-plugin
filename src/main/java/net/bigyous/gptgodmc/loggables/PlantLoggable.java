@@ -13,6 +13,7 @@ public class PlantLoggable extends BaseLoggable {
     protected int count = 1;
 
     public PlantLoggable (BlockPlaceEvent event){
+        super();
         if(event.getBlock().getBlockData() instanceof Sapling || event.getBlock().getBlockData() instanceof Ageable || MaterialSetTag.FLOWERS.isTagged(event.getBlock().getType())){
             this.isValid = true;
             this.player = event.getPlayer().getName();
