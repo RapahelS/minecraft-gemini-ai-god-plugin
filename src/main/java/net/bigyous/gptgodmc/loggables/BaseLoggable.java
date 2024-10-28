@@ -10,7 +10,7 @@ import net.bigyous.gptgodmc.utils.GPTUtils;
 public class BaseLoggable implements Loggable {
     private Instant timestamp;
     private int tokens = -1;
-    private String minecraftTime;
+    protected String minecraftTime;
 
     public BaseLoggable() {
         timestamp = Instant.now();
