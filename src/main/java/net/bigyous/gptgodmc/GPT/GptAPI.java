@@ -56,7 +56,7 @@ public class GptAPI {
         gson.setExclusionStrategies(new ParameterExclusion());
     }
 
-    public GptAPI(GptModel model, Tool[] customTools) {
+    public GptAPI(GptModel model, Tool customTools) {
         this.model = model;
         this.body = new GenerateContentRequest(customTools);
         
@@ -111,7 +111,7 @@ public class GptAPI {
     //     return this;
     // }
 
-    public GptAPI setTools(Tool[] tools) {
+    public GptAPI setTools(Tool tools) {
         this.body.setTools(tools);
         return this;
     }
@@ -127,6 +127,11 @@ public class GptAPI {
     }
 
     public GptAPI addLogs(String Logs, String name) {
+        if(Logs.length() < 1) {
+            GPTGOD.LOGGER.warn("tried to add empty logs");
+            return this;
+        }
+
         if (this.messageMap.containsKey(name)) {
             this.body.replaceMessage(messageMap.get(name), Logs);
             return this;
@@ -175,6 +180,7 @@ public class GptAPI {
     }
 
     public void addResponse(Content responseContent) {
+        GPTGOD.LOGGER.info("Adding response " + gson.create().toJson(responseContent));
         this.body.addMessage(responseContent);
     }
 

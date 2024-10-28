@@ -123,7 +123,9 @@ public class GameLoop {
             EventLogger.cull(GPT_API.getMaxTokens() - nonLogTokens);
             List<String> logs = EventLogger.getLogs();
             GPT_API.addLogs(logs, "log");
-            GPT_API.addLogs(getPreviousActions(), "previous_actions");
+            if(!previousActions.isEmpty()) {
+                GPT_API.addLogs(getPreviousActions(), "previous_actions");
+            }
             GPT_API.send();
         }
 

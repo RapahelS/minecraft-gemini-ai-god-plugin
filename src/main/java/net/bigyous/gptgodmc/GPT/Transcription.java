@@ -59,14 +59,14 @@ public class Transcription {
                     "receives a list of transcription results for each player voice chat which was decoded.",
                     new Schema(Map.of(
                             "transcriptionResults",
-                            new Schema(Schema.Type.ARRAY, "", Map.of(
+                            new Schema(Schema.Type.ARRAY, "the transcription object with playerName minecraftTime and the transcribedMessage", Map.of(
                                 "playerName", new Schema(Schema.Type.STRING),
                                 "minecraftTime", new Schema(Schema.Type.STRING),
                                 "transcribedMessage", new Schema(Schema.Type.STRING)
                             ))
                         )),
                     submitTranscriptions));
-    private static Tool[] tools = GptActions.wrapFunctions(functionMap);
+    private static Tool tools = GptActions.wrapFunctions(functionMap);
 
     public static void TranscribeAndSubmitMany(TranscriptionRequest[] playerAudioData) {
         if (config.getString("geminiKey").isBlank()) {

@@ -23,11 +23,11 @@ public class FunctionDeclaration {
         this.function = function;
 
         // default to all fields required
-        List<String> required = new ArrayList<>();
-        for(String key : parameters.getProperties().keySet()) {
-            required.add(key);
-        }
-        this.parameters.setRequiredFields(required);
+        // List<String> required = new ArrayList<>();
+        // for(String key : parameters.getProperties().keySet()) {
+        //     required.add(key);
+        // }
+        // this.parameters.setRequiredFields(required);
     }
 
     public String getDescription() {

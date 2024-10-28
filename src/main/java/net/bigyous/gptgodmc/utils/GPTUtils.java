@@ -49,13 +49,11 @@ public class GPTUtils {
     }
 
     // calculates the sum tokens for all functions in a tool
-    public static int calculateToolTokens(Tool[] tools) {
+    public static int calculateToolTokens(Tool tool) {
         int sum = 0;
-        for (Tool tool : tools) {
             for (FunctionDeclaration func : tool.getFunctions()) {
                 sum += func.calculateFunctionTokens();
             }
-        }
         return sum;
     }
 

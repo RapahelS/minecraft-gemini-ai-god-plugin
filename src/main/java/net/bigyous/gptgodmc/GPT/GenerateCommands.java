@@ -27,7 +27,7 @@ public class GenerateCommands {
                                                         "list of minecraft commands, each entry in the list is an individual command",
                                                         Schema.Type.STRING))),
                                         inputCommands));
-        private static Tool[] tools = GptActions.wrapFunctions(functionMap);
+        private static Tool tools = GptActions.wrapFunctions(functionMap);
         private static GptAPI gpt = new GptAPI(GPTModels.getSecondaryModel(), tools)
                         .setSystemContext(
                                         """

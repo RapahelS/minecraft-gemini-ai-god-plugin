@@ -358,55 +358,52 @@ public class GptActions {
     private static Map<String, FunctionDeclaration> speechFunctionMap = new HashMap<>(functionMap);
     private static Map<String, FunctionDeclaration> actionFunctionMap = new HashMap<>(functionMap);
 
-    private static Tool[] tools;
-    private static Tool[] actionTools;
-    private static Tool[] speechTools;
+    private static Tool tools;
+    // private static Tool[] actionTools;
+    // private static Tool[] speechTools;
     private static final List<String> speechActionKeys = Arrays.asList("announce", "whisper", "setObjective",
             "clearObjective", "decree");
     private static final List<String> persistentActionKeys = Arrays.asList("command");
 
     // todo: experiment with wrapping a list of functions in a single tool for
     // google
-    public static Tool[] wrapFunctions(Map<String, FunctionDeclaration> functions) {
+    public static Tool wrapFunctions(Map<String, FunctionDeclaration> functions) {
         FunctionDeclaration[] funcList = functions.values().toArray(new FunctionDeclaration[functions.size()]);
-        Tool[] toolList = new Tool[functions.size()];
-        for (int i = 0; i < funcList.length; i++) {
-            toolList[i] = new Tool(funcList[i]);
-        }
+        Tool toolList = new Tool(funcList);
         return toolList;
     }
 
-    public static Tool[] GetAllTools() {
-        if (tools != null && tools[0] != null) {
+    public static Tool GetAllTools() {
+        if (tools != null) {
             return tools;
         }
         tools = wrapFunctions(functionMap);
         return tools;
     }
 
-    public static Tool[] GetActionTools() {
-        if (actionTools == null || actionTools[0] == null) {
-            actionFunctionMap.keySet().removeAll(speechActionKeys);
-            actionFunctionMap.keySet().removeAll(persistentActionKeys);
-            actionTools = wrapFunctions(actionFunctionMap);
-        }
-        Tool[] newTools = GPTUtils.randomToolSubset(actionTools, 3);
-        Tool[] persistentTools = persistentActionKeys.stream().map(key -> {
-            return new Tool(functionMap.get(key));
-        }).toArray(Tool[]::new);
-        // I could do this nicer, but I don't feel like it
-        newTools = GPTUtils.concatWithArrayCopy(newTools, persistentTools);
-        return newTools;
-    }
+    // public static Tool[] GetActionTools() {
+    //     if (actionTools == null || actionTools[0] == null) {
+    //         actionFunctionMap.keySet().removeAll(speechActionKeys);
+    //         actionFunctionMap.keySet().removeAll(persistentActionKeys);
+    //         actionTools = wrapFunctions(actionFunctionMap);
+    //     }
+    //     Tool[] newTools = GPTUtils.randomToolSubset(actionTools, 3);
+    //     Tool[] persistentTools = persistentActionKeys.stream().map(key -> {
+    //         return new Tool(functionMap.get(key));
+    //     }).toArray(Tool[]::new);
+    //     // I could do this nicer, but I don't feel like it
+    //     newTools = GPTUtils.concatWithArrayCopy(newTools, persistentTools);
+    //     return newTools;
+    // }
 
-    public static Tool[] GetSpeechTools() {
-        if (speechTools != null && speechTools[0] != null) {
-            return speechTools;
-        }
-        speechFunctionMap.keySet().retainAll(speechActionKeys);
-        speechTools = wrapFunctions(speechFunctionMap);
-        return speechTools;
-    }
+    // public static Tool[] GetSpeechTools() {
+    //     if (speechTools != null && speechTools[0] != null) {
+    //         return speechTools;
+    //     }
+    //     speechFunctionMap.keySet().retainAll(speechActionKeys);
+    //     speechTools = wrapFunctions(speechFunctionMap);
+    //     return speechTools;
+    // }
 
     private static void dispatch(String command, CommandSender console) {
         // can't let GPT turn off mob spawning

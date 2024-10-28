@@ -40,8 +40,8 @@ public class GenerateContentRequest {
     public GenerateContentRequest() {
     }
 
-    public GenerateContentRequest(Tool[] tools) {
-        this.tools = tools;
+    public GenerateContentRequest(Tool tools) {
+        this.tools = new Tool[] {tools};
     }
 
     public GenerateContentRequest setSystemInstruction(String systemInstruction) {
@@ -65,8 +65,8 @@ public class GenerateContentRequest {
         return this;
     }
 
-    public GenerateContentRequest setTools(Tool[] tools) {
-        this.tools = tools;
+    public GenerateContentRequest setTools(Tool tools) {
+        this.tools = new Tool[]{tools};
         return this;
     }
 
