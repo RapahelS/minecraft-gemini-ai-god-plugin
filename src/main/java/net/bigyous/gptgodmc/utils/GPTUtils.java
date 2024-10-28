@@ -12,6 +12,7 @@ import com.knuddels.jtokkit.api.Encoding;
 import com.knuddels.jtokkit.api.EncodingRegistry;
 import com.knuddels.jtokkit.api.EncodingType;
 
+import net.bigyous.gptgodmc.WorldManager;
 import net.bigyous.gptgodmc.GPT.Json.FunctionDeclaration;
 import net.bigyous.gptgodmc.GPT.Json.Tool;
 
@@ -66,7 +67,7 @@ public class GPTUtils {
 
     // returns a formatted time stamp of current minecraft world time for GPT
     public static String getTimeStamp() {
-        return getWorldTimeStamp(Bukkit.getServer().getWorlds().get(0));
+        return getWorldTimeStamp(WorldManager.getCurrentWorld());
     }
 
     // returns a formatted time stamp of current players minecraft world time for

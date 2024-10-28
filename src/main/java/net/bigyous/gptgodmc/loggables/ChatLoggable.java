@@ -12,11 +12,13 @@ public class ChatLoggable implements Loggable, UserInputLoggable {
     public String message;
     private Instant timestamp;
     private int tokens = -1;
+    private String minecraftTime;
 
     public ChatLoggable(String playerName, String minecraftTime, String message) {
         this.playerName = playerName;
         this.message = message;
         timestamp = Instant.now();
+        minecraftTime = GPTUtils.getTimeStamp();
         // Moderation.moderateUserInput(message, this);
     }
 
@@ -24,6 +26,7 @@ public class ChatLoggable implements Loggable, UserInputLoggable {
         this.playerName = playerName;
         this.message = message;
         this.timestamp = timestamp;
+        minecraftTime = GPTUtils.getTimeStamp();
         // Moderation.moderateUserInput(message, this);
     }
     public String getLog() {
@@ -58,6 +61,11 @@ public class ChatLoggable implements Loggable, UserInputLoggable {
     @Override
     public void updateUserInput(String input) {
         this.message = input;
+    }
+
+    @Override
+    public String getMinecraftTimeStamp() {
+        return minecraftTime;
     }
 }
 

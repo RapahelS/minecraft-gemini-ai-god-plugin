@@ -60,11 +60,13 @@ public class EventLogger {
         logs.add(
             ServerInfoSummarizer.compileStatus()
         );
-        
+
+        logs.add("Following is a list of event's that have occured on the server since the last response from God:");        
+
         for (Loggable event: loggables) {
             String log = event.getLog();
             if(log != null){
-                logs.add(log);
+                logs.add(event.getMinecraftTimeStamp() + " " + log);
             }
         }
         return logs;
@@ -72,7 +74,6 @@ public class EventLogger {
 
     public static List<String> flushLogs() {
         List<String> logs = getLogs();
-
         // Clear events
         
         loggables.clear();

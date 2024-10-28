@@ -5,6 +5,8 @@ public class GenerateContentResponse {
     PromptFeedback promptFeedback;
     UsageMetadata usageMetadata;
 
+    GoogError error;
+
     // shortcut to just return the first candidate response
     public String getText() {
         return candidates[0].getText();
@@ -12,6 +14,14 @@ public class GenerateContentResponse {
 
     public Candidate[] getCandidates() {
         return candidates;
+    }
+
+    public GoogError getError() {
+        return this.error;
+    }
+
+    public boolean isError() {
+        return this.error != null;
     }
 }
 

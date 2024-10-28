@@ -1,5 +1,8 @@
 package net.bigyous.gptgodmc.GPT.Json;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.google.gson.JsonObject;
 
 import net.bigyous.gptgodmc.GPTGOD;
@@ -18,6 +21,13 @@ public class FunctionDeclaration {
         this.description = description;
         this.parameters = parameters;
         this.function = function;
+
+        // default to all fields required
+        List<String> required = new ArrayList<>();
+        for(String key : parameters.getProperties().keySet()) {
+            required.add(key);
+        }
+        this.parameters.setRequiredFields(required);
     }
 
     public String getDescription() {
@@ -46,6 +56,10 @@ public class FunctionDeclaration {
 
     public Function<JsonObject> getFunction() {
         return function;
+    }
+
+    public List<String> getRequired() {
+        return this.parameters.getRequiredFields();
     }
 
     public void runFunction(JsonObject jsonArgs){

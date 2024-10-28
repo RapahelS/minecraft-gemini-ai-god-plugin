@@ -8,6 +8,9 @@ public interface Loggable {
      */
     public String getLog();
 
+    // get the minecraft world time of day
+    public String getMinecraftTimeStamp();
+
     /**
      * Attempt to combine two loggables.
      * E.g. two item pickup events can be combined.

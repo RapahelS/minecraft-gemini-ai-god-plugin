@@ -83,7 +83,11 @@ public class GptActions {
         };
         Map<String, String> argsMap = gson.fromJson(args, mapType);
         String message = argsMap.get("message");
-        staticWhisper(argsMap.get("playerName"), message);
+        String playerName = argsMap.get("playerName");
+        if(playerName == null) {
+            playerName = argsMap.get("player_name");
+        }
+        staticWhisper(playerName, message);
         return;
     };
     private static Function<JsonObject> announce = (JsonObject args) -> {
@@ -248,7 +252,7 @@ public class GptActions {
         EventLogger.addLoggable(new GPTActionLoggable(String.format("detonated Structure: %s", structure)));
     };
     private static Map<String, FunctionDeclaration> functionMap = Map.ofEntries(
-            Map.entry("decree", new FunctionDeclaration("decree", "display a heavenly decree in front of a specific player in the world", new Schema(
+            Map.entry("decree", new FunctionDeclaration("decree", "display a heavenly decree in front of a specific player in the world. Use only to communicate displeasure in some action. Use no more than 12 words in the message.", new Schema(
                 Map.of(
                         "playerName",
                         new Schema(Schema.Type.STRING, "name of the player to send the decree to"),
@@ -361,7 +365,7 @@ public class GptActions {
     }
 
     public static Tool[] GetAllTools() {
-        if (tools[0] != null) {
+        if (tools!=null && tools[0] != null) {
             return tools;
         }
         tools = wrapFunctions(functionMap);
@@ -451,6 +455,11 @@ public class GptActions {
 
     public static void processResponse(String response, Map<String, FunctionDeclaration> functions) {
         GenerateContentResponse responseObject = gson.fromJson(response, GenerateContentResponse.class);
+        
+        if(responseObject.isError()) {
+            GPTGOD.LOGGER.error("error loading gemini response: " + responseObject.getError().toString());
+        }
+        
         for (Candidate cand : responseObject.getCandidates()) {
             ArrayList<Part> parts = cand.getContent().getParts();
             if (parts == null) {

@@ -10,13 +10,16 @@ import net.bigyous.gptgodmc.utils.GPTUtils;
 public class BaseLoggable implements Loggable {
     private Instant timestamp;
     private int tokens = -1;
+    private String minecraftTime;
 
     public BaseLoggable() {
         timestamp = Instant.now();
+        minecraftTime = GPTUtils.getTimeStamp();
     }
 
     public BaseLoggable(Instant timestamp) {
         this.timestamp = timestamp;
+        minecraftTime = GPTUtils.getTimeStamp();
     }
 
     protected String getFormattedTimestamp() {
@@ -50,5 +53,10 @@ public class BaseLoggable implements Loggable {
     }
     public void resetTokens(){
         tokens = -1;
+    }
+
+    @Override
+    public String getMinecraftTimeStamp() {
+        return minecraftTime;
     }
 }
