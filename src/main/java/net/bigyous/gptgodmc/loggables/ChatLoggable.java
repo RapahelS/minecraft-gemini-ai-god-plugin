@@ -17,8 +17,8 @@ public class ChatLoggable implements Loggable, UserInputLoggable {
     public ChatLoggable(String playerName, String minecraftTime, String message) {
         this.playerName = playerName;
         this.message = message;
-        timestamp = Instant.now();
-        minecraftTime = GPTUtils.getTimeStamp();
+        this.timestamp = Instant.now();
+        this.minecraftTime = minecraftTime;
         // Moderation.moderateUserInput(message, this);
     }
 
@@ -26,7 +26,7 @@ public class ChatLoggable implements Loggable, UserInputLoggable {
         this.playerName = playerName;
         this.message = message;
         this.timestamp = timestamp;
-        minecraftTime = GPTUtils.getTimeStamp();
+        this.minecraftTime = minecraftTime;
         // Moderation.moderateUserInput(message, this);
     }
     public String getLog() {
