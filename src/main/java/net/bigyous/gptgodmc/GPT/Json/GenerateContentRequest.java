@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.bigyous.gptgodmc.GPT.Json.Content.Role;
+import net.bigyous.gptgodmc.GPT.Json.SafetySetting.HarmBlockThreshold;
+import net.bigyous.gptgodmc.GPT.Json.SafetySetting.HarmCategory;
 
 // Class to represent the structure of the JSON request to gemini
 // for generating content responses
@@ -16,8 +18,10 @@ public class GenerateContentRequest {
     
     // tools Optional. A list of Tools the Model may use to generate the next response. A Tool is a piece of code that enables the system to interact with external systems to perform an action, or set of actions, outside of knowledge and scope of the Model. Supported Tools are Function and codeExecution. Refer to the Function calling and the Code execution guides to learn more.
     private Tool[] tools;
+
     // tool config Optional. Tool configuration for any Tool specified in the request. Refer to the Function calling guide for a usage example.
     private ToolConfig toolConfig;
+
     // safety settings Optional. A list of unique SafetySetting instances for blocking unsafe content.
     // This will be enforced on the GenerateContentRequest.contents and GenerateContentResponse.candidates.
     // There should not be more than one setting for each SafetyCategory type.
@@ -26,7 +30,21 @@ public class GenerateContentRequest {
     // If there is no SafetySetting for a given SafetyCategory provided in the list, the API will use the default safety setting for that category.
     // Harm categories HARM_CATEGORY_HATE_SPEECH, HARM_CATEGORY_SEXUALLY_EXPLICIT, HARM_CATEGORY_DANGEROUS_CONTENT, HARM_CATEGORY_HARASSMENT are supported.
     // Refer to the guide for detailed information on available safety settings. Also refer to the Safety guidance to learn how to incorporate safety considerations in your AI applications.
-    private SafetySetting[] safetySettings;
+    // private SafetySetting[] safetySettings = new SafetySetting[] {
+    //     new SafetySetting(HarmCategory.HARM_CATEGORY_UNSPECIFIED, HarmBlockThreshold.OFF),
+    //     new SafetySetting(HarmCategory.HARM_CATEGORY_DEROGATORY, HarmBlockThreshold.OFF),
+    //     new SafetySetting(HarmCategory.HARM_CATEGORY_TOXICITY, HarmBlockThreshold.OFF),
+    //     new SafetySetting(HarmCategory.HARM_CATEGORY_VIOLENCE, HarmBlockThreshold.OFF),
+    //     new SafetySetting(HarmCategory.HARM_CATEGORY_SEXUAL, HarmBlockThreshold.OFF),
+    //     new SafetySetting(HarmCategory.HARM_CATEGORY_MEDICAL, HarmBlockThreshold.OFF),
+    //     new SafetySetting(HarmCategory.HARM_CATEGORY_DANGEROUS, HarmBlockThreshold.OFF),
+    //     new SafetySetting(HarmCategory.HARM_CATEGORY_HARASSMENT, HarmBlockThreshold.OFF),
+    //     new SafetySetting(HarmCategory.HARM_CATEGORY_HATE_SPEECH, HarmBlockThreshold.OFF),
+    //     new SafetySetting(HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT, HarmBlockThreshold.OFF),
+    //     new SafetySetting(HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, HarmBlockThreshold.OFF),
+    //     new SafetySetting(HarmCategory.HARM_CATEGORY_CIVIC_INTEGRITY, HarmBlockThreshold.OFF)
+    // }; // disable the safety settings
+
     // system instruction Optional. Developer set system instruction(s). Currently, text only.
     // generation config Optional. Configuration options for model generation and outputs.
     // cached content Optional. The name of the content cached to use as context to serve the prediction. Format: cachedContents/{cachedContent}
