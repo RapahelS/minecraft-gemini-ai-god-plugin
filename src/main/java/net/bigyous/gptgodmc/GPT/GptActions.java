@@ -25,6 +25,7 @@ import org.bukkit.scoreboard.Score;
 
 import net.bigyous.gptgodmc.EventLogger;
 import net.bigyous.gptgodmc.GPTGOD;
+import net.bigyous.gptgodmc.Structure;
 import net.bigyous.gptgodmc.StructureManager;
 import net.bigyous.gptgodmc.WorldManager;
 import net.bigyous.gptgodmc.GPT.Json.Candidate;
@@ -181,7 +182,12 @@ public class GptActions {
     private static Function<JsonObject> transformStructure = (JsonObject argObject) -> {
         String structure = gson.fromJson(argObject.get("structure"), String.class);
         String blockType = gson.fromJson(argObject.get("block"), String.class);
-        StructureManager.getStructure(structure).getBlocks()
+        Structure structureObj = StructureManager.getStructure(structure);
+        if(structureObj == null) {
+            EventLogger.addLoggable(new GPTActionLoggable("tried to transform non existant structure \"" + structure + "\""));
+            return;
+        }
+        structureObj.getBlocks()
                 .forEach((Block b) -> b.setType(Material.matchMaterial(blockType)));
         EventLogger.addLoggable(
                 new GPTActionLoggable(
