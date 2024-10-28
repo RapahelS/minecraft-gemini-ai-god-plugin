@@ -3,7 +3,7 @@ version: ${version}
 main: net.bigyous.gptgodmc.GPTGOD
 api-version: ${bukkit_api_version}
 prefix: gptgodmc
-authors: [ "YOUS", "Anders" ]
+authors: [ "YOUS", "Anders", "ConnorBP" ]
 description: Minecraft is not so godless anymore...
 website: https://bigyous.net
 depend: [ voicechat ]
