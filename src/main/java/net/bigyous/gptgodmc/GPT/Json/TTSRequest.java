@@ -6,7 +6,7 @@ public class TTSRequest {
     private String voice;
     private String response_format;
 
-    public TTSRequest(String model, String input, String voice, String format){
+    public TTSRequest(String model, String input, String voice, String format) {
         this.model = model;
         this.input = input;
         this.voice = voice;

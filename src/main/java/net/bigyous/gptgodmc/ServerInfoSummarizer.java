@@ -9,11 +9,11 @@ import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Boss;
 import org.bukkit.entity.Enemy;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.Monster;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import net.bigyous.gptgodmc.enums.GptGameMode;
+import net.bigyous.gptgodmc.utils.GPTUtils;
 import net.bigyous.gptgodmc.utils.NicknameCommand;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 
@@ -49,20 +49,21 @@ public class ServerInfoSummarizer {
     }
 
     private static String getStructures() {
-        StringBuilder sb = new StringBuilder();
-        for (String structure : StructureManager.getStructures()) {
-            sb.append(String.format("%s: size: %d builder: %s, ", structure,
-                StructureManager.getStructure(structure).getSize(),
-                    StructureManager.getStructure(structure).getBuilder().getName()));
-        }
-        return sb.toString();
+        // StringBuilder sb = new StringBuilder();
+        // for (String structure : StructureManager.getStructures()) {
+        // sb.append(String.format("%s: size: %d builder: %s, ", structure,
+        // StructureManager.getStructure(structure).getSize(),
+        // StructureManager.getStructure(structure).getBuilder().getName()));
+        // }
+        // return sb.toString();
+        return StructureManager.getDisplayString();
     }
 
     private static String getDangerLevel(Player player) {
         // can't use getNearbyEntities because it is not Thread safe
         List<Entity> nearby = new ArrayList<Entity>();
-        for(Entity entity : player.getChunk().getEntities()){
-            if(player.getLocation().distanceSquared(entity.getLocation()) <= 100){
+        for (Entity entity : player.getChunk().getEntities()) {
+            if (player.getLocation().distanceSquared(entity.getLocation()) <= 100) {
                 nearby.add(entity);
             }
         }
@@ -109,18 +110,20 @@ public class ServerInfoSummarizer {
 
     private static String getWeather() {
         World world = WorldManager.getCurrentWorld();
-        return String.format("%s %s", world.isThundering() ? "Thunder" : "",
+        return String.format("%s%s", world.isThundering() ? "Thunder " : "",
                 world.isClearWeather() ? "Clear" : "Storm");
     }
 
     private static String getObjectives() {
-        return GPTGOD.SCOREBOARD.getObjectives().isEmpty() ? "" :
-            String.format("Objectives: %s", String.join(",", GPTGOD.SCOREBOARD.getEntries().stream().filter(entry -> GPTGOD.SERVER.getPlayer(entry)==null).toList()));
+        return GPTGOD.SCOREBOARD.getObjectives().size() < 1 ? "NONE"
+                : String.format("Objectives: %s", String.join(",", GPTGOD.SCOREBOARD.getEntries().stream()
+                        .filter(entry -> GPTGOD.SERVER.getPlayer(entry) == null).toList()));
     }
 
-    public static String getStatusSummary() {
+    public static String compileStatus() {
         StringBuilder sb = new StringBuilder("Server Status:\n");
-        sb.append(String.format("Time of day: %s\n", WorldManager.getCurrentWorld().isDayTime() ? "Day" : "Night"));
+        sb.append(String.format("Time of day: %s %s\n", WorldManager.getCurrentWorld().isDayTime() ? "Day" : "Night",
+                GPTUtils.getWorldTimeStamp(WorldManager.getCurrentWorld())));
         sb.append(String.format("Weather: %s\n", getWeather()));
         sb.append("Structures: " + getStructures() + "\n");
         sb.append(getObjectives() + "\n");
@@ -134,8 +137,9 @@ public class ServerInfoSummarizer {
             // player.getInventory()
             String inventoryInfo = getInventoryInfo(player);
             sb.append("Status of Player " + name + ":\n");
-            if (!nickname.isBlank()) sb.append("Nickname: " + nickname + "\n");
-            if(GPTGOD.gameMode.equals(GptGameMode.DEATHMATCH)){
+            if (!nickname.isBlank())
+                sb.append("Nickname: " + nickname + "\n");
+            if (GPTGOD.gameMode.equals(GptGameMode.DEATHMATCH)) {
                 sb.append(String.format("Team: %s\n", GPTGOD.SCOREBOARD.getEntityTeam(player).getName()));
             }
             sb.append("Health: " + health + '\n');

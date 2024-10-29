@@ -27,9 +27,9 @@ import net.bigyous.gptgodmc.loggables.UserInputLoggable;
 public class Moderation {
     private static Gson gson = new Gson();
     private static String MODERATION_URL = "https://api.openai.com/v1/moderations";
-    
-    public static void moderateUserInput(String input, UserInputLoggable loggable){
-        if(input == null){
+
+    public static void moderateUserInput(String input, UserInputLoggable loggable) {
+        if (input == null) {
             return;
         }
         CloseableHttpClient client = HttpClientBuilder.create().build();
@@ -46,15 +46,15 @@ public class Moderation {
                 HttpResponse response = client.execute(post);
                 String raw = new String(response.getEntity().getContent().readAllBytes());
                 EntityUtils.consume(response.getEntity());
-                if(response.getStatusLine().getStatusCode() != 200){
+                if (response.getStatusLine().getStatusCode() != 200) {
                     GPTGOD.LOGGER.warn("API call failed");
                     Thread.currentThread().interrupt();
                 }
                 String out = processResponse(raw);
-                if(out != null){
+                if (out != null) {
                     loggable.updateUserInput(out);
                 }
-            } catch (IOException e){
+            } catch (IOException e) {
                 GPTGOD.LOGGER.error("There was an error making a request to GPT", e);
             }
             Thread.currentThread().interrupt();
@@ -62,13 +62,13 @@ public class Moderation {
         worker.start();
 
     }
-    private static String processResponse(String rawResponse){
+
+    private static String processResponse(String rawResponse) {
         JsonObject moderationObject = JsonParser.parseString(rawResponse).getAsJsonObject();
         JsonArray array = moderationObject.get("results").getAsJsonArray();
         ModerationResult results = gson.fromJson(array.get(0), ModerationResult.class);
-        if(results.isFlagged()) return String.format("Content flagged for: [%s]", results.getCategories());
+        if (results.isFlagged())
+            return String.format("Content flagged for: [%s]", results.getCategories());
         return null;
     }
 }
-
-

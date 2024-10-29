@@ -4,7 +4,7 @@ public class GptModel {
     private String name;
     private int tokenLimit;
 
-    public GptModel(String name, int tokenLimit){
+    public GptModel(String name, int tokenLimit) {
         this.name = name;
         this.tokenLimit = tokenLimit;
     }

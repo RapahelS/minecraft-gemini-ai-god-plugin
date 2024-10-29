@@ -9,46 +9,79 @@ import net.bigyous.gptgodmc.GPT.GptAPI;
 import net.bigyous.gptgodmc.GPT.GptActions;
 import net.bigyous.gptgodmc.GPT.Personality;
 import net.bigyous.gptgodmc.GPT.Prompts;
-import net.bigyous.gptgodmc.GPT.Json.GptTool;
 import net.bigyous.gptgodmc.utils.GPTUtils;
+import net.bigyous.gptgodmc.utils.BukkitUtils;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class GameLoop {
     private static JavaPlugin plugin = JavaPlugin.getPlugin(GPTGOD.class);
     private static FileConfiguration config = JavaPlugin.getPlugin(GPTGOD.class).getConfig();
-    private static GptAPI Action_GPT_API;
-    private static GptAPI Speech_GPT_API;
+    private static GptAPI GPT_API;
     private static int staticTokens = 0;
     private static int taskId;
     public static boolean isRunning = false;
     private static String PROMPT;
-    private static String SPEECH_PROMPT_TEPLATE = "%s%s, You can now communicate with the players. Use the server history as a reference to note the change in player behavior %s";
-    private static String ACTION_PROMPT_TEMPLATE = "%s Use this information and the tools provided to reward or punish the players. Only react to events listed under Current, Use the server history as a reference to note the change in player behavior %s";
+    private static String PROMPT_BASE = "React only to current events and reference server history for any recurring player behaviors. Use all communication tools available to you in creative ways and in varying tones, adapting to the context and each player's actions. If there are no objectives set, make sure to add one for each player. function parameter names must match the original camel cased name.";
+    private static String REQUIREMENTS = "Role Requirements: When interacting with players, choose from a range of responses: use whisper for private or subtle guidance, announce for dramatic proclamations, and decree to reinforce in-world commandments. Avoid repeating the same type of response for variety.";
+    private static String GUIDANCE = """
+                Behavior Guidance:
+                Communicate with all tools available to you.
+                Use a mixture of gift and punishment actions in addition to the text based communications.
+                Set interesting objectives to perform around the island, especially if none exist yet.
+                Make objectives interesting and creative, keeping in mind your likes and dislikes when you create them.
+                Reward players who complete their objectives within a minecraft day cycle and punish those who do not.
+            """;
+    private static String STYLE = """
+                Response Style:
+                When communicating, vary tone and intensity:
+                For minor infractions: start with a light-hearted or humorous whisper or decree.
+                For repeated actions: reinforce your message with an announce or objective and add a clear consequence if ignored.
+                Example responses:
+                Whisper: “A gentle reminder, dear mortal, mind your words.”
+                Announce: “Mortals, let it be known that peace shall reign, free of bickering!”
+                Objective: “MoistPyro, seek a lily to calm thy spirit.”
+            """;
+    private static String ESCALATION = """
+                Gradual Escalation:
+                Respond to behavior with increasing intensity if actions persist.
+                Start by setting objectives or whispering reminders,
+                then follow up with announcements,
+                then smite or detonateStructure for repeated rule breaking, blasphemy, blatant defiance, or group defiance on strike two or three.
+            """;
+    private static String ROLEPLAY = "Remain fully in character, addressing players as their god, and adapt your responses to create an engaging, immersive environment.";
+
     private static ArrayList<String> previousActions = new ArrayList<String>();
     private static String personality;
     private static int rate = config.getInt("rate") < 1 ? 40 : config.getInt("rate");
-
-    // converts seconds into ticks
-    private static long seconds(long seconds) {
-        return seconds * 20;
-    }
+    private static double tempurature = config.getDouble("model-tempurature") < 0.01 ? 1.0
+            : config.getDouble("model-tempurature");
 
     public static void init() {
         if (isRunning || !config.getBoolean("enabled"))
             return;
-        Action_GPT_API = new GptAPI(GPTModels.getMainModel(), GptActions.GetActionTools());
-        Speech_GPT_API = new GptAPI(GPTModels.getMainModel(), GptActions.GetSpeechTools());
-        BukkitTask task = GPTGOD.SERVER.getScheduler().runTaskTimerAsynchronously(plugin, new GPTTask(), seconds(30),
-                seconds(rate));
+        GPT_API = new GptAPI(GPTModels.getMainModel(), tempurature);
+        BukkitTask task = GPTGOD.SERVER.getScheduler().runTaskTimerAsynchronously(plugin, new GPTTask(),
+                BukkitUtils.secondsToTicks(30),
+                BukkitUtils.secondsToTicks(rate));
         taskId = task.getTaskId();
         personality = Personality.generatePersonality();
         PROMPT = Prompts.getGamemodePrompt(GPTGOD.gameMode);
-        String actionPrompt = String.format(ACTION_PROMPT_TEMPLATE, PROMPT, personality);
-        Action_GPT_API.addContext(actionPrompt, "prompt");
+        String[] systemPrompt = new String[] {
+                PROMPT,
+                personality,
+                PROMPT_BASE,
+                REQUIREMENTS,
+                GUIDANCE,
+                STYLE,
+                ESCALATION,
+                ROLEPLAY
+        };
+        GPT_API.setSystemContext(systemPrompt);
 
         // the roles system and user are each one token so we add two to this number
-        staticTokens = GPTUtils.countTokens(actionPrompt) + 2;
+        staticTokens = GPTUtils.countTokens(systemPrompt) + 2;
         isRunning = true;
         GPTGOD.LOGGER.info("GameLoop Started, the minecraft god has awoken");
     }
@@ -58,8 +91,7 @@ public class GameLoop {
             return;
         GPTGOD.SERVER.getScheduler().cancelTask(taskId);
         EventLogger.reset();
-        Action_GPT_API = null;
-        Speech_GPT_API = null;
+        GPT_API = null;
         isRunning = false;
         GPTGOD.LOGGER.info("GameLoop Stoppped");
     }
@@ -72,18 +104,9 @@ public class GameLoop {
         if (previousActions.isEmpty()) {
             return "";
         }
-        String out = " You Just: " + String.join(",", previousActions);
+        String out = " You (God) Just did the following actions: " + String.join(",", previousActions);
         previousActions = new ArrayList<String>();
         return out;
-    }
-
-    private static void sendSpeechActions() {
-        Speech_GPT_API.addContext(String.format(SPEECH_PROMPT_TEPLATE, PROMPT, getPreviousActions(), personality),
-                "prompt", 0);
-        if(EventLogger.hasSummary()){
-            Speech_GPT_API.addLogs("Server History: " + EventLogger.getSummary(), "summary", 1);
-        }
-        Speech_GPT_API.send();
     }
 
     private static class GPTTask implements Runnable {
@@ -95,24 +118,28 @@ public class GameLoop {
             }
             int nonLogTokens = staticTokens;
             if (EventLogger.hasSummary()) {
-                Action_GPT_API.addLogs("Server History: " + EventLogger.getSummary(), "summary", 1);
+                GPT_API.addLogs("Summary of Server History: " + EventLogger.getSummary(), "summary");
                 nonLogTokens += GPTUtils.countTokens(EventLogger.getSummary()) + 1;
             }
-            GptTool[] actionTools = GptActions.GetActionTools();
-            Action_GPT_API.setTools(actionTools);
-            nonLogTokens += GPTUtils.calculateToolTokens(actionTools);
-            EventLogger.cull(Action_GPT_API.getMaxTokens() - nonLogTokens);
-            String log = EventLogger.dump();
-            Action_GPT_API.addLogs("Current: " + log, "log");
-            Speech_GPT_API.addLogs("Current: " + log, "log");
-            previousActions = new ArrayList<>();
-            Action_GPT_API.send();
-            while (Action_GPT_API.isSending()) {
-                Thread.onSpinWait();
-            }
-            sendSpeechActions();
-            Thread.currentThread().interrupt();
+            nonLogTokens += GPTUtils.calculateToolTokens(GptActions.GetAllTools());
+            EventLogger.cull(GPT_API.getMaxTokens() - nonLogTokens);
 
+            // List<String> logs = EventLogger.getLogs();
+            // GPT_API.addLogs(logs, "log");
+            // add logs in series with responses
+            List<String> logs = EventLogger.flushLogs();
+            GPT_API.addMessages(logs.toArray(new String[logs.size()]));
+
+            if (!previousActions.isEmpty()) {
+                GPT_API.addLogs(getPreviousActions(), "previous_actions");
+            }
+
+            // prompt the ai if the latest content is from the model
+            if (GPT_API.isLatestMessageFromModel()) {
+                GPT_API.addMessage("what would you like to do or say next?");
+            }
+
+            GPT_API.send();
         }
 
     }

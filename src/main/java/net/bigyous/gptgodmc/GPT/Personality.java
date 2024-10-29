@@ -1,6 +1,5 @@
 package net.bigyous.gptgodmc.GPT;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import net.bigyous.gptgodmc.GPTGOD;
@@ -13,7 +12,7 @@ public class Personality {
     private static List<String> dislikes = List.of();
     private static List<String> behaviours = config.getStringList("potentialBehaviors");
 
-    private static String briefing = "The following are behaviours you must reward or punish players for doing. Don't explicitly tell the players this list. When punishing players, reserve directly damaging players for repeat offenders. If most of the players disobey you punish everyone";
+    private static String briefing = "Personality: The following are behaviours you like to reward or punish. Don't explicitly tell the players this list except for when placing decrees in the world when they go against it. When punishing players, reserve directly damaging players for repeat offenders. If most of the players disobey you punish everyone";
 
     public static String generatePersonality() {
         Collections.shuffle(behaviours);
@@ -26,7 +25,8 @@ public class Personality {
         }
         // If we would have, use these fallbacks and inform the user.
         else {
-            JavaPlugin.getPlugin(GPTGOD.class).getLogger().warning("Tried to get more behaviors than actually existed, your configuration file is probably incorrect. Make sure likedBehaviors + dislikedBehaviors is less than your total amount of potential behaviors");
+            JavaPlugin.getPlugin(GPTGOD.class).getLogger().warning(
+                    "Tried to get more behaviors than actually existed, your configuration file is probably incorrect. Make sure likedBehaviors + dislikedBehaviors is less than your total amount of potential behaviors");
             likes = List.of("Functioning config files");
             dislikes = List.of("Borked config files");
         }

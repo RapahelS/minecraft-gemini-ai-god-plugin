@@ -4,7 +4,14 @@
 # your OpenAi API key from https://platform.openai.com/api-keys
 # the plugin won't work without this
 
+# not used anymore. just here for posterity
 openAiKey: ""
+
+# google gemini api key for main and secondary llm
+geminiKey: ""
+
+# for tts. Get key from https://console.sws.speechify.com/api-keys
+speechify-key: ""
 
 # language in ISO-639 format https://en.wikipedia.org/wiki/List_of_ISO_639_language_codes
 language: en
@@ -25,8 +32,20 @@ startingWorld: "island"
 # can be found here: https://openai.com/api/pricing/
 gpt-model-name: gpt-4o
 
+# gemini main model name
+# use flash for more rapid and cheaper responses
+model-name: gemini-1.5-pro
+
+# secondary model (for transcriptions and command gen)
+secondary-model-name: gemini-1.5-flash
+
+# Gemini Model tempurature
+# turn up the heat
+# 1.0 or below is more behaved, above is more creative
+model-tempurature: 1.6
+
 # gpt model token limit
-gpt-model-token-limit: 100000
+gpt-model-token-limit: 1000000
 
 # whether or not the mod will make calls to GPT
 enabled: true
@@ -36,27 +55,28 @@ enabled: true
 #[SANDBOX, DEATHMATCH]
 gamemode: SANDBOX
 
-
-
 # The potential behaviors to be given to GPT. A specified amount will be chosen to either be liked, or disliked.
-potentialBehaviors: ["killing animals",
-                     "fighting other players",
-                     "slaying monsters",
-                     "using hostile language",
-                     "using vulgar language",
-                     "using friendly language",
-                     "building structures of worship",
-                     "building non-religious structures",
-                     "materialistic wants",
-                     "helping other players",
-                     "connecting with animals",
-                     "growing plants",
-                     "using fire and explosions",
-                     "love between players",
-                     "sexual behaviour",
-                     "generosity",
-                     "ritual sacrifice",
-                     "eating meat"]
+potentialBehaviors:
+  [
+    "killing animals",
+    "fighting other players",
+    "slaying monsters",
+    "using hostile language",
+    "using vulgar language",
+    "using friendly language",
+    "building structures of worship",
+    "building non-religious structures",
+    "materialistic wants",
+    "helping other players",
+    "connecting with animals",
+    "growing plants",
+    "using fire and explosions",
+    "love between players",
+    "sexual behaviour",
+    "generosity",
+    "ritual sacrifice",
+    "eating meat",
+  ]
 
 # X behaviors will be selected as disliked/liked.
 # A behavior cannot be both liked and disliked, nor can there be duplicates.
@@ -64,7 +84,6 @@ potentialBehaviors: ["killing animals",
 
 likedBehaviors: 3
 dislikedBehaviors: 3
-
 
 # How long the objectives given by GPT last
 # (in minutes)
@@ -76,9 +95,17 @@ objectiveDecay: 6
 # default 40
 rate: 40
 
+# the amount of time that will pass between calls to transcribe voice chats
+# stops flickering microphones from spamming the api
+# and allows you to control how much spending you want for transcription
+transcription-rate: 20
+
 # The voice used by the TTS
 # https://platform.openai.com/docs/guides/text-to-speech/voice-options
 voice: onyx
+
+# The voice used by the speechify TTS
+speechify-voice: benjamin
 
 # use AI Text to Speech voice for god (uses OpenAI and will cost a bit more money)
 tts: true

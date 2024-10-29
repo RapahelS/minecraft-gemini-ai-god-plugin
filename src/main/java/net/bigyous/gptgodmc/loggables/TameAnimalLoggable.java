@@ -6,7 +6,8 @@ public class TameAnimalLoggable extends BaseLoggable {
     private String player;
     private String animal;
 
-    public TameAnimalLoggable(EntityTameEvent event){
+    public TameAnimalLoggable(EntityTameEvent event) {
+        super();
         this.player = event.getOwner().getName();
         this.animal = event.getEntity().getName();
     }

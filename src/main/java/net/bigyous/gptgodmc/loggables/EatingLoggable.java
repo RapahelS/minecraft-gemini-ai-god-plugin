@@ -2,15 +2,15 @@ package net.bigyous.gptgodmc.loggables;
 
 import org.bukkit.event.player.PlayerItemConsumeEvent;
 
-import net.kyori.adventure.text.TextComponent;
-
-public class EatingLoggable extends BaseLoggable{
+public class EatingLoggable extends BaseLoggable {
     protected String entityName;
     protected String itemName;
-    public EatingLoggable(PlayerItemConsumeEvent event){
-       this.entityName = event.getPlayer().getName();
-       this.itemName = event.getItem().getType().toString();
-    }    
+
+    public EatingLoggable(PlayerItemConsumeEvent event) {
+        super();
+        this.entityName = event.getPlayer().getName();
+        this.itemName = event.getItem().getType().toString();
+    }
 
     @Override
     public String getLog() {

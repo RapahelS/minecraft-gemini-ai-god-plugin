@@ -3,7 +3,6 @@ package net.bigyous.gptgodmc.loggables;
 import java.time.Instant;
 
 import net.bigyous.gptgodmc.utils.GPTUtils;
-import net.bigyous.gptgodmc.GPT.Moderation;
 
 public class ChatLoggable implements Loggable, UserInputLoggable {
     /**
@@ -13,20 +12,24 @@ public class ChatLoggable implements Loggable, UserInputLoggable {
     public String message;
     private Instant timestamp;
     private int tokens = -1;
+    private String minecraftTime;
 
-    public ChatLoggable(String playerName, String message) {
+    public ChatLoggable(String playerName, String minecraftTime, String message) {
         this.playerName = playerName;
         this.message = message;
-        timestamp = Instant.now();
+        this.timestamp = Instant.now();
+        this.minecraftTime = minecraftTime;
         // Moderation.moderateUserInput(message, this);
     }
 
-    public ChatLoggable(String playerName, String message, Instant timestamp) {
+    public ChatLoggable(String playerName, String minecraftTime, String message, Instant timestamp) {
         this.playerName = playerName;
         this.message = message;
         this.timestamp = timestamp;
+        this.minecraftTime = minecraftTime;
         // Moderation.moderateUserInput(message, this);
     }
+
     public String getLog() {
         return playerName + " said \"" + message + "\"";
     }
@@ -35,8 +38,8 @@ public class ChatLoggable implements Loggable, UserInputLoggable {
         // if (!(event instanceof ChatLoggable)) return false;
         // ChatLoggable other = (ChatLoggable) event;
         // if(other.playerName.equals(this.playerName)){
-        //     this.message = String.format("%s. %s", this.message, other.message);
-        //     return true;
+        // this.message = String.format("%s. %s", this.message, other.message);
+        // return true;
         // }
         return false;
     }
@@ -46,13 +49,14 @@ public class ChatLoggable implements Loggable, UserInputLoggable {
         return timestamp;
     }
 
-    public int getTokens(){
-        if(tokens<0){
+    public int getTokens() {
+        if (tokens < 0) {
             this.tokens = GPTUtils.countTokens(getLog());
         }
         return tokens;
     }
-    public void resetTokens(){
+
+    public void resetTokens() {
         tokens = -1;
     }
 
@@ -60,5 +64,9 @@ public class ChatLoggable implements Loggable, UserInputLoggable {
     public void updateUserInput(String input) {
         this.message = input;
     }
-}
 
+    @Override
+    public String getMinecraftTimeStamp() {
+        return minecraftTime;
+    }
+}

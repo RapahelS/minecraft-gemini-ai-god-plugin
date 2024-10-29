@@ -1,11 +1,18 @@
 package net.bigyous.gptgodmc.GPT.Json;
 
+import com.google.gson.JsonObject;
+
 public class FunctionCall {
     private String name;
-    private String arguments;
+    private JsonObject args;
 
-    public String getArguments() {
-        return arguments;
+    public FunctionCall(String name, JsonObject args) {
+        this.name = name;
+        this.args = args;
+    }
+
+    public JsonObject getArguments() {
+        return args;
     }
 
     public String getName() {

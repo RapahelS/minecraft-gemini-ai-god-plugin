@@ -14,14 +14,18 @@ public class ItemPickupLoggable extends BaseLoggable {
             this.itemName = itemName;
             this.amount = amount;
         }
-        public boolean equals(Object o){
-            if(!(o instanceof Pickup)) return false;
+
+        public boolean equals(Object o) {
+            if (!(o instanceof Pickup))
+                return false;
             Pickup p = (Pickup) o;
             return this.itemName.equals(p.itemName);
         }
-        public void incrementAmount(int i){
-            this.amount +=i;
+
+        public void incrementAmount(int i) {
+            this.amount += i;
         }
+
         public int getAmount() {
             return amount;
         }
@@ -31,18 +35,18 @@ public class ItemPickupLoggable extends BaseLoggable {
     protected List<Pickup> pickups = new ArrayList<>();
 
     public ItemPickupLoggable(PlayerAttemptPickupItemEvent event) {
+        super();
         playerName = event.getPlayer().getName();
 
         pickups.add(new Pickup(
-            event.getItem().getName(),
-            event.getItem().getItemStack().getAmount()
-        ));
+                event.getItem().getName(),
+                event.getItem().getItemStack().getAmount()));
     }
 
     @Override
     public String getLog() {
         StringBuilder sb = new StringBuilder(playerName + " picked up: ");
-        
+
         for (Pickup p : pickups) {
             sb.append(p.itemName + " x" + p.amount + ", ");
         }
@@ -55,7 +59,8 @@ public class ItemPickupLoggable extends BaseLoggable {
 
     @Override
     public boolean combine(Loggable other) {
-        if (!(other instanceof ItemPickupLoggable)) return false;
+        if (!(other instanceof ItemPickupLoggable))
+            return false;
 
         ItemPickupLoggable otherPickup = (ItemPickupLoggable) other;
 
@@ -63,13 +68,12 @@ public class ItemPickupLoggable extends BaseLoggable {
             return false;
         }
         Pickup otherItem = otherPickup.pickups.get(0);
-        if (pickups.contains(otherItem)){
+        if (pickups.contains(otherItem)) {
             pickups.get(pickups.indexOf(otherItem)).incrementAmount(otherItem.getAmount());
-        }
-        else{
+        } else {
             pickups.add(otherItem);
         }
         return true;
     }
-    
+
 }

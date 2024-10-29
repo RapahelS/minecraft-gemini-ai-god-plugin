@@ -12,8 +12,10 @@ public class PlantLoggable extends BaseLoggable {
     protected boolean isValid = false;
     protected int count = 1;
 
-    public PlantLoggable (BlockPlaceEvent event){
-        if(event.getBlock().getBlockData() instanceof Sapling || event.getBlock().getBlockData() instanceof Ageable || MaterialSetTag.FLOWERS.isTagged(event.getBlock().getType())){
+    public PlantLoggable(BlockPlaceEvent event) {
+        super();
+        if (event.getBlock().getBlockData() instanceof Sapling || event.getBlock().getBlockData() instanceof Ageable
+                || MaterialSetTag.FLOWERS.isTagged(event.getBlock().getType())) {
             this.isValid = true;
             this.player = event.getPlayer().getName();
             this.plant = event.getBlock().getType().name();
@@ -23,20 +25,22 @@ public class PlantLoggable extends BaseLoggable {
 
     @Override
     public String getLog() {
-        if (!isValid){
+        if (!isValid) {
             return null;
         }
-        String quantifier = count > 1? String.valueOf(count) : "a";
+        String quantifier = count > 1 ? String.valueOf(count) : "a";
         return String.format("%s planted %s %s", player, quantifier, plant);
     }
 
     @Override
     public boolean combine(Loggable l) {
-        if(!(l instanceof PlantLoggable)) return false;
+        if (!(l instanceof PlantLoggable))
+            return false;
         PlantLoggable other = (PlantLoggable) l;
-        if(!other.isValid || !this.isValid) return false;
+        if (!other.isValid || !this.isValid)
+            return false;
 
-        if (other.plant.equals(this.plant) && other.player.equals(this.player)){
+        if (other.plant.equals(this.plant) && other.player.equals(this.player)) {
             this.count += other.count;
             return true;
         }

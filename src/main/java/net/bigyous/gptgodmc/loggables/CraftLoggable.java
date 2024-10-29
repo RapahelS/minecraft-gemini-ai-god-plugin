@@ -1,14 +1,15 @@
 package net.bigyous.gptgodmc.loggables;
 
 import org.bukkit.entity.HumanEntity;
-import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.CraftItemEvent;
 
 public class CraftLoggable extends BaseLoggable {
     protected String playerName;
     protected String item;
     protected int count;
-    public CraftLoggable(CraftItemEvent event){
+
+    public CraftLoggable(CraftItemEvent event) {
+        super();
         HumanEntity crafter = event.getView().getPlayer();
         this.playerName = crafter.getName();
         this.count = event.getCurrentItem().getAmount();
@@ -22,9 +23,10 @@ public class CraftLoggable extends BaseLoggable {
 
     @Override
     public boolean combine(Loggable l) {
-        if(!(l instanceof CraftLoggable)) return false;
+        if (!(l instanceof CraftLoggable))
+            return false;
         CraftLoggable other = (CraftLoggable) l;
-        if(other.playerName.equals(this.playerName) && other.item.equals(this.item)){
+        if (other.playerName.equals(this.playerName) && other.item.equals(this.item)) {
             this.count += other.count;
             return true;
         }

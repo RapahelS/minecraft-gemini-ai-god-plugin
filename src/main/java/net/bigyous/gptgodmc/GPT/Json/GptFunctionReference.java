@@ -4,13 +4,14 @@ import java.util.Map;
 
 public class GptFunctionReference {
     private String type;
-    private Map<String,String> function;
+    private Map<String, String> function;
 
-    public GptFunctionReference(GptFunction function){
+    public GptFunctionReference(GptFunction function) {
         this.type = "function";
         this.function = Map.of("name", function.getName());
     }
-    public GptFunctionReference(String name){
+
+    public GptFunctionReference(String name) {
         this.type = "function";
         this.function = Map.of("name", name);
     }

@@ -5,13 +5,15 @@ import net.bigyous.gptgodmc.interfaces.Function;
 import net.bigyous.gptgodmc.utils.GPTUtils;
 import java.util.Map;
 
+import com.google.gson.JsonObject;
+
 public class GptFunction {
     private String name;
     private String description;
     private FunctionParameters parameters;
-    private transient Function<String> function;
+    private transient Function<JsonObject> function;
 
-    public GptFunction (String name, String description, Map<String, Parameter> params, Function<String> function){
+    public GptFunction(String name, String description, Map<String, Parameter> params, Function<JsonObject> function) {
         this.name = name;
         this.description = description;
         this.parameters = new FunctionParameters("object", params);
@@ -42,16 +44,16 @@ public class GptFunction {
         this.parameters = parameters;
     }
 
-    public Function<String> getFunction() {
+    public Function<JsonObject> getFunction() {
         return function;
     }
 
-    public void runFunction(String jsonArgs){
+    public void runFunction(JsonObject jsonArgs) {
         GPTGOD.LOGGER.info(String.format("%s invoked", this.name));
         function.run(jsonArgs);
     }
 
-    public int calculateFunctionTokens(){
+    public int calculateFunctionTokens() {
         return GPTUtils.countTokens(name) + GPTUtils.countTokens(description) + parameters.calculateParameterTokens();
 
     }
@@ -61,7 +63,7 @@ class FunctionParameters {
     private String type;
     private Map<String, Parameter> properties;
 
-    public FunctionParameters(String type, Map<String, Parameter> properties){
+    public FunctionParameters(String type, Map<String, Parameter> properties) {
         this.type = type;
         this.properties = properties;
     }
@@ -82,12 +84,11 @@ class FunctionParameters {
         this.properties = properties;
     }
 
-    public int calculateParameterTokens(){
+    public int calculateParameterTokens() {
         int sum = 0;
-        for(Parameter param: properties.values()){
-            sum+= GPTUtils.countTokens(param.getType()) + GPTUtils.countTokens(param.getDescription());
+        for (Parameter param : properties.values()) {
+            sum += GPTUtils.countTokens(param.getType()) + GPTUtils.countTokens(param.getDescription());
         }
         return sum;
     }
 }
-

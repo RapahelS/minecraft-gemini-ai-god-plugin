@@ -3,7 +3,8 @@ package net.bigyous.gptgodmc.GPT.Json;
 public class GptMessage {
     private String role;
     private String content;
-    public GptMessage(String role, String content){
+
+    public GptMessage(String role, String content) {
         this.role = role;
         this.content = content;
     }
@@ -15,6 +16,5 @@ public class GptMessage {
     public String getRole() {
         return role;
     }
-
 
 }

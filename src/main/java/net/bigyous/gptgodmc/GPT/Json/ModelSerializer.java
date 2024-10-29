@@ -6,8 +6,8 @@ import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 
 public class ModelSerializer implements JsonSerializer<GptModel> {
-    @Override
-    public JsonElement serialize(GptModel src, java.lang.reflect.Type typeOfSrc, JsonSerializationContext context) {
-      return new JsonPrimitive(src.getName());
-    }
+  @Override
+  public JsonElement serialize(GptModel src, java.lang.reflect.Type typeOfSrc, JsonSerializationContext context) {
+    return new JsonPrimitive(src.getName());
+  }
 }

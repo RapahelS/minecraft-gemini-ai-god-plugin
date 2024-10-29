@@ -8,6 +8,7 @@ public class ResponseMessage {
     public String getContent() {
         return content;
     }
+
     public String getRole() {
         return role;
     }
