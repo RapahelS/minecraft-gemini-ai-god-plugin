@@ -143,7 +143,7 @@ public class GameLoop {
             while (GPT_API.isSending()) {
                 Thread.onSpinWait();
             }
-            GPT_API.addMessage("Now, choose an interesting non-verbal action to take to take based on the recent server history. Try and do something new, but that makes sense given the recent messages and events.");
+            GPT_API.addMessage("Now, choose an interesting non-verbal action to perform which has not already been done.");
 
             GPT_API.send();
 
