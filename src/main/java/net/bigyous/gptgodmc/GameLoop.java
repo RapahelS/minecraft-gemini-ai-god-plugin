@@ -147,6 +147,7 @@ public class GameLoop {
             GPT_API.addMessage("now choose an interesting non-verbal action which you have not used yet to take based on the recent server history");
 
             GPT_API.send();
+            Thread.currentThread().interrupt();
         }
 
     }
