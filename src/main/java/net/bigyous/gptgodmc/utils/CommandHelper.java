@@ -25,18 +25,19 @@ public class CommandHelper {
         }
     }
 
-    public static boolean executeCommands(String[] commands) {
-        CommandSender console = GPTGOD.SERVER.getConsoleSender();
+    public static String executeCommands(String[] commands) {
+        GPTCommandSender console = new GPTCommandSender(GPTGOD.SERVER.getConsoleSender());
         for (String command : commands) {
             if (!dispatch(command, console)) {
-                return false;
+                return "error in command dispatch";
             }
         }
-        return true;
+        return console.getOutput();
     }
 
-    public static void executeCommand(String command) {
-        CommandSender console = GPTGOD.SERVER.getConsoleSender();
+    public static String executeCommand(String command) {
+        GPTCommandSender console = new GPTCommandSender(GPTGOD.SERVER.getConsoleSender());
         dispatch(command, console);
+        return console.getOutput();
     }
 }

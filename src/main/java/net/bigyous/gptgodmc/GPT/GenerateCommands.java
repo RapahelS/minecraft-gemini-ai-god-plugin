@@ -30,23 +30,19 @@ public class GenerateCommands {
         private static Function<JsonObject> inputCommands = (JsonObject args) -> {
                 String[] commands = gson.fromJson(args.get("commands"), String[].class);
                 try {
-                        if(!CommandHelper.executeCommands(commands)) {
-                        // give the command generation ai some feedback when it does something wrong
-                        String feedback = "encountered error trying to execute commands: " + String.join(" ", commands);
-                        EventLogger.addLoggable(new CommandLoggable(feedback, false));
-                        GenerateCommands.gpt.addMessage(feedback);
-                        GPTGOD.LOGGER.error("Command Error Feedback: " + feedback);
-                        }
+                        String output = CommandHelper.executeCommands(commands);
+                        EventLogger.addLoggable(new CommandLoggable(output));
+                        GenerateCommands.gpt.addMessage("Command resulted in output: " + output);
                 } catch (CommandException e) {
                         // give the command generation ai some feedback when it does something wrong
                         String feedback = "encountered error trying to execute commands: " + e.getMessage();
-                        EventLogger.addLoggable(new CommandLoggable(e.getMessage(), false));
+                        EventLogger.addLoggable(new CommandLoggable(e.getMessage()));
                         GenerateCommands.gpt.addMessage(feedback);
                         GPTGOD.LOGGER.error("Command Error Feedback: " + feedback);
                 } catch (RuntimeException e) {
                         // give the command generation ai some feedback when it does something wrong
                         String feedback = "encountered runtime error trying to execute commands: " + e.getMessage();
-                        EventLogger.addLoggable(new CommandLoggable(e.getMessage(), false));
+                        EventLogger.addLoggable(new CommandLoggable(e.getMessage()));
                         GenerateCommands.gpt.addMessage(feedback);
                         GPTGOD.LOGGER.error("Command Runtime Error Feedback: " + feedback);
                 }
