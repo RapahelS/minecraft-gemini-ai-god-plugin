@@ -30,7 +30,9 @@ public class GenerateCommands {
                         GptActions.executeCommands(commands);
                 } catch (CommandException e) {
                         // give the command generation ai some feedback when it does something wrong
-                        GenerateCommands.gpt.addMessage("encountered error trying to execute commands: " + e.getMessage());
+                        String feedback = "encountered error trying to execute commands: " + e.getMessage();
+                        GenerateCommands.gpt.addMessage(feedback);
+                        GPTGOD.LOGGER.error("Command Error Feedback: " + feedback);
                 }
         };
 
