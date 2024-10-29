@@ -1,9 +1,30 @@
 package net.bigyous.gptgodmc.GPT.Json;
 
 public class GenerateContentResponse {
+    // https://ai.google.dev/api/generate-content#UsageMetadata
+    public class UsageMetadata {
+        private int promptTokenCount;
+        private int cachedContentTokenCount;
+        private int candidatesTokenCount;
+        private int totalTokenCount;
+        public int getPromptTokenCount() {
+            return promptTokenCount;
+        }
+        public int getCachedContentTokenCount() {
+            return cachedContentTokenCount;
+        }
+        public int getCandidatesTokenCount() {
+            return candidatesTokenCount;
+        }
+        public int getTotalTokenCount() {
+            return totalTokenCount;
+        }
+        
+    }
+
     Candidate[] candidates;
-    PromptFeedback promptFeedback;
-    UsageMetadata usageMetadata;
+    // PromptFeedback promptFeedback;
+    UsageMetadata usageMetadata = new UsageMetadata();
 
     GoogError error;
 
@@ -14,6 +35,10 @@ public class GenerateContentResponse {
 
     public Candidate[] getCandidates() {
         return candidates;
+    }
+
+    public UsageMetadata getUsageMetadata() {
+        return usageMetadata;
     }
 
     public GoogError getError() {
@@ -29,13 +54,6 @@ class PromptFeedback {
 
 }
 
-// https://ai.google.dev/api/generate-content#UsageMetadata
-class UsageMetadata {
-    private int promptTokenCount;
-    private int cachedContentTokenCount;
-    private int candidatesTokenCount;
-    private int totalTokenCount;
-}
 
 class SafetyRating {
     // Define the structure of SafetyRating object

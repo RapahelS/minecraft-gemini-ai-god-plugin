@@ -25,10 +25,6 @@ public class GenerateContentRequest {
     // learn more.
     private Tool[] tools;
 
-    public Tool[] getTools() {
-        return tools;
-    }
-
     // tool config Optional. Tool configuration for any Tool specified in the
     // request. Refer to the Function calling guide for a usage example.
     private ToolConfig toolConfig;
@@ -83,10 +79,6 @@ public class GenerateContentRequest {
     // serve the prediction. Format: cachedContents/{cachedContent}
     private Content systemInstruction;
 
-    public Content getSystemInstruction() {
-        return systemInstruction;
-    }
-
     // generation config Optional. Configuration options for model generation and
     // outputs.
     private GenerationConfig generationConfig;
@@ -111,6 +103,14 @@ public class GenerateContentRequest {
     public GenerateContentRequest(Tool tools, double temp) {
         this.generationConfig = new GenerationConfig(temp);
         this.tools = new Tool[] { tools };
+    }
+
+    public Content getSystemInstruction() {
+        return systemInstruction;
+    }
+
+    public Tool[] getTools() {
+        return tools;
     }
 
     public GenerateContentRequest setSystemInstruction(String systemInstruction) {
