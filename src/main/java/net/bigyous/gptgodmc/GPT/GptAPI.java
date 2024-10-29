@@ -3,8 +3,10 @@ package net.bigyous.gptgodmc.GPT;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -24,6 +26,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import net.bigyous.gptgodmc.GPTGOD;
+import net.bigyous.gptgodmc.ServerInfoSummarizer;
 import net.bigyous.gptgodmc.GPT.Json.Candidate;
 import net.bigyous.gptgodmc.GPT.Json.Content;
 import net.bigyous.gptgodmc.GPT.Json.FunctionCall;
@@ -36,6 +39,8 @@ import net.bigyous.gptgodmc.GPT.Json.ParameterExclusion;
 import net.bigyous.gptgodmc.GPT.Json.Part;
 import net.bigyous.gptgodmc.GPT.Json.Tool;
 import net.bigyous.gptgodmc.GPT.Json.ToolConfig;
+import net.bigyous.gptgodmc.loggables.Loggable;
+import net.bigyous.gptgodmc.utils.GPTUtils;
 import net.bigyous.gptgodmc.GPT.Json.Content.Role;
 
 public class GptAPI {
@@ -44,7 +49,11 @@ public class GptAPI {
     private GptModel model;
     private GenerateContentRequest body;
     private String BASE_URL = "https://generativelanguage.googleapis.com/v1beta/models/";
+    // keep track of what index each type of context is stored at
+    // should never have an index greater than contextHeight
     private Map<String, Integer> messageMap = new HashMap<String, Integer>();
+    // the index that instructions end at and rolling context starts
+    private int contextHeight = 0;
     private boolean isSending = false;
     private static ExecutorService pool = Executors.newCachedThreadPool();
     private static JavaPlugin plugin = JavaPlugin.getPlugin(GPTGOD.class);
@@ -85,13 +94,38 @@ public class GptAPI {
         gson.setExclusionStrategies(new ParameterExclusion());
     }
 
+    // remove and return the oldest chat history
+    // excepting any entires under the contextHeight
+    public Content popOldestContent() {
+        return this.body.remove(contextHeight);
+    }
+
+
+    // push a message to the index at the current stack height
+    // then increase the context stack height
+    // and return the height
+    private int pushContextStack(String context) {
+        GPTGOD.LOGGER.info("Pushing context stack height up one from " + contextHeight + " to " + (contextHeight+1));
+        // get current stack height then increment
+        int insertedAtIndex = contextHeight++;
+        this.body.addMessage(Content.Role.user, context, insertedAtIndex);
+        return insertedAtIndex;
+    }
+    private int pushContextStack(List<String> context) {
+        GPTGOD.LOGGER.info("Pushing context stack height up one from " + contextHeight + " to " + (contextHeight+1));
+        // get current stack height then increment
+        int insertedAtIndex = contextHeight++;
+        this.body.addMessage(Content.Role.user, context, insertedAtIndex);
+        return insertedAtIndex;
+    }
+
     public GptAPI addContext(String context, String name) {
         if (this.messageMap.containsKey(name)) {
             this.body.replaceMessage(messageMap.get(name), context);
             return this;
         }
-        this.body.addMessage(Content.Role.user, context);
-        this.messageMap.put(name, this.body.getMessagesSize() - 1);
+        // push message to context stack then add its index to the message map
+        this.messageMap.put(name, pushContextStack(context));
         return this;
     }
 
@@ -131,66 +165,20 @@ public class GptAPI {
         return this;
     }
 
+    // adds server logs context
+    // same as addContext but takes in a list of events
     public GptAPI addLogs(List<String> Logs, String name) {
         if (this.messageMap.containsKey(name)) {
             this.body.replaceMessage(messageMap.get(name), Logs);
             return this;
         }
-        this.body.addMessage(Content.Role.user, Logs);
-        this.messageMap.put(name, this.body.getMessagesSize() - 1);
+        this.messageMap.put(name, pushContextStack(Logs));
         return this;
     }
 
+    // this is just an alias really
     public GptAPI addLogs(String Logs, String name) {
-        if (Logs.length() < 1) {
-            GPTGOD.LOGGER.warn("tried to add empty logs");
-            return this;
-        }
-
-        if (this.messageMap.containsKey(name)) {
-            this.body.replaceMessage(messageMap.get(name), Logs);
-            return this;
-        }
-        this.body.addMessage(Content.Role.user, Logs);
-        this.messageMap.put(name, this.body.getMessagesSize() - 1);
-        return this;
-    }
-
-    public GptAPI addLogs(String Logs, String name, int index) {
-        if (this.body.getMessagesSize() <= index) {
-            addLogs(Logs, name);
-            return this;
-        }
-        if (this.messageMap.containsKey(name)) {
-            this.body.replaceMessage(messageMap.get(name), Logs);
-            return this;
-        }
-        this.body.addMessage(Content.Role.user, Logs, index);
-        for (String key : messageMap.keySet()) {
-            if (messageMap.get(key) == index) {
-                messageMap.replace(key, index + 1);
-            }
-        }
-        this.messageMap.put(name, index);
-        return this;
-    }
-
-    public GptAPI addLogs(List<String> Logs, String name, int index) {
-        if (this.body.getMessagesSize() <= index) {
-            addLogs(Logs, name);
-            return this;
-        }
-        if (this.messageMap.containsKey(name)) {
-            this.body.replaceMessage(messageMap.get(name), Logs);
-            return this;
-        }
-        this.body.addMessage(Content.Role.user, Logs, index);
-        for (String key : messageMap.keySet()) {
-            if (messageMap.get(key) == index) {
-                messageMap.replace(key, index + 1);
-            }
-        }
-        this.messageMap.put(name, index);
+        this.addContext(Logs, name);
         return this;
     }
 

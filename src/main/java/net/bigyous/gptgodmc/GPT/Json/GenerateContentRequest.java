@@ -136,6 +136,11 @@ public class GenerateContentRequest {
         return this;
     }
 
+    // removes an item from the context history and returns its value
+    public Content remove(int index) {
+        return this.contents.remove(index);
+    }
+
     public void replaceMessage(int index, String message) {
         this.contents.set(index, new Content(this.contents.get(index).getRole(), message));
     }
