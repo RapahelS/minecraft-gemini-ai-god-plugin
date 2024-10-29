@@ -7,10 +7,10 @@ public class ModerationResult {
     private boolean flagged;
     private Map<String, Boolean> categories;
 
-    public String getCategories(){
+    public String getCategories() {
         ArrayList<String> flags = new ArrayList<String>();
-        for(String category : categories.keySet()){
-            if(categories.get(category)){
+        for (String category : categories.keySet()) {
+            if (categories.get(category)) {
                 flags.add(category);
             }
         }

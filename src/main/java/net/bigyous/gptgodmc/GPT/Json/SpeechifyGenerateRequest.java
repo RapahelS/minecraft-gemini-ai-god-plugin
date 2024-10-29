@@ -31,5 +31,5 @@ public class SpeechifyGenerateRequest {
     public AudioModel getModel() {
         return model;
     }
-    
+
 }

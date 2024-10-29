@@ -7,9 +7,11 @@ public class MountLoggable extends BaseLoggable {
     private boolean isValid;
     private String mounter;
     private String mountee;
-    public MountLoggable(EntityMountEvent event){
+
+    public MountLoggable(EntityMountEvent event) {
         super();
-        this.isValid = event.getEntity().getType().equals(EntityType.PLAYER) || event.getMount().getType().equals(EntityType.PLAYER);
+        this.isValid = event.getEntity().getType().equals(EntityType.PLAYER)
+                || event.getMount().getType().equals(EntityType.PLAYER);
         this.mounter = event.getEntity().getName();
         this.mountee = event.getMount().getName();
     }

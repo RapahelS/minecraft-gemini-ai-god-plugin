@@ -17,16 +17,15 @@ import net.bigyous.gptgodmc.WorldManager;
 
 public class QueuedAudio {
     private static JavaPlugin plugin = JavaPlugin.getPlugin(GPTGOD.class);
-    private static VoicechatServerApi api = (VoicechatServerApi)GPTGOD.VC_SERVER;
+    private static VoicechatServerApi api = (VoicechatServerApi) GPTGOD.VC_SERVER;
     private static ConcurrentLinkedQueue<audioEvent> playQueue = new ConcurrentLinkedQueue<audioEvent>();
     // private static float SAMPLE_RATE = 48000f;
     private static AtomicInteger AtomicTaskId = new AtomicInteger(-1);
     private static ConcurrentHashMap<UUID, AudioChannel> channels = new ConcurrentHashMap<UUID, AudioChannel>();
-    
 
-    public static void playAudio(short[] samples, Player[] players){
+    public static void playAudio(short[] samples, Player[] players) {
         playQueue.add(new audioEvent(samples, players));
-        if(AtomicTaskId.get() == -1 || !GPTGOD.SERVER.getScheduler().isCurrentlyRunning(AtomicTaskId.get())){
+        if (AtomicTaskId.get() == -1 || !GPTGOD.SERVER.getScheduler().isCurrentlyRunning(AtomicTaskId.get())) {
             BukkitTask task = GPTGOD.SERVER.getScheduler().runTaskAsynchronously(plugin, playQueue.poll());
             AtomicTaskId.set(task.getTaskId());
         }
@@ -38,48 +37,52 @@ public class QueuedAudio {
     }
 
     // private static long getLengthSeconds(short[] audio) {
-    //     return (long) (audio.length / SAMPLE_RATE);
+    // return (long) (audio.length / SAMPLE_RATE);
     // }
-    private static AudioChannel getplayerAudioChannel(UUID uuid){
-        if(!channels.containsKey(uuid)){
-            channels.put(uuid, api.createStaticAudioChannel(UUID.randomUUID(), api.fromServerLevel(WorldManager.getCurrentWorld()) , api.getConnectionOf(uuid)));
+    private static AudioChannel getplayerAudioChannel(UUID uuid) {
+        if (!channels.containsKey(uuid)) {
+            channels.put(uuid, api.createStaticAudioChannel(UUID.randomUUID(),
+                    api.fromServerLevel(WorldManager.getCurrentWorld()), api.getConnectionOf(uuid)));
         }
         return channels.get(uuid);
-    } 
-    private static short[] doubleSampleRate(short[] source){
+    }
+
+    private static short[] doubleSampleRate(short[] source) {
         short[] result = new short[source.length * 2];
-        for(int i = 0; i < source.length; i++) {
+        for (int i = 0; i < source.length; i++) {
             result[i * 2] = source[i];
-            if(i != source.length - 1){
+            if (i != source.length - 1) {
                 result[i * 2 + 1] = (short) ((source[i] + source[i + 1]) / 2);
             }
         }
         return result;
     }
+
     static class audioEvent implements Runnable {
         private short[] samples;
         private Player[] players;
 
-        public audioEvent(short[] samples, Player[] players){
+        public audioEvent(short[] samples, Player[] players) {
             this.samples = samples;
             this.players = players;
         }
 
-        public void run(){
+        public void run() {
             AudioPlayer currentAudioPlayer = null;
-            for(Player player : players) {
+            for (Player player : players) {
                 GPTGOD.LOGGER.info("playing audio for player: ", player.getName());
-                currentAudioPlayer = api.createAudioPlayer(getplayerAudioChannel(player.getUniqueId()), api.createEncoder(), samples);
+                currentAudioPlayer = api.createAudioPlayer(getplayerAudioChannel(player.getUniqueId()),
+                        api.createEncoder(), samples);
                 currentAudioPlayer.startPlaying();
             }
-            while(currentAudioPlayer != null && currentAudioPlayer.isPlaying()){
+            while (currentAudioPlayer != null && currentAudioPlayer.isPlaying()) {
                 try {
                     Thread.sleep(10);
                 } catch (InterruptedException e) {
                     GPTGOD.LOGGER.warn("TTS interrupted", e);
                 }
             }
-            if(playQueue.peek() != null){
+            if (playQueue.peek() != null) {
                 BukkitTask task = GPTGOD.SERVER.getScheduler().runTaskAsynchronously(plugin, playQueue.poll());
                 AtomicTaskId.set(task.getTaskId());
             }

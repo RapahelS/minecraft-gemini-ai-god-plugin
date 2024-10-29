@@ -48,8 +48,10 @@ public class Transcription {
         TranscriptionResult[] messages = gson.fromJson(args.get("transcriptionResults"), TranscriptionResult[].class);
 
         for (TranscriptionResult message : messages) {
-            GPTGOD.LOGGER.info(String.format("transcribed %s %s said: %s", message.minecraftTime, message.playerName, message.transcribedMessage));
-            EventLogger.addLoggable(new ChatLoggable(message.playerName, message.minecraftTime, message.transcribedMessage));
+            GPTGOD.LOGGER.info(String.format("transcribed %s %s said: %s", message.minecraftTime, message.playerName,
+                    message.transcribedMessage));
+            EventLogger.addLoggable(
+                    new ChatLoggable(message.playerName, message.minecraftTime, message.transcribedMessage));
         }
     };
 
@@ -60,11 +62,9 @@ public class Transcription {
                     new Schema(Map.of(
                             "transcriptionResults",
                             new Schema(Schema.Type.ARRAY, "", Map.of(
-                                "playerName", new Schema(Schema.Type.STRING),
-                                "minecraftTime", new Schema(Schema.Type.STRING),
-                                "transcribedMessage", new Schema(Schema.Type.STRING)
-                            ))
-                        )),
+                                    "playerName", new Schema(Schema.Type.STRING),
+                                    "minecraftTime", new Schema(Schema.Type.STRING),
+                                    "transcribedMessage", new Schema(Schema.Type.STRING))))),
                     submitTranscriptions));
     private static Tool tools = GptActions.wrapFunctions(functionMap);
 

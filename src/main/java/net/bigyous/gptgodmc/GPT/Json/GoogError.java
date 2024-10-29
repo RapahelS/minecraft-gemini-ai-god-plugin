@@ -6,7 +6,7 @@ public class GoogError {
     int code;
     String message;
     String status;
-    Map<String,String> details;
+    Map<String, String> details;
 
     @Override
     public String toString() {

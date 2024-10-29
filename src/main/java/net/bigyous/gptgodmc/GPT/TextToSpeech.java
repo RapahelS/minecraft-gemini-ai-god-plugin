@@ -1,4 +1,5 @@
 package net.bigyous.gptgodmc.GPT;
+
 import org.apache.http.HttpResponse;
 
 import java.io.IOException;
@@ -27,11 +28,13 @@ public class TextToSpeech {
     private static VoicechatApi api = GPTGOD.VC_SERVER;
     private static FileConfiguration config = JavaPlugin.getPlugin(GPTGOD.class).getConfig();
 
-    public static void makeSpeech(String input, Player player){
-        Player[] players = player == null ? GPTGOD.SERVER.getOnlinePlayers().toArray(new Player[0]) : new Player[] {player};
+    public static void makeSpeech(String input, Player player) {
+        Player[] players = player == null ? GPTGOD.SERVER.getOnlinePlayers().toArray(new Player[0])
+                : new Player[] { player };
         makeTTsRequest(new TTSRequest("tts-1", input, config.getString("voice"), "pcm"), players);
     }
-    private static void makeTTsRequest(TTSRequest body, Player[] players){
+
+    private static void makeTTsRequest(TTSRequest body, Player[] players) {
         CloseableHttpClient client = HttpClientBuilder.create().build();
         pool.execute(() -> {
             StringEntity data = new StringEntity(gson.create().toJson(body), ContentType.APPLICATION_JSON);
@@ -42,7 +45,7 @@ public class TextToSpeech {
             post.setEntity(data);
             try {
                 HttpResponse response = client.execute(post);
-                byte[] rawSamples =  response.getEntity().getContent().readAllBytes();
+                byte[] rawSamples = response.getEntity().getContent().readAllBytes();
                 short[] samples = api.getAudioConverter().bytesToShorts(rawSamples);
                 // plays at double the sample rate so our 24000 becomes 48000
                 QueuedAudio.playAudioDoubled(samples, players);
@@ -51,7 +54,5 @@ public class TextToSpeech {
             }
         });
     }
-
-
 
 }

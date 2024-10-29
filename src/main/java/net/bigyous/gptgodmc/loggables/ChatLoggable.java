@@ -29,6 +29,7 @@ public class ChatLoggable implements Loggable, UserInputLoggable {
         this.minecraftTime = minecraftTime;
         // Moderation.moderateUserInput(message, this);
     }
+
     public String getLog() {
         return playerName + " said \"" + message + "\"";
     }
@@ -37,8 +38,8 @@ public class ChatLoggable implements Loggable, UserInputLoggable {
         // if (!(event instanceof ChatLoggable)) return false;
         // ChatLoggable other = (ChatLoggable) event;
         // if(other.playerName.equals(this.playerName)){
-        //     this.message = String.format("%s. %s", this.message, other.message);
-        //     return true;
+        // this.message = String.format("%s. %s", this.message, other.message);
+        // return true;
         // }
         return false;
     }
@@ -48,13 +49,14 @@ public class ChatLoggable implements Loggable, UserInputLoggable {
         return timestamp;
     }
 
-    public int getTokens(){
-        if(tokens<0){
+    public int getTokens() {
+        if (tokens < 0) {
             this.tokens = GPTUtils.countTokens(getLog());
         }
         return tokens;
     }
-    public void resetTokens(){
+
+    public void resetTokens() {
         tokens = -1;
     }
 
@@ -68,4 +70,3 @@ public class ChatLoggable implements Loggable, UserInputLoggable {
         return minecraftTime;
     }
 }
-

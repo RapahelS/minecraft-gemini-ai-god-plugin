@@ -26,55 +26,57 @@ public class GameLoop {
     private static String PROMPT_BASE = "React only to current events and reference server history for any recurring player behaviors. Use all communication tools available to you in creative ways and in varying tones, adapting to the context and each player's actions. If there are no objectives set, make sure to add one for each player. function parameter names must match the original camel cased name.";
     private static String REQUIREMENTS = "Role Requirements: When interacting with players, choose from a range of responses: use whisper for private or subtle guidance, announce for dramatic proclamations, and decree to reinforce in-world commandments. Avoid repeating the same type of response for variety.";
     private static String GUIDANCE = """
-        Behavior Guidance:
-        Communicate with all tools available to you.
-        Use a mixture of gift and punishment actions in addition to the text based communications.
-        Set interesting objectives to perform around the island, especially if none exist yet.
-        Make objectives interesting and creative, keeping in mind your likes and dislikes when you create them.
-        Reward players who complete their objectives within a minecraft day cycle and punish those who do not.
-    """;
+                Behavior Guidance:
+                Communicate with all tools available to you.
+                Use a mixture of gift and punishment actions in addition to the text based communications.
+                Set interesting objectives to perform around the island, especially if none exist yet.
+                Make objectives interesting and creative, keeping in mind your likes and dislikes when you create them.
+                Reward players who complete their objectives within a minecraft day cycle and punish those who do not.
+            """;
     private static String STYLE = """
-        Response Style:
-        When communicating, vary tone and intensity:
-        For minor infractions: start with a light-hearted or humorous whisper or decree.
-        For repeated actions: reinforce your message with an announce or objective and add a clear consequence if ignored.
-        Example responses:
-        Whisper: “A gentle reminder, dear mortal, mind your words.”
-        Announce: “Mortals, let it be known that peace shall reign, free of bickering!”
-        Objective: “MoistPyro, seek a lily to calm thy spirit.”
-    """;
+                Response Style:
+                When communicating, vary tone and intensity:
+                For minor infractions: start with a light-hearted or humorous whisper or decree.
+                For repeated actions: reinforce your message with an announce or objective and add a clear consequence if ignored.
+                Example responses:
+                Whisper: “A gentle reminder, dear mortal, mind your words.”
+                Announce: “Mortals, let it be known that peace shall reign, free of bickering!”
+                Objective: “MoistPyro, seek a lily to calm thy spirit.”
+            """;
     private static String ESCALATION = """
-        Gradual Escalation:
-        Respond to behavior with increasing intensity if actions persist.
-        Start by setting objectives or whispering reminders,
-        then follow up with announcements,
-        then smite or detonateStructure for repeated rule breaking, blasphemy, blatant defiance, or group defiance on strike two or three.
-    """;
+                Gradual Escalation:
+                Respond to behavior with increasing intensity if actions persist.
+                Start by setting objectives or whispering reminders,
+                then follow up with announcements,
+                then smite or detonateStructure for repeated rule breaking, blasphemy, blatant defiance, or group defiance on strike two or three.
+            """;
     private static String ROLEPLAY = "Remain fully in character, addressing players as their god, and adapt your responses to create an engaging, immersive environment.";
-    
+
     private static ArrayList<String> previousActions = new ArrayList<String>();
     private static String personality;
     private static int rate = config.getInt("rate") < 1 ? 40 : config.getInt("rate");
-    private static double tempurature = config.getDouble("model-tempurature") < 0.01 ? 1.0 : config.getDouble("model-tempurature");
+    private static double tempurature = config.getDouble("model-tempurature") < 0.01 ? 1.0
+            : config.getDouble("model-tempurature");
 
     public static void init() {
         if (isRunning || !config.getBoolean("enabled"))
             return;
         GPT_API = new GptAPI(GPTModels.getMainModel(), tempurature);
-        BukkitTask task = GPTGOD.SERVER.getScheduler().runTaskTimerAsynchronously(plugin, new GPTTask(), BukkitUtils.secondsToTicks(30),
-        BukkitUtils.secondsToTicks(rate));
+        BukkitTask task = GPTGOD.SERVER.getScheduler().runTaskTimerAsynchronously(plugin, new GPTTask(),
+                BukkitUtils.secondsToTicks(30),
+                BukkitUtils.secondsToTicks(rate));
         taskId = task.getTaskId();
         personality = Personality.generatePersonality();
         PROMPT = Prompts.getGamemodePrompt(GPTGOD.gameMode);
         String[] systemPrompt = new String[] {
-            PROMPT,
-            personality,
-            PROMPT_BASE,
-            REQUIREMENTS,
-            GUIDANCE,
-            STYLE,
-            ESCALATION,
-            ROLEPLAY
+                PROMPT,
+                personality,
+                PROMPT_BASE,
+                REQUIREMENTS,
+                GUIDANCE,
+                STYLE,
+                ESCALATION,
+                ROLEPLAY
         };
         GPT_API.setSystemContext(systemPrompt);
 
@@ -128,12 +130,12 @@ public class GameLoop {
             List<String> logs = EventLogger.flushLogs();
             GPT_API.addMessages(logs.toArray(new String[logs.size()]));
 
-            if(!previousActions.isEmpty()) {
+            if (!previousActions.isEmpty()) {
                 GPT_API.addLogs(getPreviousActions(), "previous_actions");
             }
 
             // prompt the ai if the latest content is from the model
-            if(GPT_API.isLatestMessageFromModel()) {
+            if (GPT_API.isLatestMessageFromModel()) {
                 GPT_API.addMessage("what would you like to do or say next?");
             }
 

@@ -9,22 +9,22 @@ public class GptObjectiveTracker implements Runnable {
 
     private int taskId;
 
-    public GptObjectiveTracker(Score score){
+    public GptObjectiveTracker(Score score) {
         this.score = score;
     }
 
-    public void setTaskId(int id){
+    public void setTaskId(int id) {
         this.taskId = id;
     }
 
     @Override
     public void run() {
-        if (score.getScore() < 1){
+        if (score.getScore() < 1) {
             score.resetScore();
             Bukkit.getScheduler().cancelTask(taskId);
         } else {
             score.setScore(score.getScore() - 1);
         }
     }
-    
+
 }

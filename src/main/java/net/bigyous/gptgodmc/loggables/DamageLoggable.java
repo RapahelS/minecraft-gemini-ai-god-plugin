@@ -17,21 +17,25 @@ public class DamageLoggable extends BaseLoggable {
         super();
         this.entityName = event.getEntity().getName();
         this.damageAmount = event.getDamage();
-        this.isValid = !event.getCause().equals(DamageCause.ENTITY_ATTACK) && !event.getCause().equals(DamageCause.ENTITY_SWEEP_ATTACK) && event.getEntityType().equals(EntityType.PLAYER);
-        if(event.getCause().equals(DamageCause.PROJECTILE)){
+        this.isValid = !event.getCause().equals(DamageCause.ENTITY_ATTACK)
+                && !event.getCause().equals(DamageCause.ENTITY_SWEEP_ATTACK)
+                && event.getEntityType().equals(EntityType.PLAYER);
+        if (event.getCause().equals(DamageCause.PROJECTILE)) {
             this.damageSource = event.getDamageSource().getDirectEntity().getName();
-            if(event.getDamageSource().getDirectEntity() instanceof Projectile){
+            if (event.getDamageSource().getDirectEntity() instanceof Projectile) {
                 Projectile projectile = (Projectile) event.getDamageSource().getDirectEntity();
-                damageSource = projectile.getOwnerUniqueId() != null? GPTGOD.SERVER.getEntity(projectile.getOwnerUniqueId()).getName(): damageSource;
+                damageSource = projectile.getOwnerUniqueId() != null
+                        ? GPTGOD.SERVER.getEntity(projectile.getOwnerUniqueId()).getName()
+                        : damageSource;
             }
         }
         damageSource = event.getCause().toString();
-        
+
     }
 
     @Override
     public String getLog() {
-        if (!isValid){
+        if (!isValid) {
             return null;
         }
         return entityName + " took " + Math.round(damageAmount) + " damage from " + damageSource;
@@ -39,11 +43,12 @@ public class DamageLoggable extends BaseLoggable {
 
     @Override
     public boolean combine(Loggable other) {
-        if(!(other instanceof DamageLoggable)) return false;
+        if (!(other instanceof DamageLoggable))
+            return false;
 
         DamageLoggable loggable = (DamageLoggable) other;
 
-        if(loggable.entityName.equals(this.entityName) && loggable.damageSource.equals(this.damageSource)){
+        if (loggable.entityName.equals(this.entityName) && loggable.damageSource.equals(this.damageSource)) {
             this.damageAmount += loggable.damageAmount;
             return true;
         }

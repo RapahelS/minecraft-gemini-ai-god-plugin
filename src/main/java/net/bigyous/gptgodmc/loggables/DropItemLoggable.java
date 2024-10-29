@@ -9,43 +9,47 @@ public class DropItemLoggable extends BaseLoggable {
         String itemName;
         int amount;
 
-        public Drop(String itemName, int amount){
+        public Drop(String itemName, int amount) {
             this.itemName = itemName;
             this.amount = amount;
         }
-        public boolean equals(Object o){
-            if(!(o instanceof Drop)) return false;
+
+        public boolean equals(Object o) {
+            if (!(o instanceof Drop))
+                return false;
             Drop d = (Drop) o;
             return this.itemName.equals(d.itemName);
         }
-        public void incrementAmount(int i){
-            this.amount +=i;
+
+        public void incrementAmount(int i) {
+            this.amount += i;
         }
+
         public int getAmount() {
             return amount;
         }
     }
+
     protected String playerName;
     protected List<Drop> drops = new ArrayList<Drop>();
 
-    public DropItemLoggable(PlayerDropItemEvent event){
+    public DropItemLoggable(PlayerDropItemEvent event) {
         super();
         playerName = event.getPlayer().getName();
         drops.add(new Drop(
-            event.getItemDrop().getName(), 
-            event.getItemDrop().getItemStack().getAmount()
-        ));   
+                event.getItemDrop().getName(),
+                event.getItemDrop().getItemStack().getAmount()));
     }
 
     @Override
-    public String getLog(){
+    public String getLog() {
         StringBuilder log = new StringBuilder(playerName + " dropped: ");
 
-        for (Drop d : drops){
+        for (Drop d : drops) {
             log.append(d.itemName + " x" + d.amount + ", ");
         }
 
-        //Remove trailing comma
+        // Remove trailing comma
         log.setLength(log.length() - 2);
 
         return log.toString();
@@ -53,7 +57,8 @@ public class DropItemLoggable extends BaseLoggable {
 
     @Override
     public boolean combine(Loggable other) {
-        if (!(other instanceof DropItemLoggable)) return false;
+        if (!(other instanceof DropItemLoggable))
+            return false;
 
         DropItemLoggable otherDrop = (DropItemLoggable) other;
 
@@ -61,14 +66,12 @@ public class DropItemLoggable extends BaseLoggable {
             return false;
         }
         Drop otherItem = otherDrop.drops.get(0);
-        if (drops.contains(otherItem)){
+        if (drops.contains(otherItem)) {
             drops.get(drops.indexOf(otherItem)).incrementAmount(otherItem.getAmount());
-        }
-        else{
+        } else {
             drops.add(otherItem);
         }
         return true;
     }
-
 
 }

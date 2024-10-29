@@ -5,8 +5,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutorService; 
-import java.util.concurrent.Executors; 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpResponse;
@@ -66,7 +66,7 @@ public class GptAPI {
     public GptAPI(GptModel model, Tool customTools, double tempurature) {
         this.model = model;
         this.body = new GenerateContentRequest(customTools, tempurature);
-        
+
         gson.registerTypeAdapter(GptModel.class, new ModelSerializer());
         gson.setExclusionStrategies(new ParameterExclusion());
     }
@@ -74,7 +74,7 @@ public class GptAPI {
     public GptAPI(GptModel model, Tool customTools) {
         this.model = model;
         this.body = new GenerateContentRequest(customTools);
-        
+
         gson.registerTypeAdapter(GptModel.class, new ModelSerializer());
         gson.setExclusionStrategies(new ParameterExclusion());
     }
@@ -112,18 +112,18 @@ public class GptAPI {
     }
 
     // public GptAPI addContext(String context, String name, int index) {
-    //     if (this.messageMap.containsKey(name)) {
-    //         this.body.replaceMessage(messageMap.get(name), context);
-    //         return this;
-    //     }
-    //     this.body.addMessage("system", context);
-    //     for (String key : messageMap.keySet()) {
-    //         if (messageMap.get(key) == index) {
-    //             messageMap.replace(key, index + 1);
-    //         }
-    //     }
-    //     this.messageMap.put(name, index);
-    //     return this;
+    // if (this.messageMap.containsKey(name)) {
+    // this.body.replaceMessage(messageMap.get(name), context);
+    // return this;
+    // }
+    // this.body.addMessage("system", context);
+    // for (String key : messageMap.keySet()) {
+    // if (messageMap.get(key) == index) {
+    // messageMap.replace(key, index + 1);
+    // }
+    // }
+    // this.messageMap.put(name, index);
+    // return this;
     // }
 
     public GptAPI setTools(Tool tools) {
@@ -142,7 +142,7 @@ public class GptAPI {
     }
 
     public GptAPI addLogs(String Logs, String name) {
-        if(Logs.length() < 1) {
+        if (Logs.length() < 1) {
             GPTGOD.LOGGER.warn("tried to add empty logs");
             return this;
         }
@@ -157,7 +157,7 @@ public class GptAPI {
     }
 
     public GptAPI addLogs(String Logs, String name, int index) {
-        if(this.body.getMessagesSize() <= index){
+        if (this.body.getMessagesSize() <= index) {
             addLogs(Logs, name);
             return this;
         }
@@ -176,7 +176,7 @@ public class GptAPI {
     }
 
     public GptAPI addLogs(List<String> Logs, String name, int index) {
-        if(this.body.getMessagesSize() <= index){
+        if (this.body.getMessagesSize() <= index) {
             addLogs(Logs, name);
             return this;
         }
@@ -207,18 +207,19 @@ public class GptAPI {
     }
 
     public GptAPI addMessages(String[] messages) {
-        // GPTGOD.LOGGER.info("Adding prompt to get response: " + String.join("\n", messages) );
+        // GPTGOD.LOGGER.info("Adding prompt to get response: " + String.join("\n",
+        // messages) );
         this.body.addMessage(Role.user, messages);
         return this;
     }
 
     public GptAPI setToolChoice(String tool_choice) {
-        this.body.setToolConfig(new ToolConfig(new String[]{tool_choice}));
+        this.body.setToolConfig(new ToolConfig(new String[] { tool_choice }));
         return this;
     }
 
     // public void removeLastMessage() {
-    //     this.body.removeLastMessage();
+    // this.body.removeLastMessage();
     // }
 
     public int getMaxTokens() {
@@ -240,7 +241,8 @@ public class GptAPI {
             FileConfiguration config = JavaPlugin.getPlugin(GPTGOD.class).getConfig();
             StringEntity data = new StringEntity(gson.create().toJson(body), ContentType.APPLICATION_JSON);
             GPTGOD.LOGGER.info("POSTING " + gson.setPrettyPrinting().create().toJson(body));
-            HttpPost post = new HttpPost(BASE_URL + model.getName() + ":generateContent" + "?key=" + config.getString("geminiKey"));
+            HttpPost post = new HttpPost(
+                    BASE_URL + model.getName() + ":generateContent" + "?key=" + config.getString("geminiKey"));
             post.setHeader(HttpHeaders.CONTENT_TYPE, "application/json");
             GPTGOD.LOGGER.info("Making POST request");
             post.setEntity(data);
@@ -273,7 +275,8 @@ public class GptAPI {
             FileConfiguration config = JavaPlugin.getPlugin(GPTGOD.class).getConfig();
             StringEntity data = new StringEntity(gson.create().toJson(body), ContentType.APPLICATION_JSON);
             GPTGOD.LOGGER.info("POSTING " + gson.setPrettyPrinting().create().toJson(body));
-            HttpPost post = new HttpPost(BASE_URL + model.getName() + ":generateContent" + "?key=" + config.getString("geminiKey"));
+            HttpPost post = new HttpPost(
+                    BASE_URL + model.getName() + ":generateContent" + "?key=" + config.getString("geminiKey"));
             post.setHeader(HttpHeaders.CONTENT_TYPE, "application/json");
             GPTGOD.LOGGER.info("Making POST request");
             post.setEntity(data);
@@ -316,8 +319,9 @@ public class GptAPI {
 
         if (responseObject.isError()) {
             GPTGOD.LOGGER.error(responseObject.getError().toString());
-            if(responseObject.getError().getStatus() == "INVALID_ARGUMENT") {
-                GPTGOD.LOGGER.info("GEMINI API RETURNED INVALID ARGUMENT! Suggestion: Double check that the gemini model names are correct.");
+            if (responseObject.getError().getStatus() == "INVALID_ARGUMENT") {
+                GPTGOD.LOGGER.info(
+                        "GEMINI API RETURNED INVALID ARGUMENT! Suggestion: Double check that the gemini model names are correct.");
             }
             return;
         }

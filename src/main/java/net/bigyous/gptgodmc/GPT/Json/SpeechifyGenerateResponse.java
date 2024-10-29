@@ -9,11 +9,13 @@ public class SpeechifyGenerateResponse {
     public String getAudio_data() {
         return audio_data;
     }
+
     public AudioFormat getAudio_format() {
         return audio_format;
     }
+
     public SpeechMarks getSpeech_marks() {
         return speech_marks;
     }
-    
+
 }

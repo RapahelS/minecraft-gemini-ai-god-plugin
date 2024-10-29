@@ -7,7 +7,8 @@ public class CraftLoggable extends BaseLoggable {
     protected String playerName;
     protected String item;
     protected int count;
-    public CraftLoggable(CraftItemEvent event){
+
+    public CraftLoggable(CraftItemEvent event) {
         super();
         HumanEntity crafter = event.getView().getPlayer();
         this.playerName = crafter.getName();
@@ -22,9 +23,10 @@ public class CraftLoggable extends BaseLoggable {
 
     @Override
     public boolean combine(Loggable l) {
-        if(!(l instanceof CraftLoggable)) return false;
+        if (!(l instanceof CraftLoggable))
+            return false;
         CraftLoggable other = (CraftLoggable) l;
-        if(other.playerName.equals(this.playerName) && other.item.equals(this.item)){
+        if (other.playerName.equals(this.playerName) && other.item.equals(this.item)) {
             this.count += other.count;
             return true;
         }

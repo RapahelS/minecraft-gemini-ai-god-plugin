@@ -64,22 +64,22 @@ public class GenerateCommands {
                         .addResponse(new Content(Role.model,
                                         new Part[] {
                                                         new Part(new FunctionCall("inputCommands", JsonParser
-                                                        .parseString("""
-                                                                {
-                                                                        "commands": [
-                                                                                "execute at MoistPyro run summon firework_rocket ~ ~ ~ {Firework:{Flight:1,Explosions:[{Type:1,Colors:[15,14,13,12],Flicker:false,Trail:false}]}}",
-                                                                                "execute at MoistPyro run summon firework_rocket ~1 ~ ~ {Firework:{Flight:1,Explosions:[{Type:1,Colors:[1,2,3,4],Flicker:false,Trail:false}]}}",
-                                                                                "execute at MoistPyro run summon firework_rocket ~-1 ~ ~ {Firework:{Flight:1,Explosions:[{Type:1,Colors:[5,6,7,8],Flicker:false,Trail:false}]}}",
-                                                                                "execute at MoistPyro run summon firework_rocket ~ ~1 ~ {Firework:{Flight:1,Explosions:[{Type:1,Colors:[9,10,11,12],Flicker:false,Trail:false}]}}",
-                                                                                "execute at MoistPyro run summon firework_rocket ~ ~-1 ~ {Firework:{Flight:1,Explosions:[{Type:1,Colors:[13,14,15,0],Flicker:false,Trail:false}]}}",
-                                                                                "execute at MoistPyro run summon firework_rocket ~2 ~ ~ {Firework:{Flight:1,Explosions:[{Type:1,Colors:[15,14,13,12],Flicker:false,Trail:false}]}}",
-                                                                                "execute at MoistPyro run summon firework_rocket ~-2 ~ ~ {Firework:{Flight:1,Explosions:[{Type:1,Colors:[1,2,3,4],Flicker:false,Trail:false}]}}",
-                                                                                "execute at MoistPyro run summon firework_rocket ~ ~2 ~ {Firework:{Flight:1,Explosions:[{Type:1,Colors:[5,6,7,8],Flicker:false,Trail:false}]}}",
-                                                                                "execute at MoistPyro run summon firework_rocket ~ ~-2 ~ {Firework:{Flight:1,Explosions:[{Type:1,Colors:[9,10,11,12],Flicker:false,Trail:false}]}}"
-                                                                        ]
-                                                                }
-                                                        """)
-                                                        .getAsJsonObject()))
+                                                                        .parseString("""
+                                                                                                {
+                                                                                                        "commands": [
+                                                                                                                "execute at MoistPyro run summon firework_rocket ~ ~ ~ {Firework:{Flight:1,Explosions:[{Type:1,Colors:[15,14,13,12],Flicker:false,Trail:false}]}}",
+                                                                                                                "execute at MoistPyro run summon firework_rocket ~1 ~ ~ {Firework:{Flight:1,Explosions:[{Type:1,Colors:[1,2,3,4],Flicker:false,Trail:false}]}}",
+                                                                                                                "execute at MoistPyro run summon firework_rocket ~-1 ~ ~ {Firework:{Flight:1,Explosions:[{Type:1,Colors:[5,6,7,8],Flicker:false,Trail:false}]}}",
+                                                                                                                "execute at MoistPyro run summon firework_rocket ~ ~1 ~ {Firework:{Flight:1,Explosions:[{Type:1,Colors:[9,10,11,12],Flicker:false,Trail:false}]}}",
+                                                                                                                "execute at MoistPyro run summon firework_rocket ~ ~-1 ~ {Firework:{Flight:1,Explosions:[{Type:1,Colors:[13,14,15,0],Flicker:false,Trail:false}]}}",
+                                                                                                                "execute at MoistPyro run summon firework_rocket ~2 ~ ~ {Firework:{Flight:1,Explosions:[{Type:1,Colors:[15,14,13,12],Flicker:false,Trail:false}]}}",
+                                                                                                                "execute at MoistPyro run summon firework_rocket ~-2 ~ ~ {Firework:{Flight:1,Explosions:[{Type:1,Colors:[1,2,3,4],Flicker:false,Trail:false}]}}",
+                                                                                                                "execute at MoistPyro run summon firework_rocket ~ ~2 ~ {Firework:{Flight:1,Explosions:[{Type:1,Colors:[5,6,7,8],Flicker:false,Trail:false}]}}",
+                                                                                                                "execute at MoistPyro run summon firework_rocket ~ ~-2 ~ {Firework:{Flight:1,Explosions:[{Type:1,Colors:[9,10,11,12],Flicker:false,Trail:false}]}}"
+                                                                                                        ]
+                                                                                                }
+                                                                                        """)
+                                                                        .getAsJsonObject()))
                                         }))
                         .setToolChoice("inputCommands");
 

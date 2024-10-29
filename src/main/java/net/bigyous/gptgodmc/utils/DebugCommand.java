@@ -1,4 +1,5 @@
 package net.bigyous.gptgodmc.utils;
+
 import org.apache.commons.lang3.ArrayUtils;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -14,13 +15,14 @@ import com.google.gson.JsonSyntaxException;
 import net.bigyous.gptgodmc.GPTGOD;
 import net.bigyous.gptgodmc.GPT.GptActions;
 
-public class DebugCommand implements CommandExecutor{
+public class DebugCommand implements CommandExecutor {
 
     Gson gson = new Gson();
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args){
-        if(sender instanceof Player){
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label,
+            String[] args) {
+        if (sender instanceof Player) {
             sender.sendMessage("Use the Server console to use this command");
             return false;
         }
@@ -28,11 +30,9 @@ public class DebugCommand implements CommandExecutor{
         String commandName = args[0];
         String jsonArgs = String.join(" ", ArrayUtils.subarray(args, 1, args.length));
 
-        
-
         GPTGOD.LOGGER.info("trying command " + commandName + " with args " + jsonArgs);
         try {
-        GptActions.run(commandName, JsonParser.parseString(jsonArgs).getAsJsonObject());
+            GptActions.run(commandName, JsonParser.parseString(jsonArgs).getAsJsonObject());
         } catch (JsonSyntaxException e) {
             GPTGOD.LOGGER.error("syntax error in json args " + jsonArgs, e);
         } catch (JsonParseException e) {

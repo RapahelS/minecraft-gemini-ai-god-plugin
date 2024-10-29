@@ -29,7 +29,7 @@ public class GPTUtils {
 
     public static int countTokens(String[] messages) {
         int acumulator = 0;
-        for(String msg : messages) {
+        for (String msg : messages) {
             acumulator += countTokens(msg);
         }
         return acumulator;
@@ -51,9 +51,9 @@ public class GPTUtils {
     // calculates the sum tokens for all functions in a tool
     public static int calculateToolTokens(Tool tool) {
         int sum = 0;
-            for (FunctionDeclaration func : tool.getFunctions()) {
-                sum += func.calculateFunctionTokens();
-            }
+        for (FunctionDeclaration func : tool.getFunctions()) {
+            sum += func.calculateFunctionTokens();
+        }
         return sum;
     }
 

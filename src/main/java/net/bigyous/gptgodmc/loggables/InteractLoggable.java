@@ -3,6 +3,7 @@ package net.bigyous.gptgodmc.loggables;
 import org.bukkit.event.player.PlayerInteractEvent;
 
 import net.kyori.adventure.text.TextComponent;
+
 public class InteractLoggable extends BaseLoggable {
 
     protected String playerName;
@@ -11,28 +12,27 @@ public class InteractLoggable extends BaseLoggable {
     private int times;
     private boolean isValid = false;
 
-    public InteractLoggable(PlayerInteractEvent event){
+    public InteractLoggable(PlayerInteractEvent event) {
         super();
         this.playerName = event.getPlayer().getName();
-        this.targetName = event.hasBlock()? event.getClickedBlock().getType().name(): null;
-        this.itemName = event.hasItem()? ((TextComponent)event.getItem().displayName()).content(): null;
+        this.targetName = event.hasBlock() ? event.getClickedBlock().getType().name() : null;
+        this.itemName = event.hasItem() ? ((TextComponent) event.getItem().displayName()).content() : null;
         this.times = 1;
         isValid = targetName == null;
     }
 
     @Override
     public String getLog() {
-        if(!isValid){
+        if (!isValid) {
             return null;
         }
         StringBuilder sb = new StringBuilder(playerName);
-        if(times > 2){
+        if (times > 2) {
             sb.append(" repeatedly ");
         }
-        if(itemName != null){
+        if (itemName != null) {
             sb.append(" tried to use " + itemName + " on ");
-        }
-        else{
+        } else {
             sb.append(" interacted with ");
         }
         sb.append(targetName);
@@ -40,30 +40,31 @@ public class InteractLoggable extends BaseLoggable {
 
     }
 
-    public boolean equals(InteractLoggable other){
+    public boolean equals(InteractLoggable other) {
         // just found out the null object doesn't have .equals
-        if(!this.isValid){
+        if (!this.isValid) {
             return false;
         }
-        if(this.itemName == null){
+        if (this.itemName == null) {
             return playerName.equals(other.playerName) && other.itemName == null
-            && targetName.equals(other.targetName);
+                    && targetName.equals(other.targetName);
         }
         return playerName.equals(other.playerName) && itemName.equals(other.itemName)
-            && targetName.equals(other.targetName);
+                && targetName.equals(other.targetName);
     }
 
     @Override
     public boolean combine(Loggable other) {
-        if (!(other instanceof InteractLoggable)) return false;
+        if (!(other instanceof InteractLoggable))
+            return false;
 
         InteractLoggable otherInteraction = (InteractLoggable) other;
 
-        if (this.equals(otherInteraction)){
+        if (this.equals(otherInteraction)) {
             this.times += 1;
             return true;
         }
         return false;
     }
-    
+
 }

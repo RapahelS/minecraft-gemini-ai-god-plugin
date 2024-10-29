@@ -23,7 +23,7 @@ public class Tool {
     }
 
     public Tool(FunctionDeclaration functionDeclaration) {
-        this.functionDeclarations = new FunctionDeclaration[] {functionDeclaration};
+        this.functionDeclarations = new FunctionDeclaration[] { functionDeclaration };
     }
 
     public FunctionDeclaration[] getFunctions() {

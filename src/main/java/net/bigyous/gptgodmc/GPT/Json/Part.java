@@ -38,6 +38,7 @@ public class Part {
     public Part(String text) {
         this.text = text;
     }
+
     public Part(FileData fileData) {
         this.fileData = fileData;
     }

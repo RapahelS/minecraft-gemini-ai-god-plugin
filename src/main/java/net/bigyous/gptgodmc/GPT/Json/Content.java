@@ -24,7 +24,7 @@ public class Content {
 
     public Content(Role role, Part[] parts) {
         this.role = role;
-        for(Part part : parts) {
+        for (Part part : parts) {
             this.parts.add(part);
         }
     }
@@ -43,7 +43,7 @@ public class Content {
     public Content(String[] messages) {
         this.role = Role.user;
         this.parts = new ArrayList<Part>();
-        for(String msg : messages) {
+        for (String msg : messages) {
             this.parts.add(new Part(msg));
         }
     }
@@ -57,7 +57,7 @@ public class Content {
     public Content(Role role, String[] messages) {
         this.role = role;
         this.parts = new ArrayList<Part>();
-        for(String msg : messages) {
+        for (String msg : messages) {
             this.parts.add(new Part(msg));
         }
     }
@@ -65,7 +65,7 @@ public class Content {
     public Content(Role role, List<String> messages) {
         this.role = role;
         this.parts = new ArrayList<Part>();
-        for(String msg : messages) {
+        for (String msg : messages) {
             this.parts.add(new Part(msg));
         }
     }
@@ -73,9 +73,11 @@ public class Content {
     public ArrayList<Part> getParts() {
         return parts;
     }
+
     public void setParts(ArrayList<Part> parts) {
         this.parts = parts;
     }
+
     public Role getRole() {
         return role;
     }

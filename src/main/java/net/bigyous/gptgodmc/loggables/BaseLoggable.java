@@ -33,11 +33,11 @@ public class BaseLoggable implements Loggable {
         return getFormattedTimestamp();
     }
 
-    public Instant getRawInstant(){
+    public Instant getRawInstant() {
         return timestamp;
     }
 
-    public void setTimestamp(Instant time){
+    public void setTimestamp(Instant time) {
         this.timestamp = time;
     }
 
@@ -45,13 +45,14 @@ public class BaseLoggable implements Loggable {
         return false;
     }
 
-    public int getTokens(){
-        if(tokens<0){
+    public int getTokens() {
+        if (tokens < 0) {
             this.tokens = GPTUtils.countTokens(getLog());
         }
         return tokens;
     }
-    public void resetTokens(){
+
+    public void resetTokens() {
         tokens = -1;
     }
 

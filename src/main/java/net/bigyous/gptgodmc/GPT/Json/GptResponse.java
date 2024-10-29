@@ -10,12 +10,15 @@ public class GptResponse {
     public Choice[] getChoices() {
         return choices;
     }
+
     public int getCreated() {
         return created;
     }
+
     public String getId() {
         return id;
     }
+
     public String getModel() {
         return model;
     }

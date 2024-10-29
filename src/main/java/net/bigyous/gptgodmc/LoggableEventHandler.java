@@ -58,20 +58,20 @@ import io.papermc.paper.event.player.AsyncChatEvent;
 import org.bukkit.event.EventHandler;
 
 public class LoggableEventHandler implements Listener {
-    //private EventLogger eventLogger;
+    // private EventLogger eventLogger;
 
     @EventHandler
     public static void pickupItem(PlayerAttemptPickupItemEvent event) {
-        //EventLogger.addEvent(event);
+        // EventLogger.addEvent(event);
         EventLogger.addLoggable(
-            new ItemPickupLoggable(event)
-        );
+                new ItemPickupLoggable(event));
     }
 
     @EventHandler
     public static void onChat(AsyncChatEvent event) {
 
-        EventLogger.addLoggable(new ChatLoggable(event.getPlayer().getName(), GPTUtils.getPlayerTimeStamp(event.getPlayer()), ((TextComponent)event.message()).content()));
+        EventLogger.addLoggable(new ChatLoggable(event.getPlayer().getName(),
+                GPTUtils.getPlayerTimeStamp(event.getPlayer()), ((TextComponent) event.message()).content()));
         // dbg: dump logs
         // GPTGOD.LOGGER.info("=== DUMPED LOGS: ===");
         // GPTGOD.LOGGER.info(EventLogger.debugOut());
@@ -81,137 +81,133 @@ public class LoggableEventHandler implements Listener {
     @EventHandler
     public static void onAttackEntity(EntityDamageByEntityEvent event) {
         EventLogger.addLoggable(
-            new AttackLoggable(event)
-        );
+                new AttackLoggable(event));
     }
 
     @EventHandler
     public static void onDamage(EntityDamageEvent event) {
         EventLogger.addLoggable(
-            new DamageLoggable(event)
-        );
+                new DamageLoggable(event));
     }
 
     @EventHandler
     public static void onDrop(PlayerDropItemEvent event) {
         EventLogger.addLoggable(
-            new DropItemLoggable(event)
-        );
+                new DropItemLoggable(event));
     }
+
     @EventHandler
-    public static void onEat(PlayerItemConsumeEvent event){
+    public static void onEat(PlayerItemConsumeEvent event) {
         EventLogger.addLoggable(
-            new EatingLoggable(event)
-        );
+                new EatingLoggable(event));
     }
+
     // @EventHandler
     // public static void onEntityInteract(PlayerInteractEvent event){
-    //     EventLogger.addLoggable(
-    //         new InteractLoggable(event)
-    //     );
+    // EventLogger.addLoggable(
+    // new InteractLoggable(event)
+    // );
     // }
     @EventHandler
-    public static void onDeath(PlayerDeathEvent event){
+    public static void onDeath(PlayerDeathEvent event) {
         EventLogger.addLoggable(
-            new DeathLoggable(event)
-        );
-    }
-    @EventHandler
-    public static void onItemFished(PlayerFishEvent event){
-        EventLogger.addLoggable(
-            new FishingLoggable(event)
-        );
+                new DeathLoggable(event));
     }
 
     @EventHandler
-    public static void onBlockPlaced(BlockPlaceEvent event){
+    public static void onItemFished(PlayerFishEvent event) {
         EventLogger.addLoggable(
-            new SpecialBlockPlaceEventLoggable(event)
-        );
+                new FishingLoggable(event));
     }
 
     @EventHandler
-    public static void onSignChange(SignChangeEvent event){
+    public static void onBlockPlaced(BlockPlaceEvent event) {
+        EventLogger.addLoggable(
+                new SpecialBlockPlaceEventLoggable(event));
+    }
+
+    @EventHandler
+    public static void onSignChange(SignChangeEvent event) {
         EventLogger.addLoggable(new WriteOnSignLoggable(event));
     }
 
     @EventHandler
-    public static void onExplosion(BlockExplodeEvent event){
+    public static void onExplosion(BlockExplodeEvent event) {
         EventLogger.addLoggable(new ExplosionLoggable(event));
     }
 
     @EventHandler
-    public static void onSleep(PlayerBedEnterEvent event){
+    public static void onSleep(PlayerBedEnterEvent event) {
         EventLogger.addLoggable(new SleepTogetherLoggable(event));
     }
 
     @EventHandler
-    public static void onUse(PlayerInteractEvent event){
+    public static void onUse(PlayerInteractEvent event) {
         EventLogger.addLoggable(new UseLoggable(event));
     }
 
     @EventHandler
-    public static void onBlockExplosion(EntityExplodeEvent event){
+    public static void onBlockExplosion(EntityExplodeEvent event) {
         EventLogger.addLoggable(new ExplosionLoggable(event));
     }
 
     @EventHandler
-    public static void onCombust(EntityCombustEvent event){
+    public static void onCombust(EntityCombustEvent event) {
         EventLogger.addLoggable(new CombustLoggable(event));
     }
 
     @EventHandler
-    public static void onMount(EntityMountEvent event){
+    public static void onMount(EntityMountEvent event) {
         EventLogger.addLoggable(new MountLoggable(event));
     }
 
     @EventHandler
-    public static void onCraft(CraftItemEvent event){
+    public static void onCraft(CraftItemEvent event) {
         EventLogger.addLoggable(new CraftLoggable(event));
     }
 
     @EventHandler
-    public static void onAchievement(PlayerAdvancementDoneEvent event){
+    public static void onAchievement(PlayerAdvancementDoneEvent event) {
         EventLogger.addLoggable(new AchievementLoggable(event));
     }
 
     @EventHandler
-    public static void onItemNamed(InventoryClickEvent event){
+    public static void onItemNamed(InventoryClickEvent event) {
         EventLogger.addLoggable(new RenameItemLoggable(event));
     }
 
     @EventHandler
-    public static void onEntityRename(PlayerInteractEntityEvent event){
+    public static void onEntityRename(PlayerInteractEntityEvent event) {
         EventLogger.addLoggable(new RenameEntityEvent(event));
     }
 
     @EventHandler
-    public static void onShoot(EntityShootBowEvent event){
+    public static void onShoot(EntityShootBowEvent event) {
         EventLogger.addLoggable(new ShootLoggable(event));
     }
 
     @EventHandler
-    public static void onTame(EntityTameEvent event){
+    public static void onTame(EntityTameEvent event) {
         EventLogger.addLoggable(new TameAnimalLoggable(event));
     }
 
     @EventHandler
-    public static void onKill(EntityDeathEvent event){
+    public static void onKill(EntityDeathEvent event) {
         EventLogger.addLoggable(new KillLoggable(event));
     }
 
     @EventHandler
-    public static void onCook(InventoryBlockStartEvent event){
+    public static void onCook(InventoryBlockStartEvent event) {
         EventLogger.addLoggable(new SmeltLoggable(event));
     }
 
     @EventHandler
-    public static void onBreed(EntityEnterLoveModeEvent event){
+    public static void onBreed(EntityEnterLoveModeEvent event) {
         EventLogger.addLoggable(new EntityLoveLoggable(event));
     }
 
     @EventHandler
-    public static void onPlant(BlockPlaceEvent event){
+    public static void onPlant(BlockPlaceEvent event) {
         EventLogger.addLoggable(new PlantLoggable(event));
     }
 }

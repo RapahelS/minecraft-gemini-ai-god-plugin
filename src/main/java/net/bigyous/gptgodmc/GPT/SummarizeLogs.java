@@ -22,13 +22,13 @@ public class SummarizeLogs {
                         These logs are the history of the server so keep everything in the past tense.
                         """;
         private static Function<JsonObject> submitSummary = (JsonObject argObject) -> {
-                
+
                 // JsonObject argObject = JsonParser.parseString(args).getAsJsonObject();
 
                 GPTGOD.LOGGER.info("summary submitted with args: " + argObject.toString());
-                
+
                 String summary = argObject.get("summary").getAsString();
-                
+
                 EventLogger.setSummary(summary);
         };
         private static Map<String, FunctionDeclaration> functionMap = Map.of("submitSummary",

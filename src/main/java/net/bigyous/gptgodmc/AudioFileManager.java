@@ -16,29 +16,31 @@ public class AudioFileManager {
     public static final int SAMPLE_RATE = 48000;
     // bitrate in kbps (48000hz * 16 bits)
     public static final int BIT_RATE = 320;
-    public static AudioFormat FORMAT = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, 48000F, 16, 1, 
-        2, 48000F, false);
+    public static AudioFormat FORMAT = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, 48000F, 16, 1,
+            2, 48000F, false);
     private static AtomicInteger currentId = new AtomicInteger();
-    public static Path VOICE_DATA = JavaPlugin.getPlugin(GPTGOD.class).getDataFolder().toPath().resolve("player_voice_data");
+    public static Path VOICE_DATA = JavaPlugin.getPlugin(GPTGOD.class).getDataFolder().toPath()
+            .resolve("player_voice_data");
 
-    public static Path getPlayerFile(Player player, int fileNumber){
+    public static Path getPlayerFile(Player player, int fileNumber) {
         String uuidString = player.getUniqueId().toString();
-        
+
         return VOICE_DATA.resolve(String.format("%s/%d.wav", uuidString, fileNumber));
     }
 
-    public static OutputStream getPlayerOutputStream(Player player, int fileNumber){
+    public static OutputStream getPlayerOutputStream(Player player, int fileNumber) {
         Path soundFile = getPlayerFile(player, fileNumber);
         try {
             Files.createDirectories(soundFile.getParent());
             return Files.newOutputStream(soundFile);
         } catch (IOException e) {
-            GPTGOD.LOGGER.warn(String.format("An IO Exception occured getting output stream for player: %s", player.getName()));
+            GPTGOD.LOGGER.warn(
+                    String.format("An IO Exception occured getting output stream for player: %s", player.getName()));
             return null;
         }
     }
 
-    public static void deletePlayerData(Player player){   
+    public static void deletePlayerData(Player player) {
         String uuidString = player.getUniqueId().toString();
         try {
             // Files.delete(getPlayerMp3(player));
@@ -47,7 +49,8 @@ public class AudioFileManager {
             GPTGOD.LOGGER.warn("tried to delete nonexistant file");
         }
     }
-    public static void deletePlayerData(UUID uuid){   
+
+    public static void deletePlayerData(UUID uuid) {
         try {
             // Files.delete(getPlayerMp3(player));
             FileUtils.deleteDirectory(VOICE_DATA.resolve(uuid.toString()).toFile());
@@ -56,7 +59,7 @@ public class AudioFileManager {
         }
     }
 
-    public static void deleteFile(Path path){
+    public static void deleteFile(Path path) {
         try {
             Files.delete(path);
         } catch (IOException e) {
@@ -64,7 +67,7 @@ public class AudioFileManager {
         }
     }
 
-    public static void deleteFile(Player player, int fileNumber){
+    public static void deleteFile(Player player, int fileNumber) {
         try {
             Files.delete(getPlayerFile(player, fileNumber));
         } catch (IOException e) {
@@ -72,17 +75,17 @@ public class AudioFileManager {
         }
     }
 
-    public static int getCurrentId(){
+    public static int getCurrentId() {
         // overflowing to min int would be fine but I like having positive numbers
         int id = currentId.getAndIncrement();
-        if(id == Integer.MIN_VALUE){
+        if (id == Integer.MIN_VALUE) {
             currentId = new AtomicInteger();
             id = currentId.get();
         }
         return id;
     }
 
-    public static void reset(){
+    public static void reset() {
         currentId = new AtomicInteger();
     }
 

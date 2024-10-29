@@ -12,24 +12,33 @@ public class Schema {
 
     // Enum for Type field as per OpenAPI 3.0 spec
     public enum Type {
-        @SerializedName("TYPE_UNSPECIFIED") TYPE_UNSPECIFIED,
-        @SerializedName("STRING") STRING,
-        @SerializedName("NUMBER") NUMBER,
-        @SerializedName("INTEGER") INTEGER,
-        @SerializedName("BOOLEAN") BOOLEAN,
-        @SerializedName("ARRAY") ARRAY,
-        @SerializedName("OBJECT") OBJECT
+        @SerializedName("TYPE_UNSPECIFIED")
+        TYPE_UNSPECIFIED,
+        @SerializedName("STRING")
+        STRING,
+        @SerializedName("NUMBER")
+        NUMBER,
+        @SerializedName("INTEGER")
+        INTEGER,
+        @SerializedName("BOOLEAN")
+        BOOLEAN,
+        @SerializedName("ARRAY")
+        ARRAY,
+        @SerializedName("OBJECT")
+        OBJECT
     }
 
     // creates the "root" schema defining a function
-    // takes in a list of parameter names to parameter type definitions of Schema(Type type)
+    // takes in a list of parameter names to parameter type definitions of
+    // Schema(Type type)
     public Schema(Map<String, Schema> properties) {
         this.type = Type.OBJECT;
         this.properties = properties;
     }
 
     // creates the "root" schema defining a function
-    // takes in a list of parameter names to parameter type definitions of Schema(Type type) and which are required
+    // takes in a list of parameter names to parameter type definitions of
+    // Schema(Type type) and which are required
     public Schema(Map<String, Schema> properties, List<String> requiredFields) {
         this.type = Type.OBJECT;
         this.properties = properties;
@@ -47,14 +56,15 @@ public class Schema {
         this.description = description;
     }
 
-     // parameter with description and subtype (for arrays)
+    // parameter with description and subtype (for arrays)
     public Schema(Type type, String description, Type subType) {
         this.type = type;
         this.description = description;
         this.items = new Schema(subType);
     }
 
-    // parameter with description and subschema (for arrays of objects with their own properties)
+    // parameter with description and subschema (for arrays of objects with their
+    // own properties)
     public Schema(Type type, String description, Map<String, Schema> subProperties) {
         this.type = type;
         this.description = description;
@@ -180,10 +190,10 @@ public class Schema {
         this.items = items;
     }
 
-    public int calculateParameterTokens(){
+    public int calculateParameterTokens() {
         int sum = 0;
-        for(Schema param: properties.values()){
-            sum+= GPTUtils.countTokens(param.getType().toString()) + GPTUtils.countTokens(param.getDescription());
+        for (Schema param : properties.values()) {
+            sum += GPTUtils.countTokens(param.getType().toString()) + GPTUtils.countTokens(param.getDescription());
         }
         return sum;
     }

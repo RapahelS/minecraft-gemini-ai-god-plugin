@@ -34,7 +34,7 @@ public class Candidate {
     public String getText() {
         try {
             return content.getParts().get(0).getText();
-        } catch(IndexOutOfBoundsException e) {
+        } catch (IndexOutOfBoundsException e) {
             GPTGOD.LOGGER.error("index out of bounds getting response text", e);
             return "";
         }

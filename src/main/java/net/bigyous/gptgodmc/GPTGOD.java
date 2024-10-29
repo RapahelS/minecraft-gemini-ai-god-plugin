@@ -79,8 +79,9 @@ public final class GPTGOD extends JavaPlugin {
 
         ScoreboardManager manager = Bukkit.getScoreboardManager();
         SCOREBOARD = manager.getNewScoreboard();
-        GPT_OBJECTIVES = SCOREBOARD.registerNewObjective("gpt", Criteria.DUMMY, Component.text("Holy Objectives:").color(NamedTextColor.YELLOW));
-        if(gameMode.equals(GptGameMode.DEATHMATCH)){
+        GPT_OBJECTIVES = SCOREBOARD.registerNewObjective("gpt", Criteria.DUMMY,
+                Component.text("Holy Objectives:").color(NamedTextColor.YELLOW));
+        if (gameMode.equals(GptGameMode.DEATHMATCH)) {
             RED_TEAM = SCOREBOARD.registerNewTeam("Red");
             BLUE_TEAM = SCOREBOARD.registerNewTeam("Blue");
             RED_TEAM.color(NamedTextColor.RED);
@@ -114,7 +115,7 @@ public final class GPTGOD extends JavaPlugin {
 
         @EventHandler
         public void onPlayerDisconnect(PlayerQuitEvent event) {
-            if(SERVER.getOnlinePlayers().isEmpty()){
+            if (SERVER.getOnlinePlayers().isEmpty()) {
                 GPTGOD.SERVER.getScheduler().runTaskLater(JavaPlugin.getPlugin(GPTGOD.class), new StopGPT(), 20);
             }
         }

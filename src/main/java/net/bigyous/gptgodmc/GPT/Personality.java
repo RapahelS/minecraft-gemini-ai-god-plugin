@@ -25,7 +25,8 @@ public class Personality {
         }
         // If we would have, use these fallbacks and inform the user.
         else {
-            JavaPlugin.getPlugin(GPTGOD.class).getLogger().warning("Tried to get more behaviors than actually existed, your configuration file is probably incorrect. Make sure likedBehaviors + dislikedBehaviors is less than your total amount of potential behaviors");
+            JavaPlugin.getPlugin(GPTGOD.class).getLogger().warning(
+                    "Tried to get more behaviors than actually existed, your configuration file is probably incorrect. Make sure likedBehaviors + dislikedBehaviors is less than your total amount of potential behaviors");
             likes = List.of("Functioning config files");
             dislikes = List.of("Borked config files");
         }

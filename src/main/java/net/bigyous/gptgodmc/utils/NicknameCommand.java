@@ -19,7 +19,7 @@ public class NicknameCommand implements CommandExecutor {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label,
             @NotNull String[] args) {
-        if (!(sender instanceof Player)){
+        if (!(sender instanceof Player)) {
             return false;
         }
 
@@ -32,8 +32,8 @@ public class NicknameCommand implements CommandExecutor {
         return true;
     }
 
-    public static String getNickname(Player player){
-        if(NICK_NAMES.containsKey(player.getUniqueId())){
+    public static String getNickname(Player player) {
+        if (NICK_NAMES.containsKey(player.getUniqueId())) {
             return NICK_NAMES.get(player.getUniqueId());
         }
         return "";

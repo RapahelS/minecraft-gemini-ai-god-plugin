@@ -1,4 +1,5 @@
 package net.bigyous.gptgodmc;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeSet;
@@ -29,8 +30,7 @@ public class EventLogger {
                 loggables.add(event);
                 // calculate the tokens ahead of time
                 totalTokens += event.getTokens();
-            }
-            else{
+            } else {
                 // adjust total tokens after combining logs
                 totalTokens -= last.getTokens();
                 last.resetTokens();
@@ -43,10 +43,10 @@ public class EventLogger {
         }
     }
 
-    // remove logs until the total tokens fits within the limit of 
-    public static void cull(int tokenLimit){
+    // remove logs until the total tokens fits within the limit of
+    public static void cull(int tokenLimit) {
         int serverInfoTokens = GPTUtils.countTokens(ServerInfoSummarizer.compileStatus());
-        while(totalTokens + serverInfoTokens > tokenLimit && !loggables.isEmpty()){
+        while (totalTokens + serverInfoTokens > tokenLimit && !loggables.isEmpty()) {
             Loggable oldest = loggables.first();
             totalTokens -= oldest.getTokens();
             loggables.remove(oldest);
@@ -58,14 +58,13 @@ public class EventLogger {
 
         // Include general status of server at beginning
         logs.add(
-            ServerInfoSummarizer.compileStatus()
-        );
+                ServerInfoSummarizer.compileStatus());
 
-        logs.add("Following is a list of event's that have occured on the server since the last action by god:");        
+        logs.add("Following is a list of event's that have occured on the server since the last action by god:");
 
-        for (Loggable event: loggables) {
+        for (Loggable event : loggables) {
             String log = event.getLog();
-            if(log != null){
+            if (log != null) {
                 logs.add(event.getMinecraftTimeStamp() + " " + log);
             }
         }
@@ -75,7 +74,7 @@ public class EventLogger {
     public static List<String> flushLogs() {
         List<String> logs = getLogs();
         // Clear events
-        
+
         loggables.clear();
         totalTokens = 0;
         return logs;
@@ -86,30 +85,35 @@ public class EventLogger {
         summarize(out);
         return out;
     }
-    public static String debugOut(){
+
+    public static String debugOut() {
         return String.join("\n", flushLogs());
     }
-    public static boolean hasSummary(){
+
+    public static boolean hasSummary() {
         return summary != null;
     }
-    public static String getSummary(){
+
+    public static String getSummary() {
         return summary;
     }
 
-    public static void setSummary(String newSummary){
+    public static void setSummary(String newSummary) {
         GPTGOD.LOGGER.info("new summary: " + newSummary);
         summary = newSummary;
         generatingSummary = false;
         Bukkit.getScheduler().cancelTask(summarizeTaskID);
     }
 
-    private static void summarize(String logs){
+    private static void summarize(String logs) {
         String tempSummary = summary;
         summary = null;
         SummarizeLogs.summarize(logs, tempSummary);
         generatingSummary = true;
-        //prevent infinite waiting, auto timeout after 2 seconds
-        BukkitTask task = Bukkit.getScheduler().runTaskLater(JavaPlugin.getPlugin(GPTGOD.class), () -> {generatingSummary = false;}, 40);
+        // prevent infinite waiting, auto timeout after 2 seconds
+        BukkitTask task = Bukkit.getScheduler().runTaskLater(JavaPlugin.getPlugin(GPTGOD.class), () -> {
+            generatingSummary = false;
+        }, 40);
         summarizeTaskID = task.getTaskId();
     }
 
@@ -117,7 +121,7 @@ public class EventLogger {
         return generatingSummary;
     }
 
-    public static void reset(){
+    public static void reset() {
         loggables.clear();
         totalTokens = 0;
         summary = null;

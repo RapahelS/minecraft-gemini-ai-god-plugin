@@ -24,7 +24,7 @@ public class FunctionDeclaration {
 
         // default to all fields required
         List<String> required = new ArrayList<>();
-        for(String key : parameters.getProperties().keySet()) {
+        for (String key : parameters.getProperties().keySet()) {
             required.add(key);
         }
         this.parameters.setRequiredFields(required);
@@ -62,12 +62,12 @@ public class FunctionDeclaration {
         return this.parameters.getRequiredFields();
     }
 
-    public void runFunction(JsonObject jsonArgs){
+    public void runFunction(JsonObject jsonArgs) {
         GPTGOD.LOGGER.info(String.format("%s invoked", this.name));
         function.run(jsonArgs);
     }
 
-    public int calculateFunctionTokens(){
+    public int calculateFunctionTokens() {
         return GPTUtils.countTokens(name) + GPTUtils.countTokens(description) + parameters.calculateParameterTokens();
     }
 }

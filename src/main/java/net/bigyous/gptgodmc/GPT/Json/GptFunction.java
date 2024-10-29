@@ -13,7 +13,7 @@ public class GptFunction {
     private FunctionParameters parameters;
     private transient Function<JsonObject> function;
 
-    public GptFunction (String name, String description, Map<String, Parameter> params, Function<JsonObject> function){
+    public GptFunction(String name, String description, Map<String, Parameter> params, Function<JsonObject> function) {
         this.name = name;
         this.description = description;
         this.parameters = new FunctionParameters("object", params);
@@ -48,12 +48,12 @@ public class GptFunction {
         return function;
     }
 
-    public void runFunction(JsonObject jsonArgs){
+    public void runFunction(JsonObject jsonArgs) {
         GPTGOD.LOGGER.info(String.format("%s invoked", this.name));
         function.run(jsonArgs);
     }
 
-    public int calculateFunctionTokens(){
+    public int calculateFunctionTokens() {
         return GPTUtils.countTokens(name) + GPTUtils.countTokens(description) + parameters.calculateParameterTokens();
 
     }
@@ -63,7 +63,7 @@ class FunctionParameters {
     private String type;
     private Map<String, Parameter> properties;
 
-    public FunctionParameters(String type, Map<String, Parameter> properties){
+    public FunctionParameters(String type, Map<String, Parameter> properties) {
         this.type = type;
         this.properties = properties;
     }
@@ -84,12 +84,11 @@ class FunctionParameters {
         this.properties = properties;
     }
 
-    public int calculateParameterTokens(){
+    public int calculateParameterTokens() {
         int sum = 0;
-        for(Parameter param: properties.values()){
-            sum+= GPTUtils.countTokens(param.getType()) + GPTUtils.countTokens(param.getDescription());
+        for (Parameter param : properties.values()) {
+            sum += GPTUtils.countTokens(param.getType()) + GPTUtils.countTokens(param.getDescription());
         }
         return sum;
     }
 }
-

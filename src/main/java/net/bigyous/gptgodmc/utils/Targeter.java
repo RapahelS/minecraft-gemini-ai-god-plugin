@@ -18,17 +18,17 @@ public class Targeter {
         Vector direction = entity.getLocation().getDirection();
         BlockIterator iter = new BlockIterator(entity.getWorld(), entity.getLocation().toVector(),
                 direction, entity.getEyeHeight(), 24);
-        while(iter.hasNext()){
+        while (iter.hasNext()) {
             Block block = iter.next();
-            if(!block.getType().equals(Material.AIR)){
+            if (!block.getType().equals(Material.AIR)) {
                 break;
             }
             Collection<Entity> nearby = block.getLocation().getNearbyEntities(1, 1, 1);
-            if(!nearby.isEmpty()){
-                if(nearby.size() > 1 || !nearby.contains(entity)){
+            if (!nearby.isEmpty()) {
+                if (nearby.size() > 1 || !nearby.contains(entity)) {
                     return nearby.stream().filter(e -> !entity.name().equals(e.name())).findFirst().get();
                 }
-                
+
             }
 
         }

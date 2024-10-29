@@ -3,19 +3,20 @@ package net.bigyous.gptgodmc.loggables;
 import org.bukkit.event.player.PlayerFishEvent;
 
 public class FishingLoggable extends BaseLoggable {
-    
+
     private String playerName;
     private String fishedItemName;
 
-    public FishingLoggable(PlayerFishEvent event){
+    public FishingLoggable(PlayerFishEvent event) {
         super();
         this.playerName = event.getPlayer().getName();
-        this.fishedItemName = event.getCaught() == null? null : event.getCaught().getName();
+        this.fishedItemName = event.getCaught() == null ? null : event.getCaught().getName();
     }
-    public String getLog(){
-        if (fishedItemName== null){
+
+    public String getLog() {
+        if (fishedItemName == null) {
             return null;
         }
-        return String.format("%s fished a %s!",playerName, fishedItemName);
+        return String.format("%s fished a %s!", playerName, fishedItemName);
     }
 }
