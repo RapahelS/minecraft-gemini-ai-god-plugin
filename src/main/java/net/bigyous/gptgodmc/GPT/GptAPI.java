@@ -319,8 +319,9 @@ public class GptAPI {
 
     public void send() {
         CloseableHttpClient client = HttpClientBuilder.create().build();
+        
+        this.isSending = true;
         pool.execute(() -> {
-            this.isSending = true;
             FileConfiguration config = JavaPlugin.getPlugin(GPTGOD.class).getConfig();
             StringEntity data = new StringEntity(gson.create().toJson(body), ContentType.APPLICATION_JSON);
             GPTGOD.LOGGER.info("POSTING " + gson.setPrettyPrinting().create().toJson(body));
@@ -353,8 +354,9 @@ public class GptAPI {
 
     public void send(Map<String, FunctionDeclaration> functions) {
         CloseableHttpClient client = HttpClientBuilder.create().build();
+        
+        this.isSending = true;
         pool.execute(() -> {
-            this.isSending = true;
             FileConfiguration config = JavaPlugin.getPlugin(GPTGOD.class).getConfig();
             StringEntity data = new StringEntity(gson.create().toJson(body), ContentType.APPLICATION_JSON);
             GPTGOD.LOGGER.info("POSTING " + gson.setPrettyPrinting().create().toJson(body));
