@@ -94,7 +94,8 @@ public class GptAPI {
         gson.setExclusionStrategies(new ParameterExclusion());
     }
 
-    public GptAPI(GenerateContentRequest request) {
+    public GptAPI(GptModel model, GenerateContentRequest request) {
+        this.model = model;
         this.body = request;
         Tool[] tools = body.getTools();
         if(tools != null && tools.length > 0) {
