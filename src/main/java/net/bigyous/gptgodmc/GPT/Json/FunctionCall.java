@@ -23,6 +23,6 @@ public class FunctionCall {
 
     public int calculateFunctionTokens() {
         // todo: this calculates the arguments in json form at the moment so it might be over estimating the token count
-        return GPTUtils.countTokens(name) + GPTUtils.countTokens(args.getAsString());
+        return GPTUtils.countTokens(name) + GPTUtils.countTokens(args.toString());
     }
 }
