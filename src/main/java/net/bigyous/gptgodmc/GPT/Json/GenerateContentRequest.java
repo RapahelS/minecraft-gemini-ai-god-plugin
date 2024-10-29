@@ -25,6 +25,10 @@ public class GenerateContentRequest {
     // learn more.
     private Tool[] tools;
 
+    public Tool[] getTools() {
+        return tools;
+    }
+
     // tool config Optional. Tool configuration for any Tool specified in the
     // request. Refer to the Function calling guide for a usage example.
     private ToolConfig toolConfig;
@@ -78,6 +82,10 @@ public class GenerateContentRequest {
     // cached content Optional. The name of the content cached to use as context to
     // serve the prediction. Format: cachedContents/{cachedContent}
     private Content systemInstruction;
+
+    public Content getSystemInstruction() {
+        return systemInstruction;
+    }
 
     // generation config Optional. Configuration options for model generation and
     // outputs.
@@ -137,8 +145,13 @@ public class GenerateContentRequest {
     }
 
     // removes an item from the context history and returns its value
-    public Content remove(int index) {
+    public Content removeMessage(int index) {
         return this.contents.remove(index);
+    }
+
+    // returns the message content at a given index
+    public Content getMessage(int index) {
+        return this.contents.get(index);
     }
 
     public void replaceMessage(int index, String message) {
@@ -147,6 +160,10 @@ public class GenerateContentRequest {
 
     public void replaceMessage(int index, List<String> message) {
         this.contents.set(index, new Content(this.contents.get(index).getRole(), message));
+    }
+
+    public void replaceMessage(int index, Content message) {
+        this.contents.set(index, message);
     }
 
     public void addMessage(Content.Role role, String content) {
@@ -183,5 +200,9 @@ public class GenerateContentRequest {
 
     public boolean isLatestMessageFromModel() {
         return contents.getLast().getRole() == Role.model;
+    }
+
+    public boolean isEmpty() {
+        return this.contents.size() < 1;
     }
 }

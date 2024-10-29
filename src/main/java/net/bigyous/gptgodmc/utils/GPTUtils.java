@@ -1,6 +1,7 @@
 package net.bigyous.gptgodmc.utils;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Random;
 
 import org.bukkit.Bukkit;
@@ -28,6 +29,14 @@ public class GPTUtils {
     }
 
     public static int countTokens(String[] messages) {
+        int acumulator = 0;
+        for (String msg : messages) {
+            acumulator += countTokens(msg);
+        }
+        return acumulator;
+    }
+
+    public static int countTokens(List<String> messages) {
         int acumulator = 0;
         for (String msg : messages) {
             acumulator += countTokens(msg);

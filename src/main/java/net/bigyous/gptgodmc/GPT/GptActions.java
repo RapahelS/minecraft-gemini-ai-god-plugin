@@ -1,9 +1,6 @@
 package net.bigyous.gptgodmc.GPT;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -28,16 +25,11 @@ import net.bigyous.gptgodmc.GPTGOD;
 import net.bigyous.gptgodmc.Structure;
 import net.bigyous.gptgodmc.StructureManager;
 import net.bigyous.gptgodmc.WorldManager;
-import net.bigyous.gptgodmc.GPT.Json.Candidate;
-import net.bigyous.gptgodmc.GPT.Json.FunctionCall;
 import net.bigyous.gptgodmc.GPT.Json.FunctionDeclaration;
-import net.bigyous.gptgodmc.GPT.Json.GenerateContentResponse;
-import net.bigyous.gptgodmc.GPT.Json.Part;
 import net.bigyous.gptgodmc.GPT.Json.Schema;
 import net.bigyous.gptgodmc.GPT.Json.Tool;
 import net.bigyous.gptgodmc.interfaces.Function;
 import net.bigyous.gptgodmc.loggables.GPTActionLoggable;
-import net.bigyous.gptgodmc.utils.GPTUtils;
 import net.bigyous.gptgodmc.utils.GptObjectiveTracker;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
@@ -401,15 +393,14 @@ public class GptActions {
                                                                         new Schema(Schema.Type.INTEGER,
                                                                                         "the strength of this explosion where 4 is the strength of TNT"))),
                                                         detonateStructure)));
-        private static Map<String, FunctionDeclaration> speechFunctionMap = new HashMap<>(functionMap);
-        private static Map<String, FunctionDeclaration> actionFunctionMap = new HashMap<>(functionMap);
+        // private static Map<String, FunctionDeclaration> speechFunctionMap = new HashMap<>(functionMap);
+        // private static Map<String, FunctionDeclaration> actionFunctionMap = new HashMap<>(functionMap);
 
         private static Tool tools;
         // private static Tool[] actionTools;
         // private static Tool[] speechTools;
-        private static final List<String> speechActionKeys = Arrays.asList("announce", "whisper", "setObjective",
-                        "clearObjective", "decree");
-        private static final List<String> persistentActionKeys = Arrays.asList("command");
+        // private static final List<String> speechActionKeys = Arrays.asList("announce", "whisper", "setObjective", "clearObjective", "decree");
+        // private static final List<String> persistentActionKeys = Arrays.asList("command");
 
         // todo: experiment with wrapping a list of functions in a single tool for
         // google

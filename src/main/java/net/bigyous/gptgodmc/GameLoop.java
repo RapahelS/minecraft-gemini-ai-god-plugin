@@ -117,13 +117,12 @@ public class GameLoop {
             while (EventLogger.isGeneratingSummary() && !EventLogger.hasSummary()) {
                 Thread.onSpinWait();
             }
-            int nonLogTokens = staticTokens;
             if (EventLogger.hasSummary()) {
                 GPT_API.addLogs("Summary of Server History: " + EventLogger.getSummary(), "summary");
-                nonLogTokens += GPTUtils.countTokens(EventLogger.getSummary()) + 1;
             }
-            nonLogTokens += GPTUtils.calculateToolTokens(GptActions.GetAllTools());
-            EventLogger.cull(GPT_API.getMaxTokens() - nonLogTokens);
+             // event logger never needs to be culled since we are using dump to clear it
+            // EventLogger.cull(GPT_API.getMaxTokens() - nonLogTokens);
+            GPT_API.cull();
 
             // List<String> logs = EventLogger.getLogs();
             // GPT_API.addLogs(logs, "log");

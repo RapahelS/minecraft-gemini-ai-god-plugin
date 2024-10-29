@@ -39,7 +39,6 @@ import net.bigyous.gptgodmc.GPT.Json.ParameterExclusion;
 import net.bigyous.gptgodmc.GPT.Json.Part;
 import net.bigyous.gptgodmc.GPT.Json.Tool;
 import net.bigyous.gptgodmc.GPT.Json.ToolConfig;
-import net.bigyous.gptgodmc.loggables.Loggable;
 import net.bigyous.gptgodmc.utils.GPTUtils;
 import net.bigyous.gptgodmc.GPT.Json.Content.Role;
 
@@ -54,20 +53,27 @@ public class GptAPI {
     private Map<String, Integer> messageMap = new HashMap<String, Integer>();
     // the index that instructions end at and rolling context starts
     private int contextHeight = 0;
+    // keep track of how many tokens are in total chat history
+    private int totalTokens = 0;
+
     private boolean isSending = false;
     private static ExecutorService pool = Executors.newCachedThreadPool();
     private static JavaPlugin plugin = JavaPlugin.getPlugin(GPTGOD.class);
 
     public GptAPI(GptModel model, double temperature) {
+        Tool allTools = GptActions.GetAllTools();
+        totalTokens += GPTUtils.calculateToolTokens(allTools);
         this.model = model;
-        this.body = new GenerateContentRequest(GptActions.GetAllTools(), temperature);
+        this.body = new GenerateContentRequest(allTools, temperature);
         gson.registerTypeAdapter(GptModel.class, new ModelSerializer());
         gson.setExclusionStrategies(new ParameterExclusion());
     }
 
     public GptAPI(GptModel model) {
+        Tool allTools = GptActions.GetAllTools();
+        totalTokens += GPTUtils.calculateToolTokens(allTools);
         this.model = model;
-        this.body = new GenerateContentRequest(GptActions.GetAllTools());
+        this.body = new GenerateContentRequest(allTools);
         gson.registerTypeAdapter(GptModel.class, new ModelSerializer());
         gson.setExclusionStrategies(new ParameterExclusion());
     }
@@ -75,7 +81,7 @@ public class GptAPI {
     public GptAPI(GptModel model, Tool customTools, double tempurature) {
         this.model = model;
         this.body = new GenerateContentRequest(customTools, tempurature);
-
+        totalTokens += GPTUtils.calculateToolTokens(customTools);
         gson.registerTypeAdapter(GptModel.class, new ModelSerializer());
         gson.setExclusionStrategies(new ParameterExclusion());
     }
@@ -83,13 +89,20 @@ public class GptAPI {
     public GptAPI(GptModel model, Tool customTools) {
         this.model = model;
         this.body = new GenerateContentRequest(customTools);
-
+        totalTokens += GPTUtils.calculateToolTokens(customTools);
         gson.registerTypeAdapter(GptModel.class, new ModelSerializer());
         gson.setExclusionStrategies(new ParameterExclusion());
     }
 
     public GptAPI(GenerateContentRequest request) {
         this.body = request;
+        Tool[] tools = body.getTools();
+        if(tools != null && tools.length > 0) {
+            for(Tool tool : tools) {
+                totalTokens += GPTUtils.calculateToolTokens(tool);
+            }
+        }
+        totalTokens += request.getSystemInstruction().countTokens();
         gson.registerTypeAdapter(GptModel.class, new ModelSerializer());
         gson.setExclusionStrategies(new ParameterExclusion());
     }
@@ -97,70 +110,119 @@ public class GptAPI {
     // remove and return the oldest chat history
     // excepting any entires under the contextHeight
     public Content popOldestContent() {
-        return this.body.remove(contextHeight);
+        return this.body.removeMessage(contextHeight);
     }
 
+    // remove and return the oldest chat history until we are within the token limit
+    // excepting any entires under the contextHeight
+    public void cull() {
+        int tokenLimit = this.getMaxTokens();
+
+        while (totalTokens > tokenLimit && !this.body.isEmpty()) {
+            Content oldest = this.popOldestContent();
+            totalTokens -= oldest.countTokens();
+        }
+    }
 
     // push a message to the index at the current stack height
     // then increase the context stack height
     // and return the height
     private int pushContextStack(String context) {
-        GPTGOD.LOGGER.info("Pushing context stack height up one from " + contextHeight + " to " + (contextHeight+1));
+        GPTGOD.LOGGER.info("Pushing context stack height up one from " + contextHeight + " to " + (contextHeight + 1));
         // get current stack height then increment
         int insertedAtIndex = contextHeight++;
-        this.body.addMessage(Content.Role.user, context, insertedAtIndex);
-        return insertedAtIndex;
-    }
-    private int pushContextStack(List<String> context) {
-        GPTGOD.LOGGER.info("Pushing context stack height up one from " + contextHeight + " to " + (contextHeight+1));
-        // get current stack height then increment
-        int insertedAtIndex = contextHeight++;
+        // increment token count of message history
+        totalTokens += GPTUtils.countTokens(context);
         this.body.addMessage(Content.Role.user, context, insertedAtIndex);
         return insertedAtIndex;
     }
 
+    private int pushContextStack(List<String> context) {
+        GPTGOD.LOGGER.info("Pushing context stack height up one from " + contextHeight + " to " + (contextHeight + 1));
+        // get current stack height then increment
+        int insertedAtIndex = contextHeight++;
+        // increment token count of message history
+        totalTokens += GPTUtils.countTokens(context);
+        this.body.addMessage(Content.Role.user, context, insertedAtIndex);
+        return insertedAtIndex;
+    }
+
+    // replace message content at index and update total running token count
+    private void replaceMessage(int index, String message) {
+        int oldMsgTokens = this.body.getMessage(index).countTokens();
+        int newMessageTokens = GPTUtils.countTokens(message);
+        // replace the message
+        this.body.replaceMessage(index, message);
+        // update the token total with the difference between the old and new message
+        totalTokens += (newMessageTokens - oldMsgTokens);
+    }
+
+    // replace message content at index and update total running token count
+    private void replaceMessage(int index, List<String> message) {
+        int oldMsgTokens = this.body.getMessage(index).countTokens();
+        int newMessageTokens = GPTUtils.countTokens(message);
+        // replace the message
+        this.body.replaceMessage(index, message);
+        // update the token total with the difference between the old and new message
+        totalTokens += (newMessageTokens - oldMsgTokens);
+    }
+
     public GptAPI addContext(String context, String name) {
         if (this.messageMap.containsKey(name)) {
-            this.body.replaceMessage(messageMap.get(name), context);
+            this.replaceMessage(messageMap.get(name), context);
             return this;
         }
         // push message to context stack then add its index to the message map
+        // also increments totalTokens
         this.messageMap.put(name, pushContextStack(context));
         return this;
     }
 
     public GptAPI addFileWithContext(String context, String fileMimeType, String fileUri) {
         this.body.addFileWithPrompt(context, fileMimeType, fileUri);
+        totalTokens += GPTUtils.countTokens(context);
         return this;
     }
 
     // sets the system direction parameter
     public GptAPI setSystemContext(String context) {
+        Content oldInstruction = this.body.getSystemInstruction();
+        int newTokenCount = GPTUtils.countTokens(context);
+        if(oldInstruction == null) {
+            this.totalTokens += newTokenCount;
+        } else {
+            int oldCount = oldInstruction.countTokens();
+            this.totalTokens += (newTokenCount - oldCount);
+        }
         this.body.setSystemInstruction(context);
         return this;
     }
 
     public GptAPI setSystemContext(String[] context) {
+        Content oldInstruction = this.body.getSystemInstruction();
+        int newTokenCount = GPTUtils.countTokens(context);
+        if(oldInstruction == null) {
+            this.totalTokens += newTokenCount;
+        } else {
+            int oldCount = oldInstruction.countTokens();
+            this.totalTokens += (newTokenCount - oldCount);
+        }
         this.body.setSystemInstruction(context);
         return this;
     }
 
-    // public GptAPI addContext(String context, String name, int index) {
-    // if (this.messageMap.containsKey(name)) {
-    // this.body.replaceMessage(messageMap.get(name), context);
-    // return this;
-    // }
-    // this.body.addMessage("system", context);
-    // for (String key : messageMap.keySet()) {
-    // if (messageMap.get(key) == index) {
-    // messageMap.replace(key, index + 1);
-    // }
-    // }
-    // this.messageMap.put(name, index);
-    // return this;
-    // }
-
     public GptAPI setTools(Tool tools) {
+        Tool[] oldTools = this.body.getTools();
+        int newTokenCount = GPTUtils.calculateToolTokens(tools);
+        if(oldTools == null) {
+            this.totalTokens += newTokenCount;
+        } else {
+            int oldCount = 0;
+            for(Tool oldTool : oldTools) {
+                oldCount += GPTUtils.calculateToolTokens(oldTool);
+            }
+            this.totalTokens += (newTokenCount - oldCount);
+        }
         this.body.setTools(tools);
         return this;
     }
@@ -169,7 +231,7 @@ public class GptAPI {
     // same as addContext but takes in a list of events
     public GptAPI addLogs(List<String> Logs, String name) {
         if (this.messageMap.containsKey(name)) {
-            this.body.replaceMessage(messageMap.get(name), Logs);
+            this.replaceMessage(messageMap.get(name), Logs);
             return this;
         }
         this.messageMap.put(name, pushContextStack(Logs));
@@ -185,12 +247,14 @@ public class GptAPI {
     public GptAPI addResponse(Content responseContent) {
         GPTGOD.LOGGER.info("Adding response " + gson.create().toJson(responseContent));
         this.body.addMessage(responseContent);
+        this.totalTokens += responseContent.countTokens();
         return this;
     }
 
     public GptAPI addMessage(String message) {
         GPTGOD.LOGGER.info("Adding prompt to get response: " + message);
         this.body.addMessage(Role.user, message);
+        this.totalTokens += GPTUtils.countTokens(message);
         return this;
     }
 
@@ -198,6 +262,7 @@ public class GptAPI {
         // GPTGOD.LOGGER.info("Adding prompt to get response: " + String.join("\n",
         // messages) );
         this.body.addMessage(Role.user, messages);
+        this.totalTokens += GPTUtils.countTokens(messages);
         return this;
     }
 
