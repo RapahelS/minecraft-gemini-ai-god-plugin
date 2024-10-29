@@ -32,6 +32,7 @@ public class GameLoop {
                 Set interesting objectives to perform around the island, especially if none exist yet.
                 Make objectives interesting and creative, keeping in mind your likes and dislikes when you create them.
                 Reward players who complete their objectives within a minecraft day cycle and punish those who do not.
+                do NOT give out missions to a player which are already in the objectives list.
             """;
     private static String STYLE = """
                 Response Style:
@@ -138,6 +139,12 @@ public class GameLoop {
             if (GPT_API.isLatestMessageFromModel()) {
                 GPT_API.addMessage("what would you like to do or say next?");
             }
+            GPT_API.send();
+
+            while (GPT_API.isSending()) {
+                Thread.onSpinWait();
+            }
+            GPT_API.addMessage("now choose an interesting non-verbal action which you have not used yet to take based on the recent server history");
 
             GPT_API.send();
         }
