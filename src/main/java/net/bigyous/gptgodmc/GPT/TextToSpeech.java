@@ -44,7 +44,8 @@ public class TextToSpeech {
                 HttpResponse response = client.execute(post);
                 byte[] rawSamples =  response.getEntity().getContent().readAllBytes();
                 short[] samples = api.getAudioConverter().bytesToShorts(rawSamples);
-                QueuedAudio.playAudio(samples, players);
+                // plays at double the sample rate so our 24000 becomes 48000
+                QueuedAudio.playAudioDoubled(samples, players);
             } catch (IOException e) {
                 GPTGOD.LOGGER.error("There was an error making a request to GPT", e);
             }

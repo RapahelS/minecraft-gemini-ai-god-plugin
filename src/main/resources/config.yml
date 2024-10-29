@@ -4,9 +4,14 @@
 # your OpenAi API key from https://platform.openai.com/api-keys
 # the plugin won't work without this
 
+# not used anymore. just here for posterity
 openAiKey: ""
 
+# google gemini api key for main and secondary llm
 geminiKey: ""
+
+# for tts. Get key from https://console.sws.speechify.com/api-keys
+speechify-key: ""
 
 # language in ISO-639 format https://en.wikipedia.org/wiki/List_of_ISO_639_language_codes
 language: en
@@ -98,6 +103,9 @@ transcription-rate: 20
 # The voice used by the TTS
 # https://platform.openai.com/docs/guides/text-to-speech/voice-options
 voice: onyx
+
+# The voice used by the speechify TTS
+speechify-voice: benjamin
 
 # use AI Text to Speech voice for god (uses OpenAI and will cost a bit more money)
 tts: true

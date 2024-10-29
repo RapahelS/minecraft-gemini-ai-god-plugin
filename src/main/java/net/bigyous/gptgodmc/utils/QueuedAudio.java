@@ -25,13 +25,18 @@ public class QueuedAudio {
     
 
     public static void playAudio(short[] samples, Player[] players){
-        short[] resampled = doubleSampleRate(samples);
-        playQueue.add(new audioEvent(resampled, players));
+        playQueue.add(new audioEvent(samples, players));
         if(AtomicTaskId.get() == -1 || !GPTGOD.SERVER.getScheduler().isCurrentlyRunning(AtomicTaskId.get())){
             BukkitTask task = GPTGOD.SERVER.getScheduler().runTaskAsynchronously(plugin, playQueue.poll());
             AtomicTaskId.set(task.getTaskId());
         }
     }
+
+    public static void playAudioDoubled(short[] samples, Player[] players) {
+        short[] resampled = doubleSampleRate(samples);
+        playAudio(resampled, players);
+    }
+
     // private static long getLengthSeconds(short[] audio) {
     //     return (long) (audio.length / SAMPLE_RATE);
     // }

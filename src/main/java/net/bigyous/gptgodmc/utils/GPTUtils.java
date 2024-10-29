@@ -77,8 +77,9 @@ public class GPTUtils {
     // gets the time stamp for a specific world
     public static String getWorldTimeStamp(World world) {
         long time = world.getTime();
+        long days = world.getFullTime() / (24 * 1000);
         long hours = time / 1000;
         long minutes = ((time % 1000) * 6) / 100;
-        return String.format("[%02d:%02d]", hours, minutes);
+        return String.format("Day%04d [%02d:%02d]", days, hours, minutes);
     }
 }
