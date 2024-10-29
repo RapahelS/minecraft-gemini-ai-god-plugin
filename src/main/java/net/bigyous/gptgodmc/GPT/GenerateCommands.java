@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+import net.bigyous.gptgodmc.EventLogger;
 import net.bigyous.gptgodmc.GPTGOD;
 import net.bigyous.gptgodmc.StructureManager;
 import net.bigyous.gptgodmc.GPT.Json.FunctionDeclaration;
@@ -15,6 +16,8 @@ import net.bigyous.gptgodmc.GPT.Json.FunctionCall;
 import net.bigyous.gptgodmc.GPT.Json.Content.Role;
 import net.bigyous.gptgodmc.enums.GptGameMode;
 import net.bigyous.gptgodmc.interfaces.Function;
+import net.bigyous.gptgodmc.loggables.CommandLoggable;
+import net.bigyous.gptgodmc.utils.CommandHelper;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,12 +30,25 @@ public class GenerateCommands {
         private static Function<JsonObject> inputCommands = (JsonObject args) -> {
                 String[] commands = gson.fromJson(args.get("commands"), String[].class);
                 try {
-                        GptActions.executeCommands(commands);
+                        if(!CommandHelper.executeCommands(commands)) {
+                        // give the command generation ai some feedback when it does something wrong
+                        String feedback = "encountered error trying to execute commands: " + String.join(" ", commands);
+                        EventLogger.addLoggable(new CommandLoggable(feedback, false));
+                        GenerateCommands.gpt.addMessage(feedback);
+                        GPTGOD.LOGGER.error("Command Error Feedback: " + feedback);
+                        }
                 } catch (CommandException e) {
                         // give the command generation ai some feedback when it does something wrong
                         String feedback = "encountered error trying to execute commands: " + e.getMessage();
+                        EventLogger.addLoggable(new CommandLoggable(e.getMessage(), false));
                         GenerateCommands.gpt.addMessage(feedback);
                         GPTGOD.LOGGER.error("Command Error Feedback: " + feedback);
+                } catch (RuntimeException e) {
+                        // give the command generation ai some feedback when it does something wrong
+                        String feedback = "encountered runtime error trying to execute commands: " + e.getMessage();
+                        EventLogger.addLoggable(new CommandLoggable(e.getMessage(), false));
+                        GenerateCommands.gpt.addMessage(feedback);
+                        GPTGOD.LOGGER.error("Command Runtime Error Feedback: " + feedback);
                 }
         };
 

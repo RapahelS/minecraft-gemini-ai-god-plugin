@@ -30,6 +30,7 @@ import net.bigyous.gptgodmc.GPT.Json.Schema;
 import net.bigyous.gptgodmc.GPT.Json.Tool;
 import net.bigyous.gptgodmc.interfaces.Function;
 import net.bigyous.gptgodmc.loggables.GPTActionLoggable;
+import net.bigyous.gptgodmc.utils.CommandHelper;
 import net.bigyous.gptgodmc.utils.GptObjectiveTracker;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
@@ -252,7 +253,7 @@ public class GptActions {
         private static Function<JsonObject> decreeMessage = (JsonObject args) -> {
                 String name = gson.fromJson(args.get("playerName"), String.class);
                 String message = gson.fromJson(args.get("message"), String.class);
-                GptActions.executeCommand(String.format(
+                CommandHelper.executeCommand(String.format(
                                 "execute at %s run summon armor_stand ~ ~1 ~ {Invisible:1b,Invulnerable:1b,NoGravity:1b,Marker:1b,CustomName:'{\"text\":\"%s\",\"color\":\"red\",\"bold\":true,\"italic\":true,\"strikethrough\":false,\"underlined\":true}',CustomNameVisible:1b}",
                                 name, message));
         };
@@ -441,37 +442,6 @@ public class GptActions {
         // speechTools = wrapFunctions(speechFunctionMap);
         // return speechTools;
         // }
-
-        private static void dispatch(String command, CommandSender console) {
-                // can't let GPT turn off mob spawning
-                if (command.contains("doMobSpawning")) {
-                        return;
-                }
-                command = command.charAt(0) == '/' ? command.substring(1) : command;
-                if (command.matches(".*\\bgive\\b.*") || command.contains(" in ")) {
-                        GPTGOD.SERVER.dispatchCommand(console, command);
-                } else {
-                        if (!(command.contains(" as ") || command.contains(" at "))
-                                        && (command.contains("~") || command.contains("^"))) {
-                                command = "execute at @r run " + command;
-                        }
-                        GPTGOD.SERVER.dispatchCommand(console,
-                                        String.format("execute in %s run %s", WorldManager.getDimensionName(),
-                                                        command));
-                }
-        }
-
-        public static void executeCommands(String[] commands) {
-                CommandSender console = GPTGOD.SERVER.getConsoleSender();
-                for (String command : commands) {
-                        dispatch(command, console);
-                }
-        }
-
-        public static void executeCommand(String command) {
-                CommandSender console = GPTGOD.SERVER.getConsoleSender();
-                dispatch(command, console);
-        }
 
         public static int run(String functionName, JsonObject jsonArgs) {
                 GPTGOD.LOGGER.info(
