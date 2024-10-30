@@ -30,6 +30,7 @@ import net.bigyous.gptgodmc.GPT.Json.Schema;
 import net.bigyous.gptgodmc.GPT.Json.Tool;
 import net.bigyous.gptgodmc.interfaces.Function;
 import net.bigyous.gptgodmc.loggables.GPTActionLoggable;
+import net.bigyous.gptgodmc.utils.BukkitUtils;
 import net.bigyous.gptgodmc.utils.CommandHelper;
 import net.bigyous.gptgodmc.utils.GptObjectiveTracker;
 import net.kyori.adventure.text.Component;
@@ -282,7 +283,8 @@ public class GptActions {
                 Location destination = StructureManager.hasStructure(destName)
                                 ? StructureManager.getStructure(destName).getLocation()
                                 : GPTGOD.SERVER.getPlayer(destName).getLocation();
-                player.teleport(destination);
+                
+                BukkitUtils.safeTeleport(player, destination);
                 EventLogger.addLoggable(
                                 new GPTActionLoggable(String.format("teleported %s to %s", playerName, destName)));
         };
