@@ -3,10 +3,8 @@ package net.bigyous.gptgodmc.GPT;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Queue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -41,6 +39,7 @@ import net.bigyous.gptgodmc.GPT.Json.Tool;
 import net.bigyous.gptgodmc.GPT.Json.ToolConfig;
 import net.bigyous.gptgodmc.utils.GPTUtils;
 import net.bigyous.gptgodmc.GPT.Json.Content.Role;
+import net.bigyous.gptgodmc.GPT.Json.FunctionCallingConfig.Mode;
 
 public class GptAPI {
     private GsonBuilder gson = new GsonBuilder();
@@ -69,8 +68,10 @@ public class GptAPI {
         gson.setExclusionStrategies(new ParameterExclusion());
 
         // fail to startup if gpt model token limit is too small
-        if(totalTokens > this.getMaxTokens()) {
-            throw new RuntimeException("system instruction alone is more than gpt-model-token-limit. Please increase it to some value higher than " + this.getMaxTokens());
+        if (totalTokens > this.getMaxTokens()) {
+            throw new RuntimeException(
+                    "system instruction alone is more than gpt-model-token-limit. Please increase it to some value higher than "
+                            + this.getMaxTokens());
         }
     }
 
@@ -82,8 +83,10 @@ public class GptAPI {
         gson.registerTypeAdapter(GptModel.class, new ModelSerializer());
         gson.setExclusionStrategies(new ParameterExclusion());
 
-        if(totalTokens > this.getMaxTokens()) {
-            throw new RuntimeException("system instruction alone is more than gpt-model-token-limit. Please increase it to some value higher than " + this.getMaxTokens());
+        if (totalTokens > this.getMaxTokens()) {
+            throw new RuntimeException(
+                    "system instruction alone is more than gpt-model-token-limit. Please increase it to some value higher than "
+                            + this.getMaxTokens());
         }
     }
 
@@ -94,8 +97,10 @@ public class GptAPI {
         gson.registerTypeAdapter(GptModel.class, new ModelSerializer());
         gson.setExclusionStrategies(new ParameterExclusion());
 
-        if(totalTokens > this.getMaxTokens()) {
-            throw new RuntimeException("system instruction alone is more than gpt-model-token-limit. Please increase it to some value higher than " + this.getMaxTokens());
+        if (totalTokens > this.getMaxTokens()) {
+            throw new RuntimeException(
+                    "system instruction alone is more than gpt-model-token-limit. Please increase it to some value higher than "
+                            + this.getMaxTokens());
         }
     }
 
@@ -106,8 +111,10 @@ public class GptAPI {
         gson.registerTypeAdapter(GptModel.class, new ModelSerializer());
         gson.setExclusionStrategies(new ParameterExclusion());
 
-        if(totalTokens > this.getMaxTokens()) {
-            throw new RuntimeException("system instruction alone is more than gpt-model-token-limit. Please increase it to some value higher than " + this.getMaxTokens());
+        if (totalTokens > this.getMaxTokens()) {
+            throw new RuntimeException(
+                    "system instruction alone is more than gpt-model-token-limit. Please increase it to some value higher than "
+                            + this.getMaxTokens());
         }
     }
 
@@ -115,8 +122,8 @@ public class GptAPI {
         this.model = model;
         this.body = request;
         Tool[] tools = body.getTools();
-        if(tools != null && tools.length > 0) {
-            for(Tool tool : tools) {
+        if (tools != null && tools.length > 0) {
+            for (Tool tool : tools) {
                 totalTokens += GPTUtils.calculateToolTokens(tool);
             }
         }
@@ -124,8 +131,10 @@ public class GptAPI {
         gson.registerTypeAdapter(GptModel.class, new ModelSerializer());
         gson.setExclusionStrategies(new ParameterExclusion());
 
-        if(totalTokens > this.getMaxTokens()) {
-            throw new RuntimeException("system instruction alone is more than gpt-model-token-limit. Please increase it to some value higher than " + this.getMaxTokens());
+        if (totalTokens > this.getMaxTokens()) {
+            throw new RuntimeException(
+                    "system instruction alone is more than gpt-model-token-limit. Please increase it to some value higher than "
+                            + this.getMaxTokens());
         }
     }
 
@@ -140,7 +149,7 @@ public class GptAPI {
     public void cull() {
         int tokenLimit = this.getMaxTokens();
 
-        if(totalTokens > tokenLimit) {
+        if (totalTokens > tokenLimit) {
             GPTGOD.LOGGER.info("running cull operation from " + totalTokens + " down to " + tokenLimit);
         }
 
@@ -149,7 +158,7 @@ public class GptAPI {
             totalTokens -= oldest.countTokens();
         }
 
-        if(totalTokens > tokenLimit) {
+        if (totalTokens > tokenLimit) {
             GPTGOD.LOGGER.warn("GPT token count " + totalTokens + " is greater than maximum of " + tokenLimit);
         }
     }
@@ -218,7 +227,7 @@ public class GptAPI {
     public GptAPI setSystemContext(String context) {
         Content oldInstruction = this.body.getSystemInstruction();
         int newTokenCount = GPTUtils.countTokens(context);
-        if(oldInstruction == null) {
+        if (oldInstruction == null) {
             this.totalTokens += newTokenCount;
         } else {
             int oldCount = oldInstruction.countTokens();
@@ -231,7 +240,7 @@ public class GptAPI {
     public GptAPI setSystemContext(String[] context) {
         Content oldInstruction = this.body.getSystemInstruction();
         int newTokenCount = GPTUtils.countTokens(context);
-        if(oldInstruction == null) {
+        if (oldInstruction == null) {
             this.totalTokens += newTokenCount;
         } else {
             int oldCount = oldInstruction.countTokens();
@@ -244,11 +253,11 @@ public class GptAPI {
     public GptAPI setTools(Tool tools) {
         Tool[] oldTools = this.body.getTools();
         int newTokenCount = GPTUtils.calculateToolTokens(tools);
-        if(oldTools == null) {
+        if (oldTools == null) {
             this.totalTokens += newTokenCount;
         } else {
             int oldCount = 0;
-            for(Tool oldTool : oldTools) {
+            for (Tool oldTool : oldTools) {
                 oldCount += GPTUtils.calculateToolTokens(oldTool);
             }
             this.totalTokens += (newTokenCount - oldCount);
@@ -301,6 +310,18 @@ public class GptAPI {
         return this;
     }
 
+    public GptAPI setToolOnlyAllTools() {
+        ArrayList<String> toolNames = new ArrayList<>();
+        // add all toolNames to required tools
+        for (Tool tool : this.body.getTools()) {
+            for (FunctionDeclaration func : tool.getFunctions()) {
+                toolNames.add(func.getName());
+            }
+        }
+        this.body.setToolConfig(new ToolConfig(Mode.ANY, toolNames.toArray(new String[toolNames.size()])));
+        return this;
+    }
+
     // public void removeLastMessage() {
     // this.body.removeLastMessage();
     // }
@@ -319,7 +340,7 @@ public class GptAPI {
 
     public void send() {
         CloseableHttpClient client = HttpClientBuilder.create().build();
-        
+
         this.isSending = true;
         pool.execute(() -> {
             FileConfiguration config = JavaPlugin.getPlugin(GPTGOD.class).getConfig();
@@ -354,7 +375,7 @@ public class GptAPI {
 
     public void send(Map<String, FunctionDeclaration> functions) {
         CloseableHttpClient client = HttpClientBuilder.create().build();
-        
+
         this.isSending = true;
         pool.execute(() -> {
             FileConfiguration config = JavaPlugin.getPlugin(GPTGOD.class).getConfig();
@@ -411,9 +432,10 @@ public class GptAPI {
             return;
         }
 
-        // overwrite our rough guess of a total with the actual token total from the last request
+        // overwrite our rough guess of a total with the actual token total from the
+        // last request
         int promptTokenCount = responseObject.getUsageMetadata().getPromptTokenCount();
-        if(promptTokenCount > 0) {
+        if (promptTokenCount > 0) {
             GPTGOD.LOGGER.info("setting GPT token count to " + promptTokenCount);
             this.totalTokens = promptTokenCount;
         }
@@ -450,9 +472,10 @@ public class GptAPI {
             GPTGOD.LOGGER.error("error loading gemini response: " + responseObject.getError().toString());
         }
 
-        // overwrite our rough guess of a total with the actual token total from the last request
+        // overwrite our rough guess of a total with the actual token total from the
+        // last request
         int promptTokenCount = responseObject.getUsageMetadata().getPromptTokenCount();
-        if(promptTokenCount > 0) {
+        if (promptTokenCount > 0) {
             GPTGOD.LOGGER.info("setting GPT token count to " + promptTokenCount);
             this.totalTokens = promptTokenCount;
         }

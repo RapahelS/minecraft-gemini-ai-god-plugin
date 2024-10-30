@@ -80,6 +80,8 @@ public class GameLoop {
                 ROLEPLAY
         };
         GPT_API.setSystemContext(systemPrompt);
+        // set tool only mode
+        GPT_API.setToolOnlyAllTools();
 
         // the roles system and user are each one token so we add two to this number
         staticTokens = GPTUtils.countTokens(systemPrompt) + 2;
