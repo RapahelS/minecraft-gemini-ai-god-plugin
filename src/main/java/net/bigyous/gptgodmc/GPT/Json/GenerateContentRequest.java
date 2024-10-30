@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.bigyous.gptgodmc.GPT.Json.Content.Role;
-import net.bigyous.gptgodmc.GPT.Json.SafetySetting.HarmBlockThreshold;
-import net.bigyous.gptgodmc.GPT.Json.SafetySetting.HarmCategory;
+// import net.bigyous.gptgodmc.GPT.Json.SafetySetting.HarmBlockThreshold;
+// import net.bigyous.gptgodmc.GPT.Json.SafetySetting.HarmCategory;
 
 // Class to represent the structure of the JSON request to gemini
 // for generating content responses
@@ -205,4 +205,17 @@ public class GenerateContentRequest {
     public boolean isEmpty() {
         return this.contents.size() < 1;
     }
+
+    public ArrayList<Content> getContents() {
+        return contents;
+    }
+
+    public ToolConfig getToolConfig() {
+        return toolConfig;
+    }
+
+    public GenerationConfig getGenerationConfig() {
+        return generationConfig;
+    }
+
 }

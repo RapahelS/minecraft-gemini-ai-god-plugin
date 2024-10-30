@@ -6,7 +6,6 @@ import org.bukkit.scheduler.BukkitTask;
 
 import net.bigyous.gptgodmc.GPT.GPTModels;
 import net.bigyous.gptgodmc.GPT.GptAPI;
-import net.bigyous.gptgodmc.GPT.GptActions;
 import net.bigyous.gptgodmc.GPT.Personality;
 import net.bigyous.gptgodmc.GPT.Prompts;
 import net.bigyous.gptgodmc.utils.GPTUtils;
@@ -19,7 +18,6 @@ public class GameLoop {
     private static JavaPlugin plugin = JavaPlugin.getPlugin(GPTGOD.class);
     private static FileConfiguration config = JavaPlugin.getPlugin(GPTGOD.class).getConfig();
     private static GptAPI GPT_API;
-    private static int staticTokens = 0;
     private static int taskId;
     public static boolean isRunning = false;
     private static String PROMPT;
@@ -82,9 +80,7 @@ public class GameLoop {
         GPT_API.setSystemContext(systemPrompt);
         // set tool only mode
         GPT_API.setToolOnlyAllTools();
-
-        // the roles system and user are each one token so we add two to this number
-        staticTokens = GPTUtils.countTokens(systemPrompt) + 2;
+        
         isRunning = true;
         GPTGOD.LOGGER.info("GameLoop Started, the minecraft god has awoken");
     }

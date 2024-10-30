@@ -24,7 +24,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import net.bigyous.gptgodmc.GPTGOD;
-import net.bigyous.gptgodmc.ServerInfoSummarizer;
 import net.bigyous.gptgodmc.GPT.Json.Candidate;
 import net.bigyous.gptgodmc.GPT.Json.Content;
 import net.bigyous.gptgodmc.GPT.Json.FunctionCall;

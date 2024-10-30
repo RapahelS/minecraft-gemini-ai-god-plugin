@@ -82,4 +82,18 @@ class FileData {
         // if all else fails return 256 just in case
         return 256;
     }
+
+    public String getMimeType() {
+        return mimeType;
+    }
+
+    public String getFileUri() {
+        return fileUri;
+    }
+
+    public int getTokenCount() {
+        return tokenCount;
+    }
+
+    
 }

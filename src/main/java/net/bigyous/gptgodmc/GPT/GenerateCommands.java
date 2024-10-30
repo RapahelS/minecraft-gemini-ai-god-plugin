@@ -19,7 +19,6 @@ import net.bigyous.gptgodmc.interfaces.Function;
 import net.bigyous.gptgodmc.loggables.CommandLoggable;
 import net.bigyous.gptgodmc.utils.CommandHelper;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
 

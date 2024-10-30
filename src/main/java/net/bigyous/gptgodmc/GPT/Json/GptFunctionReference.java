@@ -15,4 +15,14 @@ public class GptFunctionReference {
         this.type = "function";
         this.function = Map.of("name", name);
     }
+
+    public String getType() {
+        return type;
+    }
+
+    public Map<String, String> getFunction() {
+        return function;
+    }
+
+    
 }
