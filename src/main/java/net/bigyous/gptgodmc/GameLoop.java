@@ -122,14 +122,16 @@ public class GameLoop {
             if (EventLogger.hasSummary()) {
                 GPT_API.addLogs("Summary of Server History: " + EventLogger.getSummary(), "summary");
             }
-             // event logger never needs to be culled since we are using dump to clear it
-            // EventLogger.cull(GPT_API.getMaxTokens() - nonLogTokens);
-            GPT_API.cull();
 
-            // List<String> logs = EventLogger.getLogs();
-            // GPT_API.addLogs(logs, "log");
-            // add logs in series with responses
+            // get logs since last flush then clear
             List<String> logs = EventLogger.flushLogs();
+
+            // event logger never needs to be culled since we are using dump to clear it
+            // EventLogger.cull(GPT_API.getMaxTokens() - nonLogTokens);
+            // instead we cull at GPT_API now with room for the next logs
+            GPT_API.cull(GPTUtils.countTokens(logs));
+
+            // add logs in series with responses
             GPT_API.addMessages(logs.toArray(new String[logs.size()]));
 
             if (!previousActions.isEmpty()) {

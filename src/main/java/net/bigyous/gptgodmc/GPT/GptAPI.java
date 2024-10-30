@@ -146,8 +146,11 @@ public class GptAPI {
 
     // remove and return the oldest chat history until we are within the token limit
     // excepting any entires under the contextHeight
-    public void cull() {
-        int tokenLimit = this.getMaxTokens();
+    // if provided, nextTokenLength ensures that there is room for the next token addition
+    public void cull(int nextTokenLength) {
+        // get the configured token maximum for this model
+        // and set the goal to that minus the headroom needed for our next prompt
+        int tokenLimit = this.getMaxTokens()-nextTokenLength;
 
         if (totalTokens > tokenLimit) {
             GPTGOD.LOGGER.info("running cull operation from " + totalTokens + " down to " + tokenLimit);
@@ -161,6 +164,10 @@ public class GptAPI {
         if (totalTokens > tokenLimit) {
             GPTGOD.LOGGER.warn("GPT token count " + totalTokens + " is greater than maximum of " + tokenLimit);
         }
+    }
+
+    public void cull() {
+        cull(0);
     }
 
     // push a message to the index at the current stack height
