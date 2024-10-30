@@ -3,6 +3,7 @@ package net.bigyous.gptgodmc.GPT;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Arrays;
 
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
@@ -182,13 +183,74 @@ public class GptActions {
                 String structure = gson.fromJson(argObject.get("structure"), String.class);
                 String blockType = gson.fromJson(argObject.get("block"), String.class);
                 Structure structureObj = StructureManager.getStructure(structure);
+                // blocktypes that we don't want god to accidentally transform
+                List<Material> protectedBlockTypes = Arrays.asList(
+                                Material.CHEST,
+                                Material.ENDER_CHEST,
+                                Material.TRAPPED_CHEST,
+                                Material.FURNACE,
+                                Material.CRAFTING_TABLE,
+                                Material.BLAST_FURNACE,
+                                Material.ENDER_CHEST,
+                                Material.ARMOR_STAND,
+                                Material.CAULDRON,
+                                Material.BREWING_STAND,
+                                Material.CARTOGRAPHY_TABLE,
+                                Material.FLETCHING_TABLE,
+                                Material.SMOKER,
+                                Material.BARREL,
+                                Material.GRINDSTONE,
+                                Material.COMPOSTER,
+                                Material.SMITHING_TABLE,
+                                Material.STONECUTTER,
+                                Material.BELL,
+                                Material.LANTERN,
+                                Material.SOUL_LANTERN,
+                                Material.CAMPFIRE,
+                                Material.SOUL_CAMPFIRE,
+                                Material.SHROOMLIGHT,
+                                Material.PLAYER_HEAD, Material.PIGLIN_HEAD, Material.DRAGON_HEAD, Material.CREEPER_HEAD,
+                                Material.ZOMBIE_HEAD,
+                                Material.WITHER_SKELETON_SKULL, Material.SKELETON_SKULL,
+                                // all doors as of 1.21.1
+                                Material.IRON_DOOR, Material.BIRCH_DOOR, Material.DARK_OAK_DOOR, Material.ACACIA_DOOR,
+                                Material.OAK_DOOR,
+                                Material.BAMBOO_DOOR, Material.CHERRY_DOOR, Material.COPPER_DOOR, Material.JUNGLE_DOOR,
+                                Material.SPRUCE_DOOR,
+                                Material.WARPED_DOOR, Material.CRIMSON_DOOR, Material.MANGROVE_DOOR,
+                                // all buttons as of 1.21.1
+                                Material.OAK_BUTTON, Material.BIRCH_BUTTON, Material.STONE_BUTTON,
+                                Material.ACACIA_BUTTON, Material.BAMBOO_BUTTON, Material.BAMBOO_BUTTON,
+                                Material.CHERRY_BUTTON, Material.JUNGLE_BUTTON, Material.SPRUCE_BUTTON,
+                                Material.WARPED_BUTTON, Material.CRIMSON_BUTTON, Material.DARK_OAK_BUTTON,
+                                Material.MANGROVE_BUTTON, Material.POLISHED_BLACKSTONE_BUTTON,
+                                // all trapdoors as of 1.21.1
+                                Material.IRON_TRAPDOOR, Material.BIRCH_TRAPDOOR, Material.DARK_OAK_TRAPDOOR,
+                                Material.ACACIA_TRAPDOOR, Material.OAK_TRAPDOOR,
+                                Material.BAMBOO_TRAPDOOR, Material.CHERRY_TRAPDOOR, Material.COPPER_TRAPDOOR,
+                                Material.JUNGLE_TRAPDOOR, Material.SPRUCE_TRAPDOOR,
+                                Material.WARPED_TRAPDOOR, Material.CRIMSON_TRAPDOOR, Material.MANGROVE_TRAPDOOR,
+                                // all pressure plates as of 1.21.1
+                                Material.OAK_PRESSURE_PLATE, Material.BIRCH_PRESSURE_PLATE,
+                                Material.STONE_PRESSURE_PLATE, Material.ACACIA_PRESSURE_PLATE,
+                                Material.BAMBOO_PRESSURE_PLATE, Material.CHERRY_PRESSURE_PLATE,
+                                Material.JUNGLE_PRESSURE_PLATE, Material.SPRUCE_PRESSURE_PLATE,
+                                Material.WARPED_PRESSURE_PLATE, Material.CRIMSON_PRESSURE_PLATE,
+                                Material.DARK_OAK_PRESSURE_PLATE, Material.MANGROVE_PRESSURE_PLATE,
+                                Material.HEAVY_WEIGHTED_PRESSURE_PLATE, Material.LIGHT_WEIGHTED_PRESSURE_PLATE,
+                                Material.POLISHED_BLACKSTONE_PRESSURE_PLATE,
+                                Material.LEVER);
                 if (structureObj == null) {
                         EventLogger.addLoggable(new GPTActionLoggable(
                                         "tried to transform non existant structure \"" + structure + "\""));
                         return;
                 }
                 structureObj.getBlocks()
-                                .forEach((Block b) -> b.setType(Material.matchMaterial(blockType)));
+                                .forEach((Block b) -> {
+                                        if (!protectedBlockTypes.contains(b.getType())) {
+                                                b.setType(Material.matchMaterial(blockType));
+                                        }
+                                });
                 EventLogger.addLoggable(
                                 new GPTActionLoggable(
                                                 String.format("turned all the blocks in Structure %s to %s", structure,
