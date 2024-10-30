@@ -80,7 +80,7 @@ public class GameLoop {
         GPT_API.setSystemContext(systemPrompt);
         // set tool only mode
         GPT_API.setToolOnlyAllTools();
-        
+
         isRunning = true;
         GPTGOD.LOGGER.info("GameLoop Started, the minecraft god has awoken");
     }
@@ -143,7 +143,8 @@ public class GameLoop {
             while (GPT_API.isSending()) {
                 Thread.onSpinWait();
             }
-            GPT_API.addMessage("Now, choose an interesting non-verbal action to perform which has not already been done.");
+            GPT_API.addMessage(
+                    "Now, choose an interesting non-verbal action to perform which has not already been done.");
 
             GPT_API.send();
 

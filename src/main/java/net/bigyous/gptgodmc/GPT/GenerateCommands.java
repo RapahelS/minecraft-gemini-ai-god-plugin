@@ -57,20 +57,20 @@ public class GenerateCommands {
         private static GptAPI gpt = new GptAPI(GPTModels.getSecondaryModel(), tools)
                         .setSystemContext(
                                         """
-                                                        You are a helpful assistant that will generate 
-                                                        one or more minecraft java edition commands based on a prompt inputted by the user, 
-                                                        even if the prompt seems impossible in minecraft try to approximate it as close as possible 
-                                                        with functioning minecraft commands. A wrong answer is better than no answer. 
-                                                        The commands must be compatible with minecraft. 
-                                                        There must always be at least one command in the response and no other types of responses. 
-                                                        If the description calls for multiple events then make multiple commands but try not to go far past 24. 
-                                                        Try to offset dangerous spawns from the exact player position. 
-                                                        Make sure that title text displays fit in the screen. 
-                                                        Ensure that positionaly dependent code is executed relative to the specific player. 
-                                                        Only use a tool call in one json response, other responses will be ignored. 
-                                                        The response must be valid minecraft command syntax. 
-                                                        Do not use item frames with books to display text. 
-                                                        Pay VERY close attention to opening and closing delimeters in the syntax and make sure they match up. 
+                                                        You are a helpful assistant that will generate
+                                                        one or more minecraft java edition commands based on a prompt inputted by the user,
+                                                        even if the prompt seems impossible in minecraft try to approximate it as close as possible
+                                                        with functioning minecraft commands. A wrong answer is better than no answer.
+                                                        The commands must be compatible with minecraft.
+                                                        There must always be at least one command in the response and no other types of responses.
+                                                        If the description calls for multiple events then make multiple commands but try not to go far past 24.
+                                                        Try to offset dangerous spawns from the exact player position.
+                                                        Make sure that title text displays fit in the screen.
+                                                        Ensure that positionaly dependent code is executed relative to the specific player.
+                                                        Only use a tool call in one json response, other responses will be ignored.
+                                                        The response must be valid minecraft command syntax.
+                                                        Do not use item frames with books to display text.
+                                                        Pay VERY close attention to opening and closing delimeters in the syntax and make sure they match up.
                                                         Prefer the use of 'single quotes' over \\" or " when possible.
                                                         """)
                         .setTools(tools)

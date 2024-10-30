@@ -7,10 +7,12 @@ package net.bigyous.gptgodmc.GPT.Json;
 public class Status {
     private int code;
     private String message;
+
     // private Details[] details;
     public int getCode() {
         return code;
     }
+
     public String getMessage() {
         return message;
     }

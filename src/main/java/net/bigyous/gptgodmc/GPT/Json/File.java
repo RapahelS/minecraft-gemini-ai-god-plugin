@@ -62,5 +62,4 @@ public class File {
         return metadata;
     }
 
-    
 }

@@ -393,14 +393,19 @@ public class GptActions {
                                                                         new Schema(Schema.Type.INTEGER,
                                                                                         "the strength of this explosion where 4 is the strength of TNT"))),
                                                         detonateStructure)));
-        // private static Map<String, FunctionDeclaration> speechFunctionMap = new HashMap<>(functionMap);
-        // private static Map<String, FunctionDeclaration> actionFunctionMap = new HashMap<>(functionMap);
+        // private static Map<String, FunctionDeclaration> speechFunctionMap = new
+        // HashMap<>(functionMap);
+        // private static Map<String, FunctionDeclaration> actionFunctionMap = new
+        // HashMap<>(functionMap);
 
         private static Tool tools;
         // private static Tool[] actionTools;
         // private static Tool[] speechTools;
-        // private static final List<String> speechActionKeys = Arrays.asList("announce", "whisper", "setObjective", "clearObjective", "decree");
-        // private static final List<String> persistentActionKeys = Arrays.asList("command");
+        // private static final List<String> speechActionKeys =
+        // Arrays.asList("announce", "whisper", "setObjective", "clearObjective",
+        // "decree");
+        // private static final List<String> persistentActionKeys =
+        // Arrays.asList("command");
 
         // todo: experiment with wrapping a list of functions in a single tool for
         // google

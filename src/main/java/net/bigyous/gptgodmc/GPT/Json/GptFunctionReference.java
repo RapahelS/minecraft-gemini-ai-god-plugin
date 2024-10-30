@@ -24,5 +24,4 @@ public class GptFunctionReference {
         return function;
     }
 
-    
 }

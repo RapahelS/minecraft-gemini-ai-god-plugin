@@ -51,9 +51,9 @@ public class Part {
 
     // calculates and returns the token count of this part
     public int countTokens() {
-        if(text!=null) {
+        if (text != null) {
             return GPTUtils.countTokens(text);
-        } else if(functionCall!= null) {
+        } else if (functionCall != null) {
             return functionCall.calculateFunctionTokens();
         }
         return 0;
@@ -74,7 +74,7 @@ class FileData {
 
     // https://ai.google.dev/gemini-api/docs/tokens?lang=python#multimodal-tokens
     public int countTokens() {
-        if(this.mimeType.startsWith("image")) {
+        if (this.mimeType.startsWith("image")) {
             // images have a fixed token count of 258 on gemini
             return 258;
         }
@@ -95,5 +95,4 @@ class FileData {
         return tokenCount;
     }
 
-    
 }

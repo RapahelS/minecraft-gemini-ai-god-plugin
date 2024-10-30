@@ -111,8 +111,6 @@ speechify-voice: benjamin
 
 # write your own game-mode prompt here instead of the deafault game-mode prompt
 promptOverride: ""
-
-
 # old gpt configurations
 
 # your OpenAi API key from https://platform.openai.com/api-keys

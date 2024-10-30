@@ -107,7 +107,7 @@ public class Speechify {
                 GPTGOD.LOGGER.error("There was an error processing the Speechify audio", e);
             } catch (JsonSyntaxException e) {
                 GPTGOD.LOGGER.error("There was an error processing the Speechify response " + responseBody, e);
-            } catch (JsonParseException e){
+            } catch (JsonParseException e) {
                 GPTGOD.LOGGER.error("There was an error processing the Speechify response " + responseBody, e);
             }
         });

@@ -7,19 +7,23 @@ public class GenerateContentResponse {
         private int cachedContentTokenCount;
         private int candidatesTokenCount;
         private int totalTokenCount;
+
         public int getPromptTokenCount() {
             return promptTokenCount;
         }
+
         public int getCachedContentTokenCount() {
             return cachedContentTokenCount;
         }
+
         public int getCandidatesTokenCount() {
             return candidatesTokenCount;
         }
+
         public int getTotalTokenCount() {
             return totalTokenCount;
         }
-        
+
     }
 
     Candidate[] candidates;
@@ -53,7 +57,6 @@ public class GenerateContentResponse {
 class PromptFeedback {
 
 }
-
 
 class SafetyRating {
     // Define the structure of SafetyRating object

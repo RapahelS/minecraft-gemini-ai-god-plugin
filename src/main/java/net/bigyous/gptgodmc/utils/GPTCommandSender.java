@@ -21,7 +21,7 @@ public class GPTCommandSender implements CommandSender {
     private final StringBuilder output = new StringBuilder();
 
     public GPTCommandSender(ConsoleCommandSender sender) {
-        this.consoleSender=sender;
+        this.consoleSender = sender;
     }
 
     @Override
