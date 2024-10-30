@@ -126,6 +126,11 @@ public class GptActions {
                 Location location = StructureManager.hasStructure(position)
                                 ? StructureManager.getStructure(position).getLocation()
                                 : GPTGOD.SERVER.getPlayer(position).getLocation();
+                // try to get a safe location for the spawn
+                Location safeLocation = BukkitUtils.getSafeLocation(location, true, 256);
+                // if the safeLocation is not null, then use it instead of location
+                location = safeLocation == null ? location : safeLocation;
+
                 EntityType type = EntityType.fromName(entityName);
                 for (int i = 0; i < count; i++) {
                         double r = Math.random() / Math.nextDown(1.0);
@@ -269,7 +274,10 @@ public class GptActions {
                 }
                 Location spawn = player.getRespawnLocation() != null ? player.getRespawnLocation()
                                 : WorldManager.getCurrentWorld().getSpawnLocation();
-                player.teleport(spawn);
+                if(!BukkitUtils.safeTeleport(player, spawn)) {
+                        // fallback to regular if it fails for now
+                        player.teleport(spawn);
+                }
                 player.setGameMode(GameMode.SURVIVAL);
                 EventLogger.addLoggable(new GPTActionLoggable(String.format("revived %s", playerName)));
         };
