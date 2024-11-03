@@ -14,31 +14,12 @@ public class UseLoggable extends BaseLoggable {
     protected Action action;
     protected int count = 1;
 
-    private Set<Material> toolItems = Set.of(
-            Material.FLINT_AND_STEEL,
-            Material.FIRE_CHARGE,
-            Material.SHEARS,
-            Material.BRUSH,
-            Material.STONE_HOE,
-            Material.STONE_AXE,
-            Material.STONE_SHOVEL,
-            Material.IRON_HOE,
-            Material.IRON_AXE,
-            Material.IRON_SHOVEL,
-            Material.WOODEN_HOE,
-            Material.WOODEN_AXE,
-            Material.WOODEN_SHOVEL,
-            Material.GOLDEN_HOE,
-            Material.GOLDEN_AXE,
-            Material.GOLDEN_SHOVEL,
-            Material.DIAMOND_HOE,
-            Material.DIAMOND_AXE,
-            Material.DIAMOND_SHOVEL,
-            Material.NETHERITE_HOE,
-            Material.NETHERITE_AXE,
-            Material.NETHERITE_SHOVEL,
-            Material.BONE_MEAL,
-            Material.FIREWORK_ROCKET);
+    private Set<Material> toolItems = Set.of(Material.FLINT_AND_STEEL, Material.FIRE_CHARGE, Material.SHEARS,
+            Material.BRUSH, Material.STONE_HOE, Material.STONE_AXE, Material.STONE_SHOVEL, Material.IRON_HOE,
+            Material.IRON_AXE, Material.IRON_SHOVEL, Material.WOODEN_HOE, Material.WOODEN_AXE, Material.WOODEN_SHOVEL,
+            Material.GOLDEN_HOE, Material.GOLDEN_AXE, Material.GOLDEN_SHOVEL, Material.DIAMOND_HOE,
+            Material.DIAMOND_AXE, Material.DIAMOND_SHOVEL, Material.NETHERITE_HOE, Material.NETHERITE_AXE,
+            Material.NETHERITE_SHOVEL, Material.BONE_MEAL, Material.FIREWORK_ROCKET);
 
     public UseLoggable(PlayerInteractEvent event) {
         super();
@@ -70,10 +51,8 @@ public class UseLoggable extends BaseLoggable {
         }
         final UseLoggable loggable = (UseLoggable) obj;
 
-        return this.playerName.equals(loggable.playerName) &&
-                this.blockName.equals(loggable.blockName) &&
-                this.action.equals(loggable.action) &&
-                this.item.equals(loggable.item);
+        return this.playerName.equals(loggable.playerName) && this.blockName.equals(loggable.blockName)
+                && this.action.equals(loggable.action) && this.item.equals(loggable.item);
     }
 
     @Override

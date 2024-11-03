@@ -6,8 +6,7 @@ import java.util.List;
 // https://ai.google.dev/api/caching#Content
 public class Content {
     public enum Role {
-        user,
-        model
+        user, model
     }
 
     private ArrayList<Part> parts = new ArrayList<>();

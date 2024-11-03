@@ -41,14 +41,11 @@ public class Speechify {
 
         // Step 2: Define the target format
         AudioFormat originalFormat = originalStream.getFormat();
-        AudioFormat targetFormat = new AudioFormat(
-                AudioFormat.Encoding.PCM_SIGNED,
-                targetSampleRate, // Target sample rate
-                originalFormat.getSampleSizeInBits(),
-                originalFormat.getChannels(),
+        AudioFormat targetFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, targetSampleRate, // Target sample
+                                                                                                      // rate
+                originalFormat.getSampleSizeInBits(), originalFormat.getChannels(),
                 originalFormat.getChannels() * (originalFormat.getSampleSizeInBits() / 8), // Frame size
-                targetSampleRate,
-                originalFormat.isBigEndian());
+                targetSampleRate, originalFormat.isBigEndian());
 
         // Step 3: Convert to the target format
         AudioInputStream convertedStream = AudioSystem.getAudioInputStream(targetFormat, originalStream);
@@ -78,13 +75,10 @@ public class Speechify {
         pool.execute(() -> {
             GPTGOD.LOGGER.info("POSTING " + gson.setPrettyPrinting().create().toJson(body));
 
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(SPEECH_ENDPOINT))
-                    .header("accept", "*/*")
+            HttpRequest request = HttpRequest.newBuilder().uri(URI.create(SPEECH_ENDPOINT)).header("accept", "*/*")
                     .header("content-type", "application/json")
                     .header("Authorization", "Bearer " + config.getString("speechify-key"))
-                    .method("POST", HttpRequest.BodyPublishers.ofString(gson.create().toJson(body)))
-                    .build();
+                    .method("POST", HttpRequest.BodyPublishers.ofString(gson.create().toJson(body))).build();
 
             String responseBody = "";
 

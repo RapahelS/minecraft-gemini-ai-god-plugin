@@ -29,11 +29,9 @@ public class SummarizeLogs {
 
                 EventLogger.setSummary(summary);
         };
-        private static Map<String, FunctionDeclaration> functionMap = Map.of("submitSummary",
-                        new FunctionDeclaration("submitSummary",
-                                        "input the summary, keep the summary below 1000 tokens",
-                                        new Schema(Map.of("summary", new Schema(Schema.Type.STRING, "the summary"))),
-                                        submitSummary));
+        private static Map<String, FunctionDeclaration> functionMap = Map.of("submitSummary", new FunctionDeclaration(
+                        "submitSummary", "input the summary, keep the summary below 1000 tokens",
+                        new Schema(Map.of("summary", new Schema(Schema.Type.STRING, "the summary"))), submitSummary));
         private static Tool tools = GptActions.wrapFunctions(functionMap);
         private static GptAPI gpt = new GptAPI(GPTModels.getSecondaryModel(), tools)
                         .setSystemContext(String.format(context, String.join(",", Personality.getLikes()),
@@ -42,8 +40,7 @@ public class SummarizeLogs {
 
         public static void summarize(String log, String summary) {
                 String content = String.format("Write a short summary that summarizes the events of these logs: %s%s",
-                                log,
-                                summary != null ? String.format(":and this History Summary %s", summary) : "");
+                                log, summary != null ? String.format(":and this History Summary %s", summary) : "");
                 gpt.addLogs(content, "logs").send(functionMap);
         }
 }

@@ -57,8 +57,7 @@ public class EventLogger {
         List<String> logs = new ArrayList<>();
 
         // Include general status of server at beginning
-        logs.add(
-                ServerInfoSummarizer.compileStatus());
+        logs.add(ServerInfoSummarizer.compileStatus());
 
         logs.add("Following is a list of event's that have occured on the server since the last action by god:");
 

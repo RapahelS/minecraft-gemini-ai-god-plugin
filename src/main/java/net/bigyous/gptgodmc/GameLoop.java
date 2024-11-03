@@ -62,21 +62,12 @@ public class GameLoop {
             return;
         GPT_API = new GptAPI(GPTModels.getMainModel(), tempurature);
         BukkitTask task = GPTGOD.SERVER.getScheduler().runTaskTimerAsynchronously(plugin, new GPTTask(),
-                BukkitUtils.secondsToTicks(30),
-                BukkitUtils.secondsToTicks(rate));
+                BukkitUtils.secondsToTicks(30), BukkitUtils.secondsToTicks(rate));
         taskId = task.getTaskId();
         personality = Personality.generatePersonality();
         PROMPT = Prompts.getGamemodePrompt(GPTGOD.gameMode);
-        String[] systemPrompt = new String[] {
-                PROMPT,
-                personality,
-                PROMPT_BASE,
-                REQUIREMENTS,
-                GUIDANCE,
-                STYLE,
-                ESCALATION,
-                ROLEPLAY
-        };
+        String[] systemPrompt = new String[] { PROMPT, personality, PROMPT_BASE, REQUIREMENTS, GUIDANCE, STYLE,
+                ESCALATION, ROLEPLAY };
         GPT_API.setSystemContext(systemPrompt);
         // set tool only mode
         GPT_API.setToolOnlyAllTools();

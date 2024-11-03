@@ -20,8 +20,7 @@ public class CommandHelper {
                 command = "execute at @r run " + command;
             }
             return GPTGOD.SERVER.dispatchCommand(console,
-                    String.format("execute in %s run %s", WorldManager.getDimensionName(),
-                            command));
+                    String.format("execute in %s run %s", WorldManager.getDimensionName(), command));
         }
     }
 

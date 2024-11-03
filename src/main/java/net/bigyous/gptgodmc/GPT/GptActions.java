@@ -56,8 +56,8 @@ public class GptActions {
                 if (useTts) {
                         Speechify.makeSpeech(message, player);
                 }
-                EventLogger.addLoggable(new GPTActionLoggable(
-                                String.format("whispered \"%s\" to %s", message, playerName)));
+                EventLogger.addLoggable(
+                                new GPTActionLoggable(String.format("whispered \"%s\" to %s", message, playerName)));
         }
 
         private static void staticAnnounce(String message) {
@@ -105,9 +105,7 @@ public class GptActions {
         private static Function<JsonObject> command = (JsonObject args) -> {
                 String prompt = gson.fromJson(args.get("prompt"), String.class);
                 GenerateCommands.generate(prompt);
-                EventLogger
-                                .addLoggable(new GPTActionLoggable(
-                                                String.format("commanded \"%s\" to happen", prompt)));
+                EventLogger.addLoggable(new GPTActionLoggable(String.format("commanded \"%s\" to happen", prompt)));
         };
         private static Function<JsonObject> smite = (JsonObject argObject) -> {
                 String playerName = gson.fromJson(argObject.get("playerName"), String.class);
@@ -135,21 +133,18 @@ public class GptActions {
                 for (int i = 0; i < count; i++) {
                         double r = Math.random() / Math.nextDown(1.0);
                         double offset = 0 * (1.0 - 1) + 3 * r;
-                        Entity ent = WorldManager.getCurrentWorld().spawnEntity(
-                                        location.offset(offset - i, 0, offset + i)
-                                                        .toLocation(WorldManager.getCurrentWorld()),
+                        Entity ent = WorldManager.getCurrentWorld().spawnEntity(location
+                                        .offset(offset - i, 0, offset + i).toLocation(WorldManager.getCurrentWorld()),
                                         type, true);
                         TextComponent nameComponent = customName != null
-                                        ? PlainTextComponentSerializer.plainText()
-                                                        .deserialize(String.format("%s%s", customName,
-                                                                        i > 0 ? " " + String.valueOf(i) : ""))
+                                        ? PlainTextComponentSerializer.plainText().deserialize(String.format("%s%s",
+                                                        customName, i > 0 ? " " + String.valueOf(i) : ""))
                                         : null;
                         ent.customName(nameComponent);
                 }
-                EventLogger.addLoggable(
-                                new GPTActionLoggable(String.format("summoned %d %s%s near %s", count, entityName,
-                                                customName != null ? String.format(" named: %s,", customName) : "",
-                                                position)));
+                EventLogger.addLoggable(new GPTActionLoggable(String.format("summoned %d %s%s near %s", count,
+                                entityName, customName != null ? String.format(" named: %s,", customName) : "",
+                                position)));
         };
         private static Function<JsonObject> summonSupplyChest = (JsonObject argObject) -> {
                 TypeToken<List<String>> stringArrayType = new TypeToken<List<String>>() {
@@ -177,9 +172,7 @@ public class GptActions {
                 chest.getBlockInventory().addItem(items.toArray(new ItemStack[itemNames.size()]));
                 chest.open();
                 WorldManager.getCurrentWorld().spawnParticle(Particle.WAX_OFF, chest.getLocation().toCenterLocation(),
-                                100,
-                                2,
-                                3, 2);
+                                100, 2, 3, 2);
                 EventLogger.addLoggable(
                                 new GPTActionLoggable(String.format("summoned a chest with: %s inside next to %s",
                                                 String.join(", ", itemNames), playerName)));
@@ -190,40 +183,20 @@ public class GptActions {
                 String blockType = gson.fromJson(argObject.get("block"), String.class);
                 Structure structureObj = StructureManager.getStructure(structure);
                 // blocktypes that we don't want god to accidentally transform
-                List<Material> protectedBlockTypes = Arrays.asList(
-                                Material.CHEST,
-                                Material.ENDER_CHEST,
-                                Material.TRAPPED_CHEST,
-                                Material.FURNACE,
-                                Material.CRAFTING_TABLE,
-                                Material.BLAST_FURNACE,
-                                Material.ENDER_CHEST,
-                                Material.ARMOR_STAND,
-                                Material.CAULDRON,
-                                Material.BREWING_STAND,
-                                Material.CARTOGRAPHY_TABLE,
-                                Material.FLETCHING_TABLE,
-                                Material.SMOKER,
-                                Material.BARREL,
-                                Material.GRINDSTONE,
-                                Material.COMPOSTER,
-                                Material.SMITHING_TABLE,
-                                Material.STONECUTTER,
-                                Material.BELL,
-                                Material.LANTERN,
-                                Material.SOUL_LANTERN,
-                                Material.CAMPFIRE,
-                                Material.SOUL_CAMPFIRE,
-                                Material.SHROOMLIGHT,
+                List<Material> protectedBlockTypes = Arrays.asList(Material.CHEST, Material.ENDER_CHEST,
+                                Material.TRAPPED_CHEST, Material.FURNACE, Material.CRAFTING_TABLE,
+                                Material.BLAST_FURNACE, Material.ENDER_CHEST, Material.ARMOR_STAND, Material.CAULDRON,
+                                Material.BREWING_STAND, Material.CARTOGRAPHY_TABLE, Material.FLETCHING_TABLE,
+                                Material.SMOKER, Material.BARREL, Material.GRINDSTONE, Material.COMPOSTER,
+                                Material.SMITHING_TABLE, Material.STONECUTTER, Material.BELL, Material.LANTERN,
+                                Material.SOUL_LANTERN, Material.CAMPFIRE, Material.SOUL_CAMPFIRE, Material.SHROOMLIGHT,
                                 Material.PLAYER_HEAD, Material.PIGLIN_HEAD, Material.DRAGON_HEAD, Material.CREEPER_HEAD,
-                                Material.ZOMBIE_HEAD,
-                                Material.WITHER_SKELETON_SKULL, Material.SKELETON_SKULL,
+                                Material.ZOMBIE_HEAD, Material.WITHER_SKELETON_SKULL, Material.SKELETON_SKULL,
                                 // all doors as of 1.21.1
                                 Material.IRON_DOOR, Material.BIRCH_DOOR, Material.DARK_OAK_DOOR, Material.ACACIA_DOOR,
-                                Material.OAK_DOOR,
-                                Material.BAMBOO_DOOR, Material.CHERRY_DOOR, Material.COPPER_DOOR, Material.JUNGLE_DOOR,
-                                Material.SPRUCE_DOOR,
-                                Material.WARPED_DOOR, Material.CRIMSON_DOOR, Material.MANGROVE_DOOR,
+                                Material.OAK_DOOR, Material.BAMBOO_DOOR, Material.CHERRY_DOOR, Material.COPPER_DOOR,
+                                Material.JUNGLE_DOOR, Material.SPRUCE_DOOR, Material.WARPED_DOOR, Material.CRIMSON_DOOR,
+                                Material.MANGROVE_DOOR,
                                 // all buttons as of 1.21.1
                                 Material.OAK_BUTTON, Material.BIRCH_BUTTON, Material.STONE_BUTTON,
                                 Material.ACACIA_BUTTON, Material.BAMBOO_BUTTON, Material.BAMBOO_BUTTON,
@@ -232,10 +205,10 @@ public class GptActions {
                                 Material.MANGROVE_BUTTON, Material.POLISHED_BLACKSTONE_BUTTON,
                                 // all trapdoors as of 1.21.1
                                 Material.IRON_TRAPDOOR, Material.BIRCH_TRAPDOOR, Material.DARK_OAK_TRAPDOOR,
-                                Material.ACACIA_TRAPDOOR, Material.OAK_TRAPDOOR,
-                                Material.BAMBOO_TRAPDOOR, Material.CHERRY_TRAPDOOR, Material.COPPER_TRAPDOOR,
-                                Material.JUNGLE_TRAPDOOR, Material.SPRUCE_TRAPDOOR,
-                                Material.WARPED_TRAPDOOR, Material.CRIMSON_TRAPDOOR, Material.MANGROVE_TRAPDOOR,
+                                Material.ACACIA_TRAPDOOR, Material.OAK_TRAPDOOR, Material.BAMBOO_TRAPDOOR,
+                                Material.CHERRY_TRAPDOOR, Material.COPPER_TRAPDOOR, Material.JUNGLE_TRAPDOOR,
+                                Material.SPRUCE_TRAPDOOR, Material.WARPED_TRAPDOOR, Material.CRIMSON_TRAPDOOR,
+                                Material.MANGROVE_TRAPDOOR,
                                 // all pressure plates as of 1.21.1
                                 Material.OAK_PRESSURE_PLATE, Material.BIRCH_PRESSURE_PLATE,
                                 Material.STONE_PRESSURE_PLATE, Material.ACACIA_PRESSURE_PLATE,
@@ -244,23 +217,19 @@ public class GptActions {
                                 Material.WARPED_PRESSURE_PLATE, Material.CRIMSON_PRESSURE_PLATE,
                                 Material.DARK_OAK_PRESSURE_PLATE, Material.MANGROVE_PRESSURE_PLATE,
                                 Material.HEAVY_WEIGHTED_PRESSURE_PLATE, Material.LIGHT_WEIGHTED_PRESSURE_PLATE,
-                                Material.POLISHED_BLACKSTONE_PRESSURE_PLATE,
-                                Material.LEVER);
+                                Material.POLISHED_BLACKSTONE_PRESSURE_PLATE, Material.LEVER);
                 if (structureObj == null) {
                         EventLogger.addLoggable(new GPTActionLoggable(
                                         "tried to transform non existant structure \"" + structure + "\""));
                         return;
                 }
-                structureObj.getBlocks()
-                                .forEach((Block b) -> {
-                                        if (!protectedBlockTypes.contains(b.getType())) {
-                                                b.setType(Material.matchMaterial(blockType));
-                                        }
-                                });
-                EventLogger.addLoggable(
-                                new GPTActionLoggable(
-                                                String.format("turned all the blocks in Structure %s to %s", structure,
-                                                                blockType)));
+                structureObj.getBlocks().forEach((Block b) -> {
+                        if (!protectedBlockTypes.contains(b.getType())) {
+                                b.setType(Material.matchMaterial(blockType));
+                        }
+                });
+                EventLogger.addLoggable(new GPTActionLoggable(
+                                String.format("turned all the blocks in Structure %s to %s", structure, blockType)));
 
         };
         private static Function<JsonObject> revive = (JsonObject args) -> {
@@ -274,7 +243,7 @@ public class GptActions {
                 }
                 Location spawn = player.getRespawnLocation() != null ? player.getRespawnLocation()
                                 : WorldManager.getCurrentWorld().getSpawnLocation();
-                if(!BukkitUtils.safeTeleport(player, spawn)) {
+                if (!BukkitUtils.safeTeleport(player, spawn)) {
                         // fallback to regular if it fails for now
                         player.teleport(spawn);
                 }
@@ -291,7 +260,7 @@ public class GptActions {
                 Location destination = StructureManager.hasStructure(destName)
                                 ? StructureManager.getStructure(destName).getLocation()
                                 : GPTGOD.SERVER.getPlayer(destName).getLocation();
-                
+
                 BukkitUtils.safeTeleport(player, destination);
                 EventLogger.addLoggable(
                                 new GPTActionLoggable(String.format("teleported %s to %s", playerName, destName)));
@@ -338,24 +307,18 @@ public class GptActions {
         private static Map<String, FunctionDeclaration> functionMap = Map.ofEntries(
                         Map.entry("decree", new FunctionDeclaration("decree",
                                         "display a heavenly decree in front of a specific player in the world. Use only to communicate displeasure in some action. Use no more than 12 words in the message.",
-                                        new Schema(
-                                                        Map.of(
-                                                                        "playerName",
-                                                                        new Schema(Schema.Type.STRING,
-                                                                                        "name of the player to send the decree to"),
-                                                                        "message",
-                                                                        new Schema(Schema.Type.STRING,
-                                                                                        "the message of this decree"))),
+                                        new Schema(Map.of("playerName",
+                                                        new Schema(Schema.Type.STRING,
+                                                                        "name of the player to send the decree to"),
+                                                        "message",
+                                                        new Schema(Schema.Type.STRING, "the message of this decree"))),
                                         decreeMessage)),
                         Map.entry("whisper", new FunctionDeclaration("whisper",
                                         "privately send a message to a player. Avoid repeating things that have already been said. Keep messages short, concise, and no more than 100 characters.",
-                                        new Schema(
-                                                        Map.of(
-                                                                        "playerName",
-                                                                        new Schema(Schema.Type.STRING,
-                                                                                        "name of the player to privately send to"),
-                                                                        "message",
-                                                                        new Schema(Schema.Type.STRING, "the message"))),
+                                        new Schema(Map.of("playerName",
+                                                        new Schema(Schema.Type.STRING,
+                                                                        "name of the player to privately send to"),
+                                                        "message", new Schema(Schema.Type.STRING, "the message"))),
                                         whisper)),
                         Map.entry("announce", new FunctionDeclaration("announce",
                                         "brodcast a message to all players. Avoid repeating things that have already been said. Keep messages short, concise, and no more than 100 characters.",
@@ -363,8 +326,7 @@ public class GptActions {
                                         announce)),
                         Map.entry("giveItem", new FunctionDeclaration("giveItem", "give a player any amount of an item",
                                         new Schema(Map.of("playerName",
-                                                        new Schema(Schema.Type.STRING, "name of the Player"),
-                                                        "itemId",
+                                                        new Schema(Schema.Type.STRING, "name of the Player"), "itemId",
                                                         new Schema(Schema.Type.STRING,
                                                                         "the name of the minecraft item"),
                                                         "count",
@@ -376,26 +338,21 @@ public class GptActions {
                                                         new Schema(Schema.Type.STRING,
                                                                         "a description of what will happen"))),
                                         command)),
-                        Map.entry("smite",
-                                        new FunctionDeclaration("smite",
-                                                        "Strike a player down with lightning, reserve this punishment for repeat offenders",
-                                                        new Schema(Map.of("playerName",
-                                                                        new Schema(Schema.Type.STRING,
-                                                                                        "the player's name"),
-                                                                        "power",
-                                                                        new Schema(Schema.Type.INTEGER,
-                                                                                        "the strength of this smiting"))),
-                                                        smite)),
-                        Map.entry("transformStructure",
-                                        new FunctionDeclaration("transformStructure",
-                                                        "replace all the blocks in a structure with any block",
-                                                        new Schema(Map.of("structure",
-                                                                        new Schema(Schema.Type.STRING,
-                                                                                        "name of the structure"),
-                                                                        "block",
-                                                                        new Schema(Schema.Type.STRING,
-                                                                                        "The name of the minecraft block"))),
-                                                        transformStructure)),
+                        Map.entry("smite", new FunctionDeclaration("smite",
+                                        "Strike a player down with lightning, reserve this punishment for repeat offenders",
+                                        new Schema(Map.of("playerName",
+                                                        new Schema(Schema.Type.STRING, "the player's name"), "power",
+                                                        new Schema(Schema.Type.INTEGER,
+                                                                        "the strength of this smiting"))),
+                                        smite)),
+                        Map.entry("transformStructure", new FunctionDeclaration("transformStructure",
+                                        "replace all the blocks in a structure with any block",
+                                        new Schema(Map.of("structure",
+                                                        new Schema(Schema.Type.STRING, "name of the structure"),
+                                                        "block",
+                                                        new Schema(Schema.Type.STRING,
+                                                                        "The name of the minecraft block"))),
+                                        transformStructure)),
                         Map.entry("spawnEntity", new FunctionDeclaration("spawnEntity",
                                         "spawn any minecraft entity next to a player or structure",
                                         new Schema(Map.of("position",
@@ -413,33 +370,28 @@ public class GptActions {
                                         spawnEntity)),
                         Map.entry("summonSupplyChest", new FunctionDeclaration("summonSupplyChest",
                                         "spawn chest full of items for use in a project next to a player",
-                                        new Schema(Map.of("items",
-                                                        new Schema(Schema.Type.ARRAY,
-                                                                        "names of the minecraft items you would like to put in the chest, each item takes up one of 8 slots",
-                                                                        Schema.Type.STRING),
-                                                        "fullStacks",
+                                        new Schema(Map.of("items", new Schema(Schema.Type.ARRAY,
+                                                        "names of the minecraft items you would like to put in the chest, each item takes up one of 8 slots",
+                                                        Schema.Type.STRING), "fullStacks",
                                                         new Schema(Schema.Type.BOOLEAN,
                                                                         "put the maximum stack size of each item?"),
                                                         "playerName",
                                                         new Schema(Schema.Type.STRING,
                                                                         "The name of the player that will recieve this chest"))),
                                         summonSupplyChest)),
-                        Map.entry("revive",
-                                        new FunctionDeclaration("revive", "bring a player back from the dead",
-                                                        new Schema(Map.of("playerName",
-                                                                        new Schema(Schema.Type.STRING,
-                                                                                        "The name of the player"))),
-                                                        revive)),
-                        Map.entry("teleport",
-                                        new FunctionDeclaration("teleport",
-                                                        "teleport a player to another player or a structure",
-                                                        new Schema(Map.of("playerName",
-                                                                        new Schema(Schema.Type.STRING,
-                                                                                        "name of the player to be teleported"),
-                                                                        "destination",
-                                                                        new Schema(Schema.Type.STRING,
-                                                                                        "The name of the player or Structure the player will be sent to"))),
-                                                        teleport)),
+                        Map.entry("revive", new FunctionDeclaration("revive", "bring a player back from the dead",
+                                        new Schema(Map.of("playerName",
+                                                        new Schema(Schema.Type.STRING, "The name of the player"))),
+                                        revive)),
+                        Map.entry("teleport", new FunctionDeclaration("teleport",
+                                        "teleport a player to another player or a structure",
+                                        new Schema(Map.of("playerName",
+                                                        new Schema(Schema.Type.STRING,
+                                                                        "name of the player to be teleported"),
+                                                        "destination",
+                                                        new Schema(Schema.Type.STRING,
+                                                                        "The name of the player or Structure the player will be sent to"))),
+                                        teleport)),
                         Map.entry("setObjective", new FunctionDeclaration("setObjective",
                                         "set an objective for players to complete. base this off of the behaviors observed in the logs. objectives can't be longer than 45 characters",
                                         new Schema(Map.of("objective", new Schema(Schema.Type.STRING,
@@ -448,23 +400,21 @@ public class GptActions {
                         Map.entry("clearObjective",
                                         new FunctionDeclaration("clearObjective",
                                                         "set an objective as complete. Follow this up with a reward",
-                                                        new Schema(Map.of("objective",
-                                                                        new Schema(Schema.Type.STRING,
-                                                                                        "the objective to mark as complete"))),
+                                                        new Schema(Map.of("objective", new Schema(Schema.Type.STRING,
+                                                                        "the objective to mark as complete"))),
                                                         clearObjective)),
-                        Map.entry("detonateStructure",
-                                        new FunctionDeclaration("detonateStructure",
-                                                        "cause an explosion at a Structure",
-                                                        new Schema(Map.of("structure",
-                                                                        new Schema(Schema.Type.STRING,
-                                                                                        "name of the structure (not a player name)"),
-                                                                        "setFire",
-                                                                        new Schema(Schema.Type.BOOLEAN,
-                                                                                        "will this explosion cause fires?"),
-                                                                        "power",
-                                                                        new Schema(Schema.Type.INTEGER,
-                                                                                        "the strength of this explosion where 4 is the strength of TNT"))),
-                                                        detonateStructure)));
+                        Map.entry("detonateStructure", new FunctionDeclaration("detonateStructure",
+                                        "cause an explosion at a Structure",
+                                        new Schema(Map.of("structure",
+                                                        new Schema(Schema.Type.STRING,
+                                                                        "name of the structure (not a player name)"),
+                                                        "setFire",
+                                                        new Schema(Schema.Type.BOOLEAN,
+                                                                        "will this explosion cause fires?"),
+                                                        "power",
+                                                        new Schema(Schema.Type.INTEGER,
+                                                                        "the strength of this explosion where 4 is the strength of TNT"))),
+                                        detonateStructure)));
         // private static Map<String, FunctionDeclaration> speechFunctionMap = new
         // HashMap<>(functionMap);
         // private static Map<String, FunctionDeclaration> actionFunctionMap = new
@@ -520,9 +470,8 @@ public class GptActions {
         // }
 
         public static int run(String functionName, JsonObject jsonArgs) {
-                GPTGOD.LOGGER.info(
-                                String.format("running function \"%s\" with json arguments \"%s\"", functionName,
-                                                jsonArgs.toString()));
+                GPTGOD.LOGGER.info(String.format("running function \"%s\" with json arguments \"%s\"", functionName,
+                                jsonArgs.toString()));
                 Bukkit.getScheduler().runTask(plugin, () -> {
                         functionMap.get(functionName).runFunction(jsonArgs);
                 });

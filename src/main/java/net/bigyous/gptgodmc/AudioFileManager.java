@@ -16,8 +16,8 @@ public class AudioFileManager {
     public static final int SAMPLE_RATE = 48000;
     // bitrate in kbps (48000hz * 16 bits)
     public static final int BIT_RATE = 320;
-    public static AudioFormat FORMAT = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, 48000F, 16, 1,
-            2, 48000F, false);
+    public static AudioFormat FORMAT = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, 48000F, 16, 1, 2, 48000F,
+            false);
     private static AtomicInteger currentId = new AtomicInteger();
     public static Path VOICE_DATA = JavaPlugin.getPlugin(GPTGOD.class).getDataFolder().toPath()
             .resolve("player_voice_data");

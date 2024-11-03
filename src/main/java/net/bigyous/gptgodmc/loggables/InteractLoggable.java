@@ -52,8 +52,7 @@ public class InteractLoggable extends BaseLoggable {
             return false;
         }
         if (this.itemName == null) {
-            return playerName.equals(other.playerName) && other.itemName == null
-                    && targetName.equals(other.targetName);
+            return playerName.equals(other.playerName) && other.itemName == null && targetName.equals(other.targetName);
         }
         return playerName.equals(other.playerName) && itemName.equals(other.itemName)
                 && targetName.equals(other.targetName);

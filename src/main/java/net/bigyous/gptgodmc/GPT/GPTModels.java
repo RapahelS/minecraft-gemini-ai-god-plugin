@@ -28,11 +28,11 @@ public class GPTModels {
             tokenLimit = config.getInt("gpt-model-token-limit");
         } else {
             tokenLimit = switch (modelName) {
-                case "gemini-1.5-pro", "gemini-1.5-pro-002" -> 2000000;
-                case "gemini-1.5-flash" -> 850000;
-                default -> throw new RuntimeException(String.format(
-                        "Could not automatically determine token limit for %s. Please set gpt-model-token-limit in the config.",
-                        modelName));
+            case "gemini-1.5-pro", "gemini-1.5-pro-002" -> 2000000;
+            case "gemini-1.5-flash" -> 850000;
+            default -> throw new RuntimeException(String.format(
+                    "Could not automatically determine token limit for %s. Please set gpt-model-token-limit in the config.",
+                    modelName));
             };
         }
         return new GptModel(modelName, tokenLimit);
@@ -53,12 +53,12 @@ public class GPTModels {
             tokenLimit = config.getInt("gpt-secondary-token-limit");
         } else {
             tokenLimit = switch (modelName) {
-                case "gemini-1.5-pro", "gemini-1.5-pro-002" -> 2000000;
-                case "gemini-1.5-flash" -> 850000;
-                case "gemini-1.5-flash-8b" -> 127500; // model 8b is remarkably cheap at less than 128k prompt length
-                default -> throw new RuntimeException(String.format(
-                        "Could not automatically determine token limit for %s. Please set gpt-secondary-token-limit in the config.",
-                        modelName));
+            case "gemini-1.5-pro", "gemini-1.5-pro-002" -> 2000000;
+            case "gemini-1.5-flash" -> 850000;
+            case "gemini-1.5-flash-8b" -> 127500; // model 8b is remarkably cheap at less than 128k prompt length
+            default -> throw new RuntimeException(String.format(
+                    "Could not automatically determine token limit for %s. Please set gpt-secondary-token-limit in the config.",
+                    modelName));
             };
         }
         return new GptModel(modelName, tokenLimit);

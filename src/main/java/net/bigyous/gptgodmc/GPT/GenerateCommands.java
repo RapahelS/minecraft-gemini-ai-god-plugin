@@ -47,12 +47,12 @@ public class GenerateCommands {
                 }
         };
 
-        private static Map<String, FunctionDeclaration> functionMap = Map.of("inputCommands",
-                        new FunctionDeclaration("inputCommands", "input the minecraft commands to be executed",
-                                        new Schema(Map.of("commands", new Schema(Schema.Type.ARRAY,
-                                                        "list of minecraft commands, each entry in the list is an individual command",
-                                                        Schema.Type.STRING))),
-                                        inputCommands));
+        private static Map<String, FunctionDeclaration> functionMap = Map.of("inputCommands", new FunctionDeclaration(
+                        "inputCommands", "input the minecraft commands to be executed",
+                        new Schema(Map.of("commands", new Schema(Schema.Type.ARRAY,
+                                        "list of minecraft commands, each entry in the list is an individual command",
+                                        Schema.Type.STRING))),
+                        inputCommands));
         private static Tool tools = GptActions.wrapFunctions(functionMap);
         private static GptAPI gpt = new GptAPI(GPTModels.getSecondaryModel(), tools)
                         .setSystemContext(
@@ -75,13 +75,12 @@ public class GenerateCommands {
                                                         """)
                         .setTools(tools)
                         .addMessages(new String[] {
-                                        "write Minecraft commands that: make a fireworks display all around MoistPyro"
-                        })
+                                        "write Minecraft commands that: make a fireworks display all around MoistPyro" })
                         // add an example of the correct type of output we are looking for
                         .addResponse(new Content(Role.model,
-                                        new Part[] {
-                                                        new Part(new FunctionCall("inputCommands", JsonParser
-                                                                        .parseString("""
+                                        new Part[] { new Part(new FunctionCall("inputCommands",
+                                                        JsonParser.parseString(
+                                                                        """
                                                                                                 {
                                                                                                         "commands": [
                                                                                                                 "execute at MoistPyro run summon firework_rocket ~ ~ ~ {Firework:{Flight:1,Explosions:[{Type:1,Colors:[15,14,13,12],Flicker:false,Trail:false}]}}",
@@ -96,8 +95,7 @@ public class GenerateCommands {
                                                                                                         ]
                                                                                                 }
                                                                                         """)
-                                                                        .getAsJsonObject()))
-                                        }))
+                                                                        .getAsJsonObject())) }))
                         .setToolChoice("inputCommands");
 
         public static void generate(String prompt) {
@@ -110,14 +108,10 @@ public class GenerateCommands {
                 if (GPTGOD.gameMode.equals(GptGameMode.DEATHMATCH)) {
                         gpt.addContext(String.format("Teams: %s", teams), "teams");
                 }
-                gpt.addContext(
-                                String.format("Players: %s",
-                                                Arrays.toString(
-                                                                GPTGOD.SERVER.getOnlinePlayers().stream()
-                                                                                .map(player -> player.getName())
-                                                                                .toArray())),
-                                "PlayerNames")
-                                .addContext(String.format("Structures: %s", structures), "structures")
+                gpt.addContext(String.format("Players: %s",
+                                Arrays.toString(GPTGOD.SERVER.getOnlinePlayers().stream()
+                                                .map(player -> player.getName()).toArray())),
+                                "PlayerNames").addContext(String.format("Structures: %s", structures), "structures")
                                 .addMessage(String.format("write Minecraft commands that: %s", prompt))
                                 .send(functionMap);
         }

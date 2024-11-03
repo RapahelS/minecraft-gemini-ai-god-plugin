@@ -36,9 +36,7 @@ public class DropItemLoggable extends BaseLoggable {
     public DropItemLoggable(PlayerDropItemEvent event) {
         super();
         playerName = event.getPlayer().getName();
-        drops.add(new Drop(
-                event.getItemDrop().getName(),
-                event.getItemDrop().getItemStack().getAmount()));
+        drops.add(new Drop(event.getItemDrop().getName(), event.getItemDrop().getItemStack().getAmount()));
     }
 
     @Override
