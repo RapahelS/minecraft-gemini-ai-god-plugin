@@ -38,9 +38,7 @@ public class ItemPickupLoggable extends BaseLoggable {
         super();
         playerName = event.getPlayer().getName();
 
-        pickups.add(new Pickup(
-                event.getItem().getName(),
-                event.getItem().getItemStack().getAmount()));
+        pickups.add(new Pickup(event.getItem().getName(), event.getItem().getItemStack().getAmount()));
     }
 
     @Override

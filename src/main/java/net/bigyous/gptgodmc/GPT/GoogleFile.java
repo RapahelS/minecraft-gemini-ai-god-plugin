@@ -61,13 +61,10 @@ public class GoogleFile {
 
             HttpRequest metadataRequest = HttpRequest.newBuilder()
                     .uri(URI.create(BASE_URL + "/upload/v1beta/files" + "?key=" + apiKey))
-                    .header("X-Goog-Upload-Protocol", "resumable")
-                    .header("X-Goog-Upload-Command", "start")
+                    .header("X-Goog-Upload-Protocol", "resumable").header("X-Goog-Upload-Command", "start")
                     .header("X-Goog-Upload-Header-Content-Length", String.valueOf(numBytes))
-                    .header("X-Goog-Upload-Header-Content-Type", mimeType)
-                    .header("Content-Type", "application/json")
-                    .POST(HttpRequest.BodyPublishers.ofString(metadataJson))
-                    .build();
+                    .header("X-Goog-Upload-Header-Content-Type", mimeType).header("Content-Type", "application/json")
+                    .POST(HttpRequest.BodyPublishers.ofString(metadataJson)).build();
             HttpResponse<String> metadataResponse = client.send(metadataRequest, BodyHandlers.ofString());
 
             int code = metadataResponse.statusCode();
@@ -75,18 +72,13 @@ public class GoogleFile {
                 throw new RuntimeException("Initializing upload with metadata failed with code " + code);
             }
 
-            String uploadUrl = metadataResponse.headers()
-                    .firstValue("x-goog-upload-url")
+            String uploadUrl = metadataResponse.headers().firstValue("x-goog-upload-url")
                     .orElseThrow(() -> new RuntimeException("No upload URL found in metadata response"));
 
-            HttpRequest uploadRequest = HttpRequest.newBuilder()
-                    .uri(URI.create(uploadUrl))
+            HttpRequest uploadRequest = HttpRequest.newBuilder().uri(URI.create(uploadUrl))
                     // .header("Content-Length", String.valueOf(numBytes))
-                    .header("X-Goog-Upload-Offset", "0")
-                    .header("X-Goog-Upload-Command", "upload, finalize")
-                    .header("Content-Type", mimeType)
-                    .POST(HttpRequest.BodyPublishers.ofFile(filePath))
-                    .build();
+                    .header("X-Goog-Upload-Offset", "0").header("X-Goog-Upload-Command", "upload, finalize")
+                    .header("Content-Type", mimeType).POST(HttpRequest.BodyPublishers.ofFile(filePath)).build();
 
             HttpResponse<String> uploadResponse = client.send(uploadRequest, HttpResponse.BodyHandlers.ofString());
 

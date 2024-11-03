@@ -56,15 +56,13 @@ public class Transcription {
     };
 
     private static Map<String, FunctionDeclaration> functionMap = Map.of("submitTranscriptions",
-            new FunctionDeclaration(
-                    "submitTranscriptions",
+            new FunctionDeclaration("submitTranscriptions",
                     "receives a list of transcription results for each player voice chat which was decoded.",
-                    new Schema(Map.of(
-                            "transcriptionResults",
-                            new Schema(Schema.Type.ARRAY, "", Map.of(
-                                    "playerName", new Schema(Schema.Type.STRING),
-                                    "minecraftTime", new Schema(Schema.Type.STRING),
-                                    "transcribedMessage", new Schema(Schema.Type.STRING))))),
+                    new Schema(Map.of("transcriptionResults",
+                            new Schema(Schema.Type.ARRAY, "",
+                                    Map.of("playerName", new Schema(Schema.Type.STRING), "minecraftTime",
+                                            new Schema(Schema.Type.STRING), "transcribedMessage",
+                                            new Schema(Schema.Type.STRING))))),
                     submitTranscriptions));
     private static Tool tools = GptActions.wrapFunctions(functionMap);
 
@@ -85,12 +83,11 @@ public class Transcription {
                                 Return a list of transcribed messages of what each player said in sequence
                                 for example: [23:06] John said: how are you doing? [23:10] Jane said: i'm doing okay.
                                 """)
-                .setTools(tools)
-                .setToolChoice("submitTranscriptions");
+                .setTools(tools).setToolChoice("submitTranscriptions");
 
         for (TranscriptionRequest req : playerAudioData) {
             gpt.addFileWithContext(String.format("audio fragment from player %s at time %s in the minecraft world",
-                    req.getPlayerName(), req.getTimeStamp()), "audio/mp3", req.getUri());
+                    req.getPlayerName(), req.getTimeStamp()), req.getFileMimeType(), req.getUri());
         }
 
         // send off the request without waiting for it.
@@ -123,15 +120,13 @@ public class Transcription {
                                     If no words are heard then you may return descriptions of what you hear inbetween of astrix cahracters e.x. *birds chirping* or *nothing*.
                                     DO NOT make stuff up, rather prefer an empty transcription over made up sounds if no words are heard.
                                     """)
-                    .addFileWithPrompt("transcribe this audio clip", "audio/mp3", file.getUri());
+                    .addFileWithPrompt("transcribe this audio clip", "audio/wav", file.getUri());
             String jsonBody = gson.toJson(contentRequest);
             System.out.println("jsonBody");
 
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(BASE_URL + "/v1beta/models/" + model.getName()
-                            + ":generateContent?key=" + apiKey))
-                    .header("Content-Type", "application/json")
-                    .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
+                    .uri(URI.create(BASE_URL + "/v1beta/models/" + model.getName() + ":generateContent?key=" + apiKey))
+                    .header("Content-Type", "application/json").POST(HttpRequest.BodyPublishers.ofString(jsonBody))
                     .build();
 
             HttpResponse<String> response = client.send(request, BodyHandlers.ofString());

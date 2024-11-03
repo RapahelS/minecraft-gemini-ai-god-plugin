@@ -13,18 +13,12 @@ public class Schema {
     // Enum for Type field as per OpenAPI 3.0 spec
     public enum Type {
         @SerializedName("TYPE_UNSPECIFIED")
-        TYPE_UNSPECIFIED,
-        @SerializedName("STRING")
-        STRING,
-        @SerializedName("NUMBER")
-        NUMBER,
-        @SerializedName("INTEGER")
-        INTEGER,
-        @SerializedName("BOOLEAN")
-        BOOLEAN,
-        @SerializedName("ARRAY")
-        ARRAY,
-        @SerializedName("OBJECT")
+        TYPE_UNSPECIFIED, @SerializedName("STRING")
+        STRING, @SerializedName("NUMBER")
+        NUMBER, @SerializedName("INTEGER")
+        INTEGER, @SerializedName("BOOLEAN")
+        BOOLEAN, @SerializedName("ARRAY")
+        ARRAY, @SerializedName("OBJECT")
         OBJECT
     }
 

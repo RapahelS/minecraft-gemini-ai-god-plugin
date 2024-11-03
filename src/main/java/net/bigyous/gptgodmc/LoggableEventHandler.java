@@ -63,8 +63,7 @@ public class LoggableEventHandler implements Listener {
     @EventHandler
     public static void pickupItem(PlayerAttemptPickupItemEvent event) {
         // EventLogger.addEvent(event);
-        EventLogger.addLoggable(
-                new ItemPickupLoggable(event));
+        EventLogger.addLoggable(new ItemPickupLoggable(event));
     }
 
     @EventHandler
@@ -80,26 +79,22 @@ public class LoggableEventHandler implements Listener {
 
     @EventHandler
     public static void onAttackEntity(EntityDamageByEntityEvent event) {
-        EventLogger.addLoggable(
-                new AttackLoggable(event));
+        EventLogger.addLoggable(new AttackLoggable(event));
     }
 
     @EventHandler
     public static void onDamage(EntityDamageEvent event) {
-        EventLogger.addLoggable(
-                new DamageLoggable(event));
+        EventLogger.addLoggable(new DamageLoggable(event));
     }
 
     @EventHandler
     public static void onDrop(PlayerDropItemEvent event) {
-        EventLogger.addLoggable(
-                new DropItemLoggable(event));
+        EventLogger.addLoggable(new DropItemLoggable(event));
     }
 
     @EventHandler
     public static void onEat(PlayerItemConsumeEvent event) {
-        EventLogger.addLoggable(
-                new EatingLoggable(event));
+        EventLogger.addLoggable(new EatingLoggable(event));
     }
 
     // @EventHandler
@@ -110,20 +105,17 @@ public class LoggableEventHandler implements Listener {
     // }
     @EventHandler
     public static void onDeath(PlayerDeathEvent event) {
-        EventLogger.addLoggable(
-                new DeathLoggable(event));
+        EventLogger.addLoggable(new DeathLoggable(event));
     }
 
     @EventHandler
     public static void onItemFished(PlayerFishEvent event) {
-        EventLogger.addLoggable(
-                new FishingLoggable(event));
+        EventLogger.addLoggable(new FishingLoggable(event));
     }
 
     @EventHandler
     public static void onBlockPlaced(BlockPlaceEvent event) {
-        EventLogger.addLoggable(
-                new SpecialBlockPlaceEventLoggable(event));
+        EventLogger.addLoggable(new SpecialBlockPlaceEventLoggable(event));
     }
 
     @EventHandler

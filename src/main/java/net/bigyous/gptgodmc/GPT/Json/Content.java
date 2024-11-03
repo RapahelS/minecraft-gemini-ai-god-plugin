@@ -6,8 +6,7 @@ import java.util.List;
 // https://ai.google.dev/api/caching#Content
 public class Content {
     public enum Role {
-        user,
-        model
+        user, model
     }
 
     private ArrayList<Part> parts = new ArrayList<>();
@@ -80,5 +79,14 @@ public class Content {
 
     public Role getRole() {
         return role;
+    }
+
+    // calculates and returns the token count of this content
+    public int countTokens() {
+        int accumulator = 0;
+        for (Part part : this.parts) {
+            accumulator += part.countTokens();
+        }
+        return accumulator;
     }
 }

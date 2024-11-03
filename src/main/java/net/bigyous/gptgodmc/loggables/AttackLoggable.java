@@ -1,7 +1,5 @@
 package net.bigyous.gptgodmc.loggables;
 
-import java.time.Instant;
-
 import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -18,8 +16,8 @@ public class AttackLoggable extends BaseLoggable {
         super();
         this.attackerName = event.getDamager().getName();
         this.targetName = event.getEntity().getName();
-        this.isValid = event.getDamager().getType().equals(EntityType.PLAYER) ||
-                event.getEntity().getType().equals(EntityType.PLAYER);
+        this.isValid = event.getDamager().getType().equals(EntityType.PLAYER)
+                || event.getEntity().getType().equals(EntityType.PLAYER);
         if (event.getDamager() instanceof Player) {
             Player player = (Player) event.getDamager();
             ItemStack stack = player.getInventory().getItemInMainHand();

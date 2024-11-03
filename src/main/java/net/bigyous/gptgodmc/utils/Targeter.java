@@ -16,8 +16,8 @@ public class Targeter {
         if (entity == null)
             return null;
         Vector direction = entity.getLocation().getDirection();
-        BlockIterator iter = new BlockIterator(entity.getWorld(), entity.getLocation().toVector(),
-                direction, entity.getEyeHeight(), 24);
+        BlockIterator iter = new BlockIterator(entity.getWorld(), entity.getLocation().toVector(), direction,
+                entity.getEyeHeight(), 24);
         while (iter.hasNext()) {
             Block block = iter.next();
             if (!block.getType().equals(Material.AIR)) {
