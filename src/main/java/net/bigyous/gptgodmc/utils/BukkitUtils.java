@@ -65,7 +65,7 @@ public class BukkitUtils {
             distance++;
             if (distance > maxDistance) {
                 GPTGOD.LOGGER.warn(String.format(
-                        "getSafeLocation hit max height for safety checks. No safe location found at (%d, %d, %d)",
+                        "getSafeLocation hit max height for safety checks. No safe location found at (%f, %f, %f)",
                         newLoc.getX(), newLoc.getY(), newLoc.getZ()));
                 return null;
             }
