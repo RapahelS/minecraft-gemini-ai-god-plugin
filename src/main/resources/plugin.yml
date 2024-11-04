@@ -6,7 +6,7 @@ prefix: gptgodmc
 authors: ["YOUS", "Anders", "ConnorBP"]
 description: Worship our AI overlords!
 website: https://segfault.site
-depend: [voicechat]
+depend: [voicechat,ImageryAPI]
 
 commands:
   try:

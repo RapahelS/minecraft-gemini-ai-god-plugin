@@ -30,6 +30,7 @@ dependencies {
     // Use this dependency if you don't want to compile bukkit
     implementation "io.papermc.paper:paper-api:${bukkit_version}"
     implementation "de.maxhenkel.voicechat:voicechat-api:${voicechat_api_version}"
+    implementation "com.github.jensjeflensje:minecraft_imagery:1.2.1"
     implementation 'com.google.code.gson:gson:2.10.1'
     implementation group: 'com.knuddels', name: 'jtokkit', version: '1.0.0'
 
@@ -45,6 +46,8 @@ repositories {
     maven {
         url = uri("https://papermc.io/repo/repository/maven-public/")
     }
+    // for github and stuff
+    maven { url 'https://jitpack.io' }
     mavenLocal()
 }
 

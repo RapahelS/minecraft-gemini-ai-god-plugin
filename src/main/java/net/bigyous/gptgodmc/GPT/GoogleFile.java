@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.net.http.HttpRequest.Builder;
 import java.net.http.HttpResponse.BodyHandlers;
 
 import org.bukkit.configuration.file.FileConfiguration;
@@ -30,6 +31,9 @@ public class GoogleFile {
 
     private String displayName = "AUDIO";
     private Path filePath;
+    private String mimeType;
+    private byte[] bytes;
+    private long numBytes;
     private String uriResult;
 
     public String getUri() {
@@ -45,8 +49,17 @@ public class GoogleFile {
         this.displayName = displayName;
     }
 
+    // for direct byte upload
+    public GoogleFile(byte[] bytes, String mimeType, String displayName) {
+        this.bytes = bytes;
+        this.numBytes = bytes.length;
+        this.mimeType = mimeType;
+        this.displayName = displayName;
+    }
+
     public boolean tryUpload() {
-        if (!Files.exists(filePath)) {
+        boolean filePathExists = filePath == null ? false : Files.exists(filePath);
+        if (!filePathExists && bytes == null) {
             GPTGOD.LOGGER.error("Attempted to Upload non-existant file",
                     new FileNotFoundException("No such file " + filePath));
             return false;
@@ -54,9 +67,13 @@ public class GoogleFile {
 
         try {
 
-            // firstly get file metadata
-            String mimeType = Files.probeContentType(filePath);
-            long numBytes = Files.size(filePath);
+            if (filePathExists) {
+                // firstly get file metadata
+                mimeType = Files.probeContentType(filePath);
+                numBytes = Files.size(filePath);
+
+            }
+
             String metadataJson = "{\"file\": {\"display_name\": \"" + displayName + "\"}}";
 
             HttpRequest metadataRequest = HttpRequest.newBuilder()
@@ -74,11 +91,16 @@ public class GoogleFile {
 
             String uploadUrl = metadataResponse.headers().firstValue("x-goog-upload-url")
                     .orElseThrow(() -> new RuntimeException("No upload URL found in metadata response"));
+            Builder buildReq = HttpRequest.newBuilder().uri(URI.create(uploadUrl)).header("X-Goog-Upload-Offset", "0")
+                    .header("X-Goog-Upload-Command", "upload, finalize").header("Content-Type", mimeType);
 
-            HttpRequest uploadRequest = HttpRequest.newBuilder().uri(URI.create(uploadUrl))
-                    // .header("Content-Length", String.valueOf(numBytes))
-                    .header("X-Goog-Upload-Offset", "0").header("X-Goog-Upload-Command", "upload, finalize")
-                    .header("Content-Type", mimeType).POST(HttpRequest.BodyPublishers.ofFile(filePath)).build();
+            if(filePathExists) {
+                buildReq = buildReq.POST(HttpRequest.BodyPublishers.ofFile(filePath));
+            } else {
+                buildReq = buildReq.POST(HttpRequest.BodyPublishers.ofByteArray(bytes));
+            }
+
+            HttpRequest uploadRequest = buildReq.build();
 
             HttpResponse<String> uploadResponse = client.send(uploadRequest, HttpResponse.BodyHandlers.ofString());
 

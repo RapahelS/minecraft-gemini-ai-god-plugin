@@ -33,6 +33,7 @@ import net.bigyous.gptgodmc.loggables.GPTActionLoggable;
 import net.bigyous.gptgodmc.utils.BukkitUtils;
 import net.bigyous.gptgodmc.utils.CommandHelper;
 import net.bigyous.gptgodmc.utils.GptObjectiveTracker;
+import net.bigyous.gptgodmc.utils.ImageUtils;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -82,9 +83,11 @@ public class GptActions {
                 if (playerName == null) {
                         playerName = argsMap.get("player_name");
                 }
+
                 staticWhisper(playerName, message);
                 return;
         };
+
         private static Function<JsonObject> announce = (JsonObject args) -> {
                 String message = gson.fromJson(args.get("message"), String.class);
                 staticAnnounce(message);
@@ -304,6 +307,11 @@ public class GptActions {
                 StructureManager.getStructure(structure).getLocation().createExplosion(power, setFire, true);
                 EventLogger.addLoggable(new GPTActionLoggable(String.format("detonated Structure: %s", structure)));
         };
+        private static Function<JsonObject> lookThroughPlayerEyes = (JsonObject args) -> {
+                String playerName = gson.fromJson(args.get("playerName"), String.class);
+                Player player = GPTGOD.SERVER.getPlayer(playerName);
+                ImageUtils.takePicture(player);
+        };
         private static Map<String, FunctionDeclaration> functionMap = Map.ofEntries(
                         Map.entry("decree", new FunctionDeclaration("decree",
                                         "display a heavenly decree in front of a specific player in the world. Use only to communicate displeasure in some action. Use no more than 12 words in the message.",
@@ -414,7 +422,13 @@ public class GptActions {
                                                         "power",
                                                         new Schema(Schema.Type.INTEGER,
                                                                         "the strength of this explosion where 4 is the strength of TNT"))),
-                                        detonateStructure)));
+                                        detonateStructure)),
+                        Map.entry("lookThroughPlayerEyes", new FunctionDeclaration("lookThroughPlayerEyes",
+                                        "take a picture through the eyes of playerName to view what they are looking at. Once the picture is taken it is sent to the vision api to describe what is being seen.",
+                                        new Schema(Map.of("playerName",
+                                                        new Schema(Schema.Type.STRING,
+                                                                        "name of the player to look through the eyes of"))),
+                                        lookThroughPlayerEyes)));
         // private static Map<String, FunctionDeclaration> speechFunctionMap = new
         // HashMap<>(functionMap);
         // private static Map<String, FunctionDeclaration> actionFunctionMap = new
