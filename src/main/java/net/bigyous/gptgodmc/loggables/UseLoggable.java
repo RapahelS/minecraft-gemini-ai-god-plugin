@@ -51,7 +51,7 @@ public class UseLoggable extends BaseLoggable {
         }
         final UseLoggable loggable = (UseLoggable) obj;
 
-        return this.playerName.equals(loggable.playerName) && this.blockName.equals(loggable.blockName)
+        return this.playerName.equals(loggable.playerName) && this.blockName != null && this.blockName.equals(loggable.blockName)
                 && this.action.equals(loggable.action) && this.item.equals(loggable.item);
     }
 
