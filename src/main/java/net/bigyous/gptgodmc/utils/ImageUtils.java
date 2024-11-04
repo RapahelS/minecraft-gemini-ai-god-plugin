@@ -9,12 +9,14 @@ import java.nio.file.Path;
 
 import javax.imageio.ImageIO;
 
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import dev.jensderuiter.minecraft_imagery.image.ImageCapture;
 import net.bigyous.gptgodmc.GPTGOD;
+import net.bigyous.gptgodmc.Structure;
 import net.bigyous.gptgodmc.GPT.GoogleFile;
 
 public class ImageUtils {
@@ -41,10 +43,11 @@ public class ImageUtils {
         }
     }
 
-    public static void takePicture(Player player) {
-        ImageCapture capture = new ImageCapture(player.getEyeLocation());
+    // takes a picture from the given camera location
+    public static void takePicture(Location cameraLocation) {
+        ImageCapture capture = new ImageCapture(cameraLocation);
 
-        // capture asynchronously has it may run for a while
+        // capture asynchronously as it may run for a while
         new BukkitRunnable() {
             @Override
             public void run() {
@@ -52,12 +55,10 @@ public class ImageUtils {
 
                 // get bytes
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                // for testing:
-                OutputStream imgOut = getImageOutputStream("eyephoto", fileIdx++);
                 try {
                     ImageIO.write(img, "png", baos);
                     // output to file for testing
-                    ImageIO.write(img, "png", imgOut);
+                    ImageIO.write(img, "png", getImageOutputStream("eyephoto", fileIdx++));
                 } catch (IOException e) {
                     GPTGOD.LOGGER.error("failed to output image bytes on capture", e);
                     return;
@@ -70,5 +71,15 @@ public class ImageUtils {
                 }
             }
         }.runTaskAsynchronously(JavaPlugin.getPlugin(GPTGOD.class));
+    }
+
+    // takes a picture through the eyes of the provided player
+    public static void takePicture(Player player) {
+        takePicture(player.getEyeLocation());
+    }
+
+    // takes a picture of the given structure
+    public static void takePicture(Structure structure) {
+        
     }
 }

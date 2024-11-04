@@ -15,6 +15,10 @@ public class Structure {
     private Location location;
     private World world;
 
+    // for tracking when to recalculate the centroid
+    private static final int minimumBlocksForRecalculate = 4;
+    private int lastCalculated = 0;
+
     public Structure(Location block, Player builder) {
         this.blocks = new HashSet<Vector>();
         this.addBlock(block);
@@ -56,9 +60,13 @@ public class Structure {
         return new Location(world, x / size, y / size, z / size);
     }
 
+    // get center of building and calculate it if the building is new or changed in size
     public Location getLocation() {
-        if (location == null)
+        int blockCount = blocks.size();
+        if (location == null || (blockCount - minimumBlocksForRecalculate) > lastCalculated) {
             location = calculateCentroid();
+            lastCalculated = blockCount;
+        }
         return location;
     }
 
