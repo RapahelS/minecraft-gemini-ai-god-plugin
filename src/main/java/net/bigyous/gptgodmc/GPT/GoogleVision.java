@@ -3,11 +3,10 @@ package net.bigyous.gptgodmc.GPT;
 import java.util.Arrays;
 import java.util.Map;
 
-import org.bukkit.block.Structure;
-
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
+import net.bigyous.gptgodmc.EventLogger;
 import net.bigyous.gptgodmc.GPTGOD;
 import net.bigyous.gptgodmc.StructureManager;
 import net.bigyous.gptgodmc.GPT.Json.FunctionDeclaration;
@@ -15,6 +14,7 @@ import net.bigyous.gptgodmc.GPT.Json.Schema;
 import net.bigyous.gptgodmc.GPT.Json.Tool;
 import net.bigyous.gptgodmc.enums.GptGameMode;
 import net.bigyous.gptgodmc.interfaces.Function;
+import net.bigyous.gptgodmc.loggables.CameraEventLoggable;
 
 // Let the AI god see the structures we build,
 // so that when we build a phalic monument they are wise to it,
@@ -27,6 +27,7 @@ public class GoogleVision {
         protected String originalName;
         private String newName;
         private String description;
+        private String photographer;
         private boolean isItUgly;
         // just in case the ai decides to be dumb af
         private boolean is_it_ugly;
@@ -41,6 +42,10 @@ public class GoogleVision {
 
         public String getDescription() {
             return description;
+        }
+
+        public String getPhotographer() {
+            return photographer;
         }
 
         public boolean getIsItUgly() {
@@ -64,17 +69,16 @@ public class GoogleVision {
     // handles the results when gemini vision finishes processing
     private static Function<JsonObject> describeStructure = (JsonObject args) -> {
         DescribeStructureParams params = gson.fromJson(args.get("commands"), DescribeStructureParams.class);
-        
-        if(
-            params.originalName == null || params.originalName.length() < 1
-            || params.newName == null || params.newName.length() < 1
-            || params.description == null || params.description.length() < 1
-            ) {
-                GPTGOD.LOGGER.error("describeStructure response had invalid args " + args.toString() );
-            }
 
-            StructureManager.updateStructureDetails(params.originalName, params.newName, params.description, params.getIsItUgly());
+        if (params.originalName == null || params.originalName.length() < 1 || params.newName == null
+                || params.newName.length() < 1 || params.description == null || params.description.length() < 1) {
+            GPTGOD.LOGGER.error("describeStructure response had invalid args " + args.toString());
+        }
 
+        StructureManager.updateStructureDetails(params.originalName, params.newName, params.description,
+                params.getIsItUgly());
+        EventLogger.addLoggable(
+                new CameraEventLoggable(params.getNewName(), params.getDescription(), params.getIsItUgly()));
     };
 
     private static Map<String, FunctionDeclaration> functionMap = Map.of("describeStructure", new FunctionDeclaration(
@@ -84,6 +88,9 @@ public class GoogleVision {
                     "newName",
                     new Schema(Schema.Type.STRING,
                             "the new name for the structure based on what it looks like. Such as: STONE_CHURCH or SAND_PILLAR_3"),
+                    "photographer",
+                    new Schema(Schema.Type.STRING,
+                            "the name of whoever took the photo (either God, or one of the players)"),
                     "description",
                     new Schema(Schema.Type.STRING,
                             "description of what the structure and aesthetics are like, including key points you like and dislike about the design."),
@@ -107,8 +114,8 @@ public class GoogleVision {
 
     // have the ai model rate a structure with multiple different camera angles
     // available to it
-    public static void generate(String structureName, Structure structure, GoogleFile[] imageFiles) {
-        GPTGOD.LOGGER.info("generating vision request for structure: " + structure.getStructureName());
+    public static void lookAtPhoto(String photographer, String photoSubject, GoogleFile[] imageFiles) {
+        GPTGOD.LOGGER.info("generating vision request for: " + photoSubject);
         String allStructures = StructureManager.getDisplayString();
 
         String teams = String.join(",", GPTGOD.SCOREBOARD.getTeams().stream().map(team -> {
@@ -126,13 +133,22 @@ public class GoogleVision {
                                 GPTGOD.SERVER.getOnlinePlayers().stream().map(player -> player.getName()).toArray())),
                 "PlayerNames").addContext(String.format("All Structures: %s", allStructures), "structures")
                 .addFilesWithContext(String.format(
-                        "describe and critique the minecraft structure currently named %s depictied in %s.",
-                        structureName, imageSlashS), imageFiles)
+                        "describe and critique photo of %s depictied in %s photographed by %s.",
+                        photoSubject, imageSlashS, photographer), imageFiles)
                 .send(functionMap);
     }
 
+    public static void lookAtPhoto(String photographer, String photoSubject, GoogleFile imageFile) {
+        lookAtPhoto(photographer, photoSubject, new GoogleFile[] { imageFile });
+    }
+
+    public static void lookAtStructure(String photographer, String structureName, GoogleFile[] imageFiles) {
+        GPTGOD.LOGGER.info("generating vision request for structure: " + structureName);
+        lookAtPhoto(photographer, String.format("the minecraft structure currently named %s", structureName), imageFiles);
+    }
+
     // send off an image of a structure to be rated by the secondary ai model
-    public static void generate(String structureName, Structure structure, GoogleFile imageFile) {
-        generate(structureName, structure, new GoogleFile[] { imageFile });
+    public static void lookAtStructure(String photographer, String structureName, GoogleFile imageFile) {
+        lookAtStructure(photographer, structureName, new GoogleFile[] { imageFile });
     }
 }

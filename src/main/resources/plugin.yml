@@ -16,3 +16,7 @@ commands:
   nickname:
     description: if you are reffered to by a name other than your username specify it here for GPT. edgy inputs will break the plugin
     usage: /nickname [name]
+  
+  givecamera:
+    description: gives you a camera item so that you may snap pictures for god to observe
+    usage: /givecamera

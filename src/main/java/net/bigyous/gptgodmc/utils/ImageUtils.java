@@ -13,12 +13,16 @@ import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.util.Vector;
 
 import dev.jensderuiter.minecraft_imagery.image.ImageCapture;
 import dev.jensderuiter.minecraft_imagery.image.ImageCaptureOptions;
 import net.bigyous.gptgodmc.GPTGOD;
 import net.bigyous.gptgodmc.Structure;
+import net.bigyous.gptgodmc.StructureManager;
 import net.bigyous.gptgodmc.GPT.GoogleFile;
+import net.bigyous.gptgodmc.GPT.GoogleVision;
+import net.bigyous.gptgodmc.interfaces.Function;
 
 public class ImageUtils {
 
@@ -44,7 +48,7 @@ public class ImageUtils {
     }
 
     // takes a picture from the given camera location
-    public static void takePicture(Location cameraLocation, String pictureName) {
+    public static void takePicture(Location cameraLocation, String pictureName, Function<GoogleFile> resultCallback) {
         ImageCapture capture = new ImageCapture(cameraLocation, ImageCaptureOptions.builder().fov(1).build());
 
         // capture asynchronously as it may run for a while
@@ -67,20 +71,29 @@ public class ImageUtils {
                 byte[] bytes = baos.toByteArray();
                 GoogleFile upload = new GoogleFile(bytes, "image/png", pictureName);
                 if (upload.tryUpload()) {
-                    // todo add result to gemini vision queue
+                    resultCallback.run(upload);
+                } else {
+                    GPTGOD.LOGGER.warn("failed to upload picture of " + pictureName);
                 }
             }
         }.runTaskAsynchronously(JavaPlugin.getPlugin(GPTGOD.class));
     }
 
     // same as takePicture(Location) but with a default picture name
-    public static void takePicture(Location location) {
-        takePicture(location, "MINECRAFT_PICTURE");
+    public static void takePicture(Location location, Function<GoogleFile> resultCallback) {
+        takePicture(location, "MINECRAFT_PICTURE", resultCallback);
     }
 
     // takes a picture through the eyes of the provided player
     public static void takePicture(Player player) {
-        takePicture(player.getEyeLocation());
+        takePicture(player.getEyeLocation(), (GoogleFile file) -> {
+            // gets either the ray hit or timeout position
+            Vector hitpos = player.rayTraceBlocks(256).getHitPosition();
+            Location pictureCenter = new Location(player.getWorld(), hitpos.getX(), hitpos.getY(), hitpos.getZ()); 
+            String closestStructure = StructureManager.getClosestStructureToLocation(pictureCenter);
+            // call gemini vision api with our user generated photography
+            GoogleVision.lookAtPhoto(player.getName(), closestStructure, file);
+        });
     }
 
     // takes a picture of the given structure
@@ -89,7 +102,9 @@ public class ImageUtils {
         double[] cameraDirectionAxisUp = { 0, 1, 0};
         double cameraDistance = calculateCameraDistance(structure);
         Location cameraLocation = lookAt(structureCenter, cameraDirectionAxisUp, cameraDistance);
-        takePicture(cameraLocation);
+        takePicture(cameraLocation, (GoogleFile file) -> {
+            // todo
+        });
     }
 
     // calculates how far the camera has to be from a structure at a specified fov
