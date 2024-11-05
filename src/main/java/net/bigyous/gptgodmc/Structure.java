@@ -13,11 +13,13 @@ public class Structure {
     private HashSet<Vector> blocks;
     private Player builder;
     private Location location;
+    private Location[] bounds;
     private World world;
 
     // for tracking when to recalculate the centroid
     private static final int minimumBlocksForRecalculate = 4;
-    private int lastCalculated = 0;
+    private int lastCenterCalculated = 0;
+    private int lastBoundsCalcuated = 0;
 
     public Structure(Location block, Player builder) {
         this.blocks = new HashSet<Vector>();
@@ -60,14 +62,41 @@ public class Structure {
         return new Location(world, x / size, y / size, z / size);
     }
 
-    // get center of building and calculate it if the building is new or changed in size
+    // returns the upper and lower bound of the structure
+    private Location[] calculateBounds() {
+        // walk up to top xyz
+        double tx = 0, ty = 0, tz = 0;
+        // walk down to bottom xyz
+        double bx = Double.MAX_VALUE, by = Double.MAX_VALUE, bz = Double.MAX_VALUE;
+        for (Vector location : blocks) {
+            bx = Double.min(bx, location.getX());
+            tx = Double.max(tx, location.getX());
+            by = Double.min(by, location.getY());
+            ty = Double.max(ty, location.getY());
+            bz = Double.min(bz, location.getZ());
+            tz = Double.max(tz, location.getZ());
+        }
+        return new Location[] { new Location(world, bx, by, bz), new Location(world, tx, ty, tz), };
+    }
+
+    // get center of building and calculate it if the building is new or changed in
+    // size
     public Location getLocation() {
         int blockCount = blocks.size();
-        if (location == null || (blockCount - minimumBlocksForRecalculate) > lastCalculated) {
+        if (location == null || (blockCount - minimumBlocksForRecalculate) > lastCenterCalculated) {
             location = calculateCentroid();
-            lastCalculated = blockCount;
+            lastCenterCalculated = blockCount;
         }
         return location;
+    }
+
+    public Location[] getBounds() {
+        int blockCount = blocks.size();
+        if( bounds == null || (blockCount - minimumBlocksForRecalculate) > lastCenterCalculated) {
+            bounds = calculateBounds();
+            lastCenterCalculated = blockCount;
+        }
+        return bounds;
     }
 
     public boolean isBlockConnected(Location block) {
