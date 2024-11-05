@@ -94,7 +94,7 @@ public class Structure {
         int blockCount = blocks.size();
         if( bounds == null || (blockCount - minimumBlocksForRecalculate) > lastCenterCalculated) {
             bounds = calculateBounds();
-            lastCenterCalculated = blockCount;
+            lastBoundsCalcuated = blockCount;
         }
         return bounds;
     }
