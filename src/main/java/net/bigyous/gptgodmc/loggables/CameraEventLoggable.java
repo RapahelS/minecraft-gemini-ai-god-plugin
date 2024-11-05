@@ -4,25 +4,25 @@ public class CameraEventLoggable extends BaseLoggable {
 
     // who took the photo?
     private String photoArtist;
-    private String structureName;
+    private String subjectName;
     private String description;
     private boolean isItUgly;
 
-    public CameraEventLoggable(String structureName, String description, boolean isItUgly, String photoTakenBy) {
+    public CameraEventLoggable(String subjectName, String description, boolean isItUgly, String photoTakenBy) {
         super();
-        this.structureName = structureName;
+        this.subjectName = subjectName;
         this.description = description;
         this.isItUgly = isItUgly;
         this.photoArtist = photoTakenBy;
     }
 
-    public CameraEventLoggable(String structureName, String description, boolean isItUgly) {
-        this(structureName, description, isItUgly, "God");
+    public CameraEventLoggable(String subjectName, String description, boolean isItUgly) {
+        this(subjectName, description, isItUgly, "God");
     }
 
     @Override
     public String getLog() {
-        String uglyOrPretty = isItUgly ? "It is ugly" : "It is pretty";
-        return String.format("%s took a photo of %s and god thinks this about it: %s. %s.", photoArtist, structureName, uglyOrPretty, description);
+        String uglyOrPretty = isItUgly ? "dislikes" : "likes";
+        return String.format("God %s %s's picture of %s. God says: %s", uglyOrPretty, photoArtist, subjectName, description);
     }
 }

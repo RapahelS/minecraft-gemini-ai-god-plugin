@@ -53,6 +53,18 @@ public class GoogleVision {
         }
     }
 
+    class CritiquePhotoParams {
+        String subject;
+        String photographer;
+        String description;
+        boolean isItUgly;
+        boolean is_it_ugly;
+
+        public boolean getIsUgly() {
+            return isItUgly || is_it_ugly;
+        }
+    }
+
     // // for the task queue
     // class DescribeStructureRequest {
     // // the name that the structure currently has (the ai might choose to rename
@@ -68,17 +80,41 @@ public class GoogleVision {
 
     // handles the results when gemini vision finishes processing
     private static Function<JsonObject> describeStructure = (JsonObject args) -> {
-        DescribeStructureParams params = gson.fromJson(args.get("commands"), DescribeStructureParams.class);
+        DescribeStructureParams params = gson.fromJson(args, DescribeStructureParams.class);
+
+        if(params == null) {
+            GPTGOD.LOGGER.error("describeStructure parameters is null");
+            return;
+        }
 
         if (params.originalName == null || params.originalName.length() < 1 || params.newName == null
                 || params.newName.length() < 1 || params.description == null || params.description.length() < 1) {
             GPTGOD.LOGGER.error("describeStructure response had invalid args " + args.toString());
+            return;
         }
 
         StructureManager.updateStructureDetails(params.originalName, params.newName, params.description,
                 params.getIsItUgly());
         EventLogger.addLoggable(
-                new CameraEventLoggable(params.getNewName(), params.getDescription(), params.getIsItUgly()));
+                new CameraEventLoggable(params.getNewName(), params.getDescription(), params.getIsItUgly(), params.getPhotographer()));
+    };
+
+    private static Function<JsonObject> critiquePhoto = (JsonObject args) -> {
+        CritiquePhotoParams params = gson.fromJson(args, CritiquePhotoParams.class);
+
+        if(params == null) {
+            GPTGOD.LOGGER.error("describeStructure parameters is null");
+            return;
+        }
+
+        if (params.subject == null || params.subject.length() < 1 || params.photographer == null
+                || params.photographer.length() < 1 || params.description == null || params.description.length() < 1) {
+            GPTGOD.LOGGER.error("critiquePhoto response had invalid args " + args.toString());
+            return;
+        }
+
+        EventLogger.addLoggable(
+                new CameraEventLoggable(params.subject, params.description, params.getIsUgly(), params.photographer));
     };
 
     private static Map<String, FunctionDeclaration> functionMap = Map.of("describeStructure", new FunctionDeclaration(
@@ -97,7 +133,21 @@ public class GoogleVision {
                     "isItUgly",
                     new Schema(Schema.Type.BOOLEAN,
                             "The executive decision on wether or not this structure is ugly or not in it's current state. Return a value of true to indicate that you think it is ugly, or false if it is pretty."))),
-            describeStructure));
+            describeStructure),
+            "critiquePhoto", new FunctionDeclaration(
+                "critiquePhoto", "input the description and opinions of the structure pictured in the received images",
+                new Schema(Map.of("subject", new Schema(Schema.Type.STRING,
+                        "A name for what the subject of the photo is."),
+                        "photographer",
+                        new Schema(Schema.Type.STRING,
+                                "the name of whoever took the photo (either God, or one of the players)"),
+                        "description",
+                        new Schema(Schema.Type.STRING,
+                                "description of what the structure and aesthetics are like, including key points you like and dislike about the design."),
+                        "isItUgly",
+                        new Schema(Schema.Type.BOOLEAN,
+                                "The executive decision on wether or not this structure is ugly or not in it's current state. Return a value of true to indicate that you think it is ugly, or false if it is pretty."))),
+                                critiquePhoto));
     private static Tool tools = GptActions.wrapFunctions(functionMap);
     private static GptAPI gpt = new GptAPI(GPTModels.getSecondaryModel(), tools).setSystemContext("""
             You are a helpful assistant that will generate opinions and descriptions about minecraft structures.
@@ -114,7 +164,7 @@ public class GoogleVision {
 
     // have the ai model rate a structure with multiple different camera angles
     // available to it
-    public static void lookAtPhoto(String photographer, String photoSubject, GoogleFile[] imageFiles) {
+    public static void lookAtPhoto(String photographer, String photoSubject, GoogleFile[] imageFiles, boolean critiqueOnlyMode) {
         GPTGOD.LOGGER.info("generating vision request for: " + photoSubject);
         String allStructures = StructureManager.getDisplayString();
 
@@ -126,6 +176,13 @@ public class GoogleVision {
         }
 
         String imageSlashS = imageFiles.length > 1 ? "these images" : "this image";
+
+        // select either the photo ciritique only mode or the update structure details mode
+        if(critiqueOnlyMode) {
+            gpt.setToolChoice("critiquePhoto");
+        } else {
+            gpt.setToolChoice("describeStructure");
+        }
 
         gpt.addContext(
                 String.format("Current Players: %s",
@@ -139,12 +196,13 @@ public class GoogleVision {
     }
 
     public static void lookAtPhoto(String photographer, String photoSubject, GoogleFile imageFile) {
-        lookAtPhoto(photographer, photoSubject, new GoogleFile[] { imageFile });
+        lookAtPhoto(photographer, photoSubject, new GoogleFile[] { imageFile }, true);
     }
 
     public static void lookAtStructure(String photographer, String structureName, GoogleFile[] imageFiles) {
         GPTGOD.LOGGER.info("generating vision request for structure: " + structureName);
-        lookAtPhoto(photographer, String.format("the minecraft structure currently named %s", structureName), imageFiles);
+        // send a vision request in update structure mode
+        lookAtPhoto(photographer, String.format("the minecraft structure currently named %s", structureName), imageFiles, false);
     }
 
     // send off an image of a structure to be rated by the secondary ai model
