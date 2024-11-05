@@ -62,7 +62,7 @@ public class ImageUtils {
                 try {
                     ImageIO.write(img, "png", baos);
                     // output to file for testing
-                    ImageIO.write(img, "png", getImageOutputStream("eyephoto", fileIdx++));
+                    ImageIO.write(img, "png", getImageOutputStream(pictureName, fileIdx++));
                 } catch (IOException e) {
                     GPTGOD.LOGGER.error("failed to output image bytes on capture", e);
                     return;
