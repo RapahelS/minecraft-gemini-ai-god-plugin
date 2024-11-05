@@ -40,6 +40,10 @@ public class GoogleFile {
         return this.uriResult;
     }
 
+    public String getMimeType() {
+        return mimeType;
+    }
+
     public GoogleFile(Path filePath) {
         this.filePath = filePath;
     }

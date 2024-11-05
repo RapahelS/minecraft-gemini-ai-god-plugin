@@ -15,6 +15,7 @@ import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.block.BlockBurnEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 
+import net.bigyous.gptgodmc.Structure.CiritiqueStatus;
 import net.bigyous.gptgodmc.loggables.GenericEventLoggable;
 
 import org.bukkit.entity.Player;
@@ -80,6 +81,22 @@ public class StructureManager implements Listener {
         if (parentStructure == null) {
             structures.put(nameStructure(block), new Structure(block, builder));
         }
+    }
+
+    // for the AI to rename a structure and declare it pretty or ugly
+    public static boolean updateStructureDetails(String originalStructureName, String newStructureName, String description, boolean isItUgly) {
+        Structure structure = structures.remove(originalStructureName);
+        if(structure == null) {
+            GPTGOD.LOGGER.error(String.format("Failed to update the %s structure %s to new name %s.", isItUgly ? "ugly" : "pretty", originalStructureName, newStructureName));
+            return false;
+        }
+
+        structure.setCritique(isItUgly);
+        structure.setDescription(description);
+        // insert the structure under the new name
+        structures.put(newStructureName, structure);
+
+        return true;
     }
 
     private String nameStructure(Location block) {
@@ -190,7 +207,17 @@ public class StructureManager implements Listener {
     public static String getDisplayString() {
         Object[] structures = StructureManager.getStructures().stream().map((String key) -> {
             Structure structure = StructureManager.getStructure(key);
-            return String.format("%s built by %s: (%s)", key,
+
+            String critique = "";
+            if(structure.getCritique() == CiritiqueStatus.PRETTY) {
+                critique = "Pretty ";
+            } else if (structure.getCritique() == CiritiqueStatus.UGLY) {
+                critique = "Ugly ";
+            }
+
+            return String.format("%s%s built by %s (at %s)",
+                    critique,
+                    key,
                     structure.getBuilder().getName(),
                     structure.getLocation().toVector().toString());
         }).toArray();

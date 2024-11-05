@@ -230,6 +230,12 @@ public class GptAPI {
         return this;
     }
 
+    public GptAPI addFilesWithContext(String context, GoogleFile[] files) {
+        this.body.addFilesWithPrompt(context, files);
+        totalTokens += GPTUtils.countTokens(context);
+        return this;
+    }
+
     // sets the system direction parameter
     public GptAPI setSystemContext(String context) {
         Content oldInstruction = this.body.getSystemInstruction();

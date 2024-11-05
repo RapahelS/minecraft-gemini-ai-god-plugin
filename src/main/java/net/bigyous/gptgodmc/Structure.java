@@ -10,11 +10,20 @@ import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
 public class Structure {
+
+    public enum CiritiqueStatus {
+        UNDECIDED,
+        PRETTY,
+        UGLY
+    }
+
     private HashSet<Vector> blocks;
     private Player builder;
     private Location location;
     private Location[] bounds;
     private World world;
+    private CiritiqueStatus critiqueStatus = CiritiqueStatus.UNDECIDED;
+    private String description = "";
 
     // for tracking when to recalculate the centroid
     private static final int minimumBlocksForRecalculate = 4;
@@ -33,6 +42,14 @@ public class Structure {
         return builder;
     }
 
+    public CiritiqueStatus getCritique() {
+        return this.critiqueStatus;
+    }
+
+    public String getDescription() {
+        return this.description;
+    }
+
     public boolean containsBlock(Location block) {
         return blocks.contains(block.toVector());
     }
@@ -47,6 +64,18 @@ public class Structure {
             location = null;
         if (world == null)
             world = block.getWorld();
+    }
+
+    public void setCritique(boolean isItUgly) {
+        if(isItUgly) {
+            this.critiqueStatus = CiritiqueStatus.UGLY;
+        } else {
+            this.critiqueStatus = CiritiqueStatus.PRETTY;
+        }
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     private Location calculateCentroid() {
@@ -138,7 +167,7 @@ public class Structure {
 
     @Override
     public String toString() {
-        return String.format("Structure: Location: %s Size: %d Builder: %s", this.getLocation().toVector().toString(),
-                this.getSize(), this.getBuilder().getName());
+        return String.format("Structure: Location: %s Size: %d Builder: %s Critique: %s", this.getLocation().toVector().toString(),
+                this.getSize(), this.getBuilder().getName(), this.critiqueStatus.toString());
     }
 }
