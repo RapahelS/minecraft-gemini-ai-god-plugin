@@ -189,8 +189,10 @@ public class StructureManager implements Listener {
 
     public static String getDisplayString() {
         Object[] structures = StructureManager.getStructures().stream().map((String key) -> {
-            return String.format("%s: (%s)", key,
-                    StructureManager.getStructure(key).getLocation().toVector().toString());
+            Structure structure = StructureManager.getStructure(key);
+            return String.format("%s built by %s: (%s)", key,
+                    structure.getBuilder().getName(),
+                    structure.getLocation().toVector().toString());
         }).toArray();
 
         // explicitly tell the LLM if the array is empty
