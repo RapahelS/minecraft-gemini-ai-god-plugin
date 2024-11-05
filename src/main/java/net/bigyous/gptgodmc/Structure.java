@@ -92,7 +92,7 @@ public class Structure {
 
     public Location[] getBounds() {
         int blockCount = blocks.size();
-        if( bounds == null || (blockCount - minimumBlocksForRecalculate) > lastCenterCalculated) {
+        if( bounds == null || (blockCount - minimumBlocksForRecalculate) > lastBoundsCalcuated) {
             bounds = calculateBounds();
             lastBoundsCalcuated = blockCount;
         }
