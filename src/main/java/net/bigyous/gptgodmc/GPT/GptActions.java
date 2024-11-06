@@ -472,6 +472,10 @@ public class GptActions {
                 return tools;
         }
 
+        public static Map<String, FunctionDeclaration> getFunctionMap() {
+                return functionMap;
+        }
+
         // public static Tool[] GetActionTools() {
         // if (actionTools == null || actionTools[0] == null) {
         // actionFunctionMap.keySet().removeAll(speechActionKeys);
