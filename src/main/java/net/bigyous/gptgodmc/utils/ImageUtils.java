@@ -104,7 +104,7 @@ public class ImageUtils {
         double[] cameraDirectionAxisUp = { 0, 1, 0 };
         double cameraDistance = calculateCameraDistance(structure);
         Location cameraLocation = lookAt(structureCenter, cameraDirectionAxisUp, cameraDistance);
-        takePicture(cameraLocation, (GoogleFile file) -> {
+        takePicture(cameraLocation, structureName, (GoogleFile file) -> {
             GoogleVision.lookAtStructure("God", structureName, file);
         });
     }
