@@ -20,6 +20,7 @@ import org.bukkit.event.player.PlayerQuitEvent;
 
 import javax.annotation.Nullable;
 
+import net.bigyous.gptgodmc.aitest.AiTestCommand;
 import net.bigyous.gptgodmc.cameraitem.CameraItemListener;
 import net.bigyous.gptgodmc.cameraitem.GiveCameraCommand;
 import net.bigyous.gptgodmc.enums.GptGameMode;
@@ -62,6 +63,7 @@ public final class GPTGOD extends JavaPlugin {
         getCommand("try").setExecutor(new DebugCommand());
         getCommand("nickname").setExecutor(new NicknameCommand());
         getCommand("givecamera").setExecutor(new GiveCameraCommand());
+        getCommand("aitest").setExecutor(new AiTestCommand());
         if (getConfig().getString("startingWorld").isBlank() || !getConfig().getBoolean("Rounds")) {
             String message = getConfig().getBoolean("Rounds")
                     ? "can't use Round system since startingWorld is not set. Go to %s to fix this."

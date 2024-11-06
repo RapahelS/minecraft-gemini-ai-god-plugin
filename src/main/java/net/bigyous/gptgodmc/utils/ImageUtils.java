@@ -49,7 +49,9 @@ public class ImageUtils {
     }
 
     // takes a picture from the given camera location
-    public static void takePicture(Location cameraLocation, String pictureName, SimpFunction<GoogleFile> resultCallback) {
+    public static void takePicture(Location cameraLocation, String pictureName,
+
+            SimpFunction<GoogleFile> resultCallback) {
         ImageCapture capture = new ImageCapture(cameraLocation,
                 ImageCaptureOptions.builder().fov(fov).showDepth(true).build());
 
@@ -99,19 +101,23 @@ public class ImageUtils {
     }
 
     // takes a picture of the given structure
-    public static void takePicture(Structure structure, String structureName) {
+    public static void takePicture(Structure structure, String structureName, Vector cameraAngle) {
         Location structureCenter = structure.getLocation();
-        double[] cameraDirectionAxisUp = { 0, 1, 0 };
         double cameraDistance = calculateCameraDistance(structure);
-        Location cameraLocation = lookAt(structureCenter, cameraDirectionAxisUp, cameraDistance);
+        Location cameraLocation = lookAt(structureCenter, cameraAngle, cameraDistance);
         takePicture(cameraLocation, structureName, (GoogleFile file) -> {
             GoogleVision.lookAtStructure("God", structureName, file);
         });
     }
 
+    // takes a picture of the given structure at a default camera angle
+    public static void takePicture(Structure structure, String structureName) {
+        takePicture(structure, structureName, new Vector(1,1,1).normalize());
+    }
+
     // calculates how far the camera has to be from a structure at a specified fov
     // for all of it to fit in the view
-    private static double calculateCameraDistance(Structure structure) {
+    public static double calculateCameraDistance(Structure structure) {
         // Location structureCenter = structure.getLocation();
         Location[] bounds = structure.getBounds();
 
@@ -124,6 +130,7 @@ public class ImageUtils {
         double height = Math.abs(topBounds.getY() - bottomBounds.getY());
         double depth = Math.abs(topBounds.getZ() - bottomBounds.getZ());
 
+        // get the biggest width on any axis
         double maxDimension = Math.max(width, Math.max(height, depth));
         return (maxDimension / 2) / Math.tan(fov / 2);
     }
@@ -134,18 +141,16 @@ public class ImageUtils {
     // and how far (magnitude) the camera should move along this axis from the look
     // target
     // returns the computed Location for our camera with the included look direction
-    private static Location lookAt(Location target, double[] cameraDirection, double cameraDistance) {
-        // translate along axis
-        double cameraX = target.getX() + cameraDirection[0] * cameraDistance;
-        double cameraY = target.getY() + cameraDirection[1] * cameraDistance;
-        double cameraZ = target.getZ() + cameraDirection[2] * cameraDistance;
+    public static Location lookAt(Location target, Vector cameraDirection, double cameraDistance) {
+        // translate along axis of cameraDirection (normal vec)
+        double dx = cameraDirection.getX() * cameraDistance;
+        double dy = cameraDirection.getY() * cameraDistance;
+        double dz = cameraDirection.getZ() * cameraDistance;
+        double cameraX = target.getX() + dx;
+        double cameraY = target.getY() + dy;
+        double cameraZ = target.getZ() + dz;
 
-        // calculate look direction
-
-        double dx = target.getX() - cameraX;
-        double dy = target.getY() - cameraY;
-        double dz = target.getZ() - cameraZ;
-
+        // get camera angle pointing at target
         float yaw = (float) Math.toDegrees(Math.atan2(-dx, dz));
         double horizontalDistance = Math.sqrt(dx * dx + dz * dz);
         float pitch = (float) Math.toDegrees(Math.atan2(dy, horizontalDistance));

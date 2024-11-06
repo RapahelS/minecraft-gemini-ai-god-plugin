@@ -20,3 +20,8 @@ commands:
   givecamera:
     description: gives you a camera item so that you may snap pictures for god to observe
     usage: /givecamera
+
+  aitest:
+    description: a collection of helper tools for debuging certain advanced AI features like vision
+    usage: /aitest [structure(s)|render(r)|tts(t)] ex /aitest s list
+    permission: admin.debug.aitest
