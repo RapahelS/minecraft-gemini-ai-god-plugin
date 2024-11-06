@@ -20,6 +20,8 @@ What's Changed:
 - [x] added model tempurature configuration control to improve model creativity
 - [x] Rolling context expiry for new multi-turn when token limit is approaching
 - [x] Give the AI eyes using the papermc ImageryAPI and gemini vison api (so the AI can decide if your monuments to its honor are ugly or not)
+  - [x] Added player camera item (get with `/givecamera`) for fun photography for god missions
+  - [ ] Functioning structure rendering with automatic camera positioning (WIP)
 - [x] Created sequential but non-blocking thread queue for the api wrapper class (AsyncTaskQueue in GptAPI)
 
 Todo:
