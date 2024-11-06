@@ -460,4 +460,9 @@ public class GptAPI {
         }
 
     }
+
+    // cleanup
+    public void close() {
+        gptTasks.close();
+    }
 }

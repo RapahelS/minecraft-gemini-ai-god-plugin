@@ -104,6 +104,7 @@ public final class GPTGOD extends JavaPlugin {
             voicechatPlugin.stop();
             getServer().getServicesManager().unregister(voicechatPlugin);
             LOGGER.info("Successfully unregistered monitor plugin");
+            GameLoop.close();
         }
     }
 

@@ -61,6 +61,10 @@ public class AsyncTaskQueue<T> {
             });
         }
     }
+
+    public void close() {
+        this.pool.close();
+    }
 }
 
 /*
