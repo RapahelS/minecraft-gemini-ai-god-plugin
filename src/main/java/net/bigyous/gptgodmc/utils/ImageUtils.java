@@ -27,6 +27,7 @@ import net.bigyous.gptgodmc.interfaces.Function;
 public class ImageUtils {
 
     private static int fileIdx = 0;
+    private static float fov = 1.0f;
 
     public static Path IMAGE_DATA = JavaPlugin.getPlugin(GPTGOD.class).getDataFolder().toPath()
             .resolve("ai_image_data");
@@ -49,7 +50,8 @@ public class ImageUtils {
 
     // takes a picture from the given camera location
     public static void takePicture(Location cameraLocation, String pictureName, Function<GoogleFile> resultCallback) {
-        ImageCapture capture = new ImageCapture(cameraLocation, ImageCaptureOptions.builder().fov(1).showDepth(true).build());
+        ImageCapture capture = new ImageCapture(cameraLocation,
+                ImageCaptureOptions.builder().fov(fov).showDepth(true).build());
 
         // capture asynchronously as it may run for a while
         new BukkitRunnable() {
@@ -89,7 +91,7 @@ public class ImageUtils {
         takePicture(player.getEyeLocation(), (GoogleFile file) -> {
             // gets either the ray hit or timeout position
             Vector hitpos = player.rayTraceBlocks(256).getHitPosition();
-            Location pictureCenter = new Location(player.getWorld(), hitpos.getX(), hitpos.getY(), hitpos.getZ()); 
+            Location pictureCenter = new Location(player.getWorld(), hitpos.getX(), hitpos.getY(), hitpos.getZ());
             String closestStructure = StructureManager.getClosestStructureToLocation(pictureCenter);
             // call gemini vision api with our user generated photography
             GoogleVision.lookAtPhoto(player.getName(), closestStructure, file);
@@ -99,7 +101,7 @@ public class ImageUtils {
     // takes a picture of the given structure
     public static void takePicture(Structure structure) {
         Location structureCenter = structure.getLocation();
-        double[] cameraDirectionAxisUp = { 0, 1, 0};
+        double[] cameraDirectionAxisUp = { 0, 1, 0 };
         double cameraDistance = calculateCameraDistance(structure);
         Location cameraLocation = lookAt(structureCenter, cameraDirectionAxisUp, cameraDistance);
         takePicture(cameraLocation, (GoogleFile file) -> {
@@ -110,14 +112,44 @@ public class ImageUtils {
     // calculates how far the camera has to be from a structure at a specified fov
     // for all of it to fit in the view
     private static double calculateCameraDistance(Structure structure) {
-        return 0; // TODO
+        // Location structureCenter = structure.getLocation();
+        Location[] bounds = structure.getBounds();
+
+        // the corner of lowest x, y, and z
+        Location bottomBounds = bounds[0];
+        // the corner of highest x, y, and z
+        Location topBounds = bounds[1];
+
+        double width = Math.abs(topBounds.getX() - bottomBounds.getX());
+        double height = Math.abs(topBounds.getY() - bottomBounds.getY());
+        double depth = Math.abs(topBounds.getZ() - bottomBounds.getZ());
+
+        double maxDimension = Math.max(width, Math.max(height, depth));
+        return (maxDimension / 2) / Math.tan(fov / 2);
     }
 
     // takes in the location for the camera to look at
-    // a normalized directional vector for the axis to move the camera along compared to the target
-    // and how far (magnitude) the camera should move along this axis from the look target
+    // a normalized directional vector for the axis to move the camera along
+    // compared to the target
+    // and how far (magnitude) the camera should move along this axis from the look
+    // target
     // returns the computed Location for our camera with the included look direction
     private static Location lookAt(Location target, double[] cameraDirection, double cameraDistance) {
-        return null; // TODO
+        // translate along axis
+        double cameraX = target.getX() + cameraDirection[0] * cameraDistance;
+        double cameraY = target.getY() + cameraDirection[1] * cameraDistance;
+        double cameraZ = target.getZ() + cameraDirection[2] * cameraDistance;
+
+        // calculate look direction
+
+        double dx = target.getX() - cameraX;
+        double dy = target.getY() - cameraY;
+        double dz = target.getZ() - cameraZ;
+
+        float yaw = (float) Math.toDegrees(Math.atan2(-dx, dz));
+        double horizontalDistance = Math.sqrt(dx * dx + dz * dz);
+        float pitch = (float) Math.toDegrees(Math.atan2(dy, horizontalDistance));
+
+        return new Location(target.getWorld(), cameraX, cameraY, cameraZ, yaw, pitch);
     }
 }
