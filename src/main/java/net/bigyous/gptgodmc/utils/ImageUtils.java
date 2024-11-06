@@ -99,13 +99,13 @@ public class ImageUtils {
     }
 
     // takes a picture of the given structure
-    public static void takePicture(Structure structure) {
+    public static void takePicture(Structure structure, String structureName) {
         Location structureCenter = structure.getLocation();
         double[] cameraDirectionAxisUp = { 0, 1, 0 };
         double cameraDistance = calculateCameraDistance(structure);
         Location cameraLocation = lookAt(structureCenter, cameraDirectionAxisUp, cameraDistance);
         takePicture(cameraLocation, (GoogleFile file) -> {
-            // todo
+            GoogleVision.lookAtStructure("God", structureName, file);
         });
     }
 

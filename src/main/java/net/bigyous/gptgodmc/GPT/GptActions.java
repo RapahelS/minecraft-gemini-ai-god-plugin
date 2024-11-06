@@ -307,10 +307,23 @@ public class GptActions {
                 StructureManager.getStructure(structure).getLocation().createExplosion(power, setFire, true);
                 EventLogger.addLoggable(new GPTActionLoggable(String.format("detonated Structure: %s", structure)));
         };
-        private static Function<JsonObject> lookThroughPlayerEyes = (JsonObject args) -> {
-                String playerName = gson.fromJson(args.get("playerName"), String.class);
-                Player player = GPTGOD.SERVER.getPlayer(playerName);
-                ImageUtils.takePicture(player);
+        // private static Function<JsonObject> lookThroughPlayerEyes = (JsonObject args) -> {
+        //         String playerName = gson.fromJson(args.get("playerName"), String.class);
+        //         Player player = GPTGOD.SERVER.getPlayer(playerName);
+        //         ImageUtils.takePicture(player);
+        // };
+        private static Function<JsonObject> lookAtStructure = (JsonObject args) -> {
+                String structureName = gson.fromJson(args.get("structureName"), String.class);
+                if (structureName == null) {
+                        GPTGOD.LOGGER.warn("gptGod called lookAtStructure with null structureName");
+                        return;
+                }
+                Structure structure = StructureManager.getStructure(structureName);
+                if (structure == null) {
+                        GPTGOD.LOGGER.warn("gptGod called lookAtStructure with non existant structure name " + structureName);
+                        return;
+                } 
+                ImageUtils.takePicture(structure, structureName);
         };
         private static Map<String, FunctionDeclaration> functionMap = Map.ofEntries(
                         Map.entry("decree", new FunctionDeclaration("decree",
@@ -423,12 +436,12 @@ public class GptActions {
                                                         new Schema(Schema.Type.INTEGER,
                                                                         "the strength of this explosion where 4 is the strength of TNT"))),
                                         detonateStructure)),
-                        Map.entry("lookThroughPlayerEyes", new FunctionDeclaration("lookThroughPlayerEyes",
-                                        "take a picture through the eyes of playerName to view what they are looking at. Once the picture is taken it is sent to the vision api to describe what is being seen.",
-                                        new Schema(Map.of("playerName",
+                        Map.entry("lookAtStructure", new FunctionDeclaration("lookAtStructure",
+                                        "request to view what a specific structure looks like. A render request will be sent off, and the resulting image will later be sent to the vision api to describe what it sees for you.",
+                                        new Schema(Map.of("structureName",
                                                         new Schema(Schema.Type.STRING,
-                                                                        "name of the player to look through the eyes of"))),
-                                        lookThroughPlayerEyes)));
+                                                                        "the exact name of the structure to look at"))),
+                                                                        lookAtStructure)));
         // private static Map<String, FunctionDeclaration> speechFunctionMap = new
         // HashMap<>(functionMap);
         // private static Map<String, FunctionDeclaration> actionFunctionMap = new

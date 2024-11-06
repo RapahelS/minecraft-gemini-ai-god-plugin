@@ -25,7 +25,7 @@ public class CameraItemListener implements Listener {
     // might add this to config file later
     static final int MIN_PHOTO_DELY_SECONDS = 5;
     // rate limiter
-    Map<UUID, Instant> lastPlayerPhoto = new HashMap<>();
+    static Map<UUID, Instant> lastPlayerPhoto = new HashMap<>();
 
     @EventHandler
     public void onClick(final PlayerInteractEvent event) {

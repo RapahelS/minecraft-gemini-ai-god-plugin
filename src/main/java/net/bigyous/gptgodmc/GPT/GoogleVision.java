@@ -83,6 +83,7 @@ public class GoogleVision {
 
     // handles the results when gemini vision finishes processing
     private static Function<JsonObject> describeStructure = (JsonObject args) -> {
+        GPTGOD.LOGGER.info("received vision response: " + args.toString());
         DescribeStructureParams params = gson.fromJson(args, DescribeStructureParams.class);
 
         if (params == null) {
@@ -103,6 +104,7 @@ public class GoogleVision {
     };
 
     private static Function<JsonObject> critiquePhoto = (JsonObject args) -> {
+        GPTGOD.LOGGER.info("received vision response: " + args.toString());
         CritiquePhotoParams params = gson.fromJson(args, CritiquePhotoParams.class);
 
         if(params == null) {

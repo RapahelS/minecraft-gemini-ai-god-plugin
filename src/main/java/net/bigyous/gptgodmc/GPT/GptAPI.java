@@ -493,26 +493,26 @@ public class GptAPI {
             this.totalTokens = promptTokenCount;
         }
 
-        for (Candidate cand : responseObject.getCandidates()) {
-            ArrayList<Part> parts = cand.getContent().getParts();
-            if (parts == null) {
-                continue;
-            }
+        Candidate cand = responseObject.getCandidates()[0];
+        ArrayList<Part> parts = cand.getContent().getParts();
+        if (parts == null) {
+            return;
+        }
 
             // add non null candidates to response history for multi-turn
             this.addResponse(cand.getContent());
 
-            for (Part call : parts) {
-                FunctionCall func = call.getFunctionCall();
-                if (func == null) {
-                    continue;
-                }
-                Bukkit.getScheduler().runTask(plugin, () -> {
-                    System.out.println("Trying to execute function " + func.getName() + " from map with args: "
-                            + func.getArguments());
-                    functions.get(func.getName()).runFunction(func.getArguments());
-                });
+        for (Part call : parts) {
+            FunctionCall func = call.getFunctionCall();
+            if (func == null) {
+                continue;
             }
+            Bukkit.getScheduler().runTask(plugin, () -> {
+                System.out.println("Trying to execute function " + func.getName() + " from map with args: "
+                        + func.getArguments());
+                functions.get(func.getName()).runFunction(func.getArguments());
+            });
         }
+        
     }
 }
