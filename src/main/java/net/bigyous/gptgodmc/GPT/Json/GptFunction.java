@@ -1,7 +1,7 @@
 package net.bigyous.gptgodmc.GPT.Json;
 
 import net.bigyous.gptgodmc.GPTGOD;
-import net.bigyous.gptgodmc.interfaces.Function;
+import net.bigyous.gptgodmc.interfaces.SimpFunction;
 import net.bigyous.gptgodmc.utils.GPTUtils;
 import java.util.Map;
 
@@ -11,9 +11,9 @@ public class GptFunction {
     private String name;
     private String description;
     private FunctionParameters parameters;
-    private transient Function<JsonObject> function;
+    private transient SimpFunction<JsonObject> function;
 
-    public GptFunction(String name, String description, Map<String, Parameter> params, Function<JsonObject> function) {
+    public GptFunction(String name, String description, Map<String, Parameter> params, SimpFunction<JsonObject> function) {
         this.name = name;
         this.description = description;
         this.parameters = new FunctionParameters("object", params);
@@ -44,7 +44,7 @@ public class GptFunction {
         this.parameters = parameters;
     }
 
-    public Function<JsonObject> getFunction() {
+    public SimpFunction<JsonObject> getFunction() {
         return function;
     }
 

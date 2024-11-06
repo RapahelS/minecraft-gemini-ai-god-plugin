@@ -15,7 +15,7 @@ import net.bigyous.gptgodmc.GPT.Json.Content;
 import net.bigyous.gptgodmc.GPT.Json.FunctionCall;
 import net.bigyous.gptgodmc.GPT.Json.Content.Role;
 import net.bigyous.gptgodmc.enums.GptGameMode;
-import net.bigyous.gptgodmc.interfaces.Function;
+import net.bigyous.gptgodmc.interfaces.SimpFunction;
 import net.bigyous.gptgodmc.loggables.CommandLoggable;
 import net.bigyous.gptgodmc.utils.CommandHelper;
 
@@ -26,7 +26,7 @@ import org.bukkit.command.CommandException;
 
 public class GenerateCommands {
         private static Gson gson = new Gson();
-        private static Function<JsonObject> inputCommands = (JsonObject args) -> {
+        private static SimpFunction<JsonObject> inputCommands = (JsonObject args) -> {
                 String[] commands = gson.fromJson(args.get("commands"), String[].class);
                 try {
                         String output = CommandHelper.executeCommands(commands);

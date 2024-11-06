@@ -22,7 +22,7 @@ import net.bigyous.gptgodmc.Structure;
 import net.bigyous.gptgodmc.StructureManager;
 import net.bigyous.gptgodmc.GPT.GoogleFile;
 import net.bigyous.gptgodmc.GPT.GoogleVision;
-import net.bigyous.gptgodmc.interfaces.Function;
+import net.bigyous.gptgodmc.interfaces.SimpFunction;
 
 public class ImageUtils {
 
@@ -49,7 +49,7 @@ public class ImageUtils {
     }
 
     // takes a picture from the given camera location
-    public static void takePicture(Location cameraLocation, String pictureName, Function<GoogleFile> resultCallback) {
+    public static void takePicture(Location cameraLocation, String pictureName, SimpFunction<GoogleFile> resultCallback) {
         ImageCapture capture = new ImageCapture(cameraLocation,
                 ImageCaptureOptions.builder().fov(fov).showDepth(true).build());
 
@@ -82,7 +82,7 @@ public class ImageUtils {
     }
 
     // same as takePicture(Location) but with a default picture name
-    public static void takePicture(Location location, Function<GoogleFile> resultCallback) {
+    public static void takePicture(Location location, SimpFunction<GoogleFile> resultCallback) {
         takePicture(location, "MINECRAFT_PICTURE", resultCallback);
     }
 

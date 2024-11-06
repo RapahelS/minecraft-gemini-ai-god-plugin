@@ -6,7 +6,7 @@ import java.util.List;
 import com.google.gson.JsonObject;
 
 import net.bigyous.gptgodmc.GPTGOD;
-import net.bigyous.gptgodmc.interfaces.Function;
+import net.bigyous.gptgodmc.interfaces.SimpFunction;
 import net.bigyous.gptgodmc.utils.GPTUtils;
 
 public class FunctionDeclaration {
@@ -14,9 +14,9 @@ public class FunctionDeclaration {
     private String description;
     private Schema parameters;
     // excluded from serialization
-    private transient Function<JsonObject> function;
+    private transient SimpFunction<JsonObject> function;
 
-    public FunctionDeclaration(String name, String description, Schema parameters, Function<JsonObject> function) {
+    public FunctionDeclaration(String name, String description, Schema parameters, SimpFunction<JsonObject> function) {
         this.name = name;
         this.description = description;
         this.parameters = parameters;
@@ -54,7 +54,7 @@ public class FunctionDeclaration {
         this.parameters = parameters;
     }
 
-    public Function<JsonObject> getFunction() {
+    public SimpFunction<JsonObject> getFunction() {
         return function;
     }
 

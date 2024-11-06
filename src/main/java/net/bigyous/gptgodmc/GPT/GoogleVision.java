@@ -2,6 +2,7 @@ package net.bigyous.gptgodmc.GPT;
 
 import java.util.Arrays;
 import java.util.Map;
+import java.util.function.Function;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -9,11 +10,12 @@ import com.google.gson.JsonObject;
 import net.bigyous.gptgodmc.EventLogger;
 import net.bigyous.gptgodmc.GPTGOD;
 import net.bigyous.gptgodmc.StructureManager;
+import net.bigyous.gptgodmc.GPT.GoogleVision.CritiquePhotoParams;
 import net.bigyous.gptgodmc.GPT.Json.FunctionDeclaration;
 import net.bigyous.gptgodmc.GPT.Json.Schema;
 import net.bigyous.gptgodmc.GPT.Json.Tool;
 import net.bigyous.gptgodmc.enums.GptGameMode;
-import net.bigyous.gptgodmc.interfaces.Function;
+import net.bigyous.gptgodmc.interfaces.SimpFunction;
 import net.bigyous.gptgodmc.loggables.CameraEventLoggable;
 import net.bigyous.gptgodmc.loggables.Loggable;
 import net.kyori.adventure.text.Component;
@@ -82,7 +84,7 @@ public class GoogleVision {
     // new TaskQueue<>((DescribeStructureRequest buffer) -> {});
 
     // handles the results when gemini vision finishes processing
-    private static Function<JsonObject> describeStructure = (JsonObject args) -> {
+    private static SimpFunction<JsonObject> describeStructure = (JsonObject args) -> {
         GPTGOD.LOGGER.info("received vision response: " + args.toString());
         DescribeStructureParams params = gson.fromJson(args, DescribeStructureParams.class);
 
@@ -103,7 +105,7 @@ public class GoogleVision {
                 params.getIsItUgly(), params.getPhotographer()));
     };
 
-    private static Function<JsonObject> critiquePhoto = (JsonObject args) -> {
+    private static SimpFunction<JsonObject> critiquePhoto = (JsonObject args) -> {
         GPTGOD.LOGGER.info("received vision response: " + args.toString());
         CritiquePhotoParams params = gson.fromJson(args, CritiquePhotoParams.class);
 

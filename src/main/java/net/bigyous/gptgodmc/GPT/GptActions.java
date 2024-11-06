@@ -3,6 +3,7 @@ package net.bigyous.gptgodmc.GPT;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.Arrays;
 
 import org.bukkit.Bukkit;
@@ -28,7 +29,7 @@ import net.bigyous.gptgodmc.WorldManager;
 import net.bigyous.gptgodmc.GPT.Json.FunctionDeclaration;
 import net.bigyous.gptgodmc.GPT.Json.Schema;
 import net.bigyous.gptgodmc.GPT.Json.Tool;
-import net.bigyous.gptgodmc.interfaces.Function;
+import net.bigyous.gptgodmc.interfaces.SimpFunction;
 import net.bigyous.gptgodmc.loggables.GPTActionLoggable;
 import net.bigyous.gptgodmc.utils.BukkitUtils;
 import net.bigyous.gptgodmc.utils.CommandHelper;
@@ -74,7 +75,7 @@ public class GptActions {
         // in hindsight, I should have used an interface or abstract class to do this
         // but oh well...
 
-        private static Function<JsonObject> whisper = (JsonObject args) -> {
+        private static SimpFunction<JsonObject> whisper = (JsonObject args) -> {
                 TypeToken<Map<String, String>> mapType = new TypeToken<Map<String, String>>() {
                 };
                 Map<String, String> argsMap = gson.fromJson(args, mapType);
@@ -88,11 +89,11 @@ public class GptActions {
                 return;
         };
 
-        private static Function<JsonObject> announce = (JsonObject args) -> {
+        private static SimpFunction<JsonObject> announce = (JsonObject args) -> {
                 String message = gson.fromJson(args.get("message"), String.class);
                 staticAnnounce(message);
         };
-        private static Function<JsonObject> giveItem = (JsonObject argObject) -> {
+        private static SimpFunction<JsonObject> giveItem = (JsonObject argObject) -> {
                 String playerName = gson.fromJson(argObject.get("playerName"), String.class);
                 String itemId = gson.fromJson(argObject.get("itemId"), String.class);
                 int count = gson.fromJson(argObject.get("count"), Integer.class);
@@ -105,12 +106,12 @@ public class GptActions {
                 EventLogger.addLoggable(
                                 new GPTActionLoggable(String.format("gave %d %s to %s", count, itemId, playerName)));
         };
-        private static Function<JsonObject> command = (JsonObject args) -> {
+        private static SimpFunction<JsonObject> command = (JsonObject args) -> {
                 String prompt = gson.fromJson(args.get("prompt"), String.class);
                 GenerateCommands.generate(prompt);
                 EventLogger.addLoggable(new GPTActionLoggable(String.format("commanded \"%s\" to happen", prompt)));
         };
-        private static Function<JsonObject> smite = (JsonObject argObject) -> {
+        private static SimpFunction<JsonObject> smite = (JsonObject argObject) -> {
                 String playerName = gson.fromJson(argObject.get("playerName"), String.class);
                 int power = gson.fromJson(argObject.get("power"), Integer.class);
                 Player player = GPTGOD.SERVER.getPlayer(playerName);
@@ -119,7 +120,7 @@ public class GptActions {
                 }
                 EventLogger.addLoggable(new GPTActionLoggable(String.format("smited %s", playerName)));
         };
-        private static Function<JsonObject> spawnEntity = (JsonObject argObject) -> {
+        private static SimpFunction<JsonObject> spawnEntity = (JsonObject argObject) -> {
                 String position = gson.fromJson(argObject.get("position"), String.class);
                 String entityName = gson.fromJson(argObject.get("entity"), String.class);
                 int count = gson.fromJson(argObject.get("count"), Integer.class);
@@ -149,7 +150,7 @@ public class GptActions {
                                 entityName, customName != null ? String.format(" named: %s,", customName) : "",
                                 position)));
         };
-        private static Function<JsonObject> summonSupplyChest = (JsonObject argObject) -> {
+        private static SimpFunction<JsonObject> summonSupplyChest = (JsonObject argObject) -> {
                 TypeToken<List<String>> stringArrayType = new TypeToken<List<String>>() {
                 };
                 String playerName = gson.fromJson(argObject.get("playerName"), String.class);
@@ -181,7 +182,7 @@ public class GptActions {
                                                 String.join(", ", itemNames), playerName)));
 
         };
-        private static Function<JsonObject> transformStructure = (JsonObject argObject) -> {
+        private static SimpFunction<JsonObject> transformStructure = (JsonObject argObject) -> {
                 String structure = gson.fromJson(argObject.get("structure"), String.class);
                 String blockType = gson.fromJson(argObject.get("block"), String.class);
                 Structure structureObj = StructureManager.getStructure(structure);
@@ -235,7 +236,7 @@ public class GptActions {
                                 String.format("turned all the blocks in Structure %s to %s", structure, blockType)));
 
         };
-        private static Function<JsonObject> revive = (JsonObject args) -> {
+        private static SimpFunction<JsonObject> revive = (JsonObject args) -> {
                 TypeToken<Map<String, String>> mapType = new TypeToken<Map<String, String>>() {
                 };
                 Map<String, String> argsMap = gson.fromJson(args, mapType);
@@ -253,7 +254,7 @@ public class GptActions {
                 player.setGameMode(GameMode.SURVIVAL);
                 EventLogger.addLoggable(new GPTActionLoggable(String.format("revived %s", playerName)));
         };
-        private static Function<JsonObject> teleport = (JsonObject args) -> {
+        private static SimpFunction<JsonObject> teleport = (JsonObject args) -> {
                 TypeToken<Map<String, String>> mapType = new TypeToken<Map<String, String>>() {
                 };
                 Map<String, String> argsMap = gson.fromJson(args, mapType);
@@ -268,7 +269,7 @@ public class GptActions {
                 EventLogger.addLoggable(
                                 new GPTActionLoggable(String.format("teleported %s to %s", playerName, destName)));
         };
-        private static Function<JsonObject> setObjective = (JsonObject args) -> {
+        private static SimpFunction<JsonObject> setObjective = (JsonObject args) -> {
                 String objective = gson.fromJson(args.get("objective"), String.class);
 
                 Score score = GPTGOD.GPT_OBJECTIVES
@@ -282,7 +283,7 @@ public class GptActions {
                 EventLogger.addLoggable(new GPTActionLoggable(String.format("set objective %s", objective)));
 
         };
-        private static Function<JsonObject> clearObjective = (JsonObject args) -> {
+        private static SimpFunction<JsonObject> clearObjective = (JsonObject args) -> {
                 String objective = gson.fromJson(args.get("objective"), String.class);
                 GPTGOD.GPT_OBJECTIVES.getScore(objective).resetScore();
                 if (GPTGOD.SCOREBOARD.getEntries().stream().filter(entry -> GPTGOD.SERVER.getPlayer(entry) == null)
@@ -293,26 +294,27 @@ public class GptActions {
                                 new GPTActionLoggable(String.format("declared objective %s as completed", objective)));
 
         };
-        private static Function<JsonObject> decreeMessage = (JsonObject args) -> {
+        private static SimpFunction<JsonObject> decreeMessage = (JsonObject args) -> {
                 String name = gson.fromJson(args.get("playerName"), String.class);
                 String message = gson.fromJson(args.get("message"), String.class);
                 CommandHelper.executeCommand(String.format(
                                 "execute at %s run summon armor_stand ~ ~1 ~ {Invisible:1b,Invulnerable:1b,NoGravity:1b,Marker:1b,CustomName:'{\"text\":\"%s\",\"color\":\"red\",\"bold\":true,\"italic\":true,\"strikethrough\":false,\"underlined\":true}',CustomNameVisible:1b}",
                                 name, message));
         };
-        private static Function<JsonObject> detonateStructure = (JsonObject argObject) -> {
+        private static SimpFunction<JsonObject> detonateStructure = (JsonObject argObject) -> {
                 String structure = gson.fromJson(argObject.get("structure"), String.class);
                 boolean setFire = gson.fromJson(argObject.get("setFire"), Boolean.class);
                 int power = gson.fromJson(argObject.get("power"), Integer.class);
                 StructureManager.getStructure(structure).getLocation().createExplosion(power, setFire, true);
                 EventLogger.addLoggable(new GPTActionLoggable(String.format("detonated Structure: %s", structure)));
         };
-        // private static Function<JsonObject> lookThroughPlayerEyes = (JsonObject args) -> {
-        //         String playerName = gson.fromJson(args.get("playerName"), String.class);
-        //         Player player = GPTGOD.SERVER.getPlayer(playerName);
-        //         ImageUtils.takePicture(player);
+        // private static Function<JsonObject> lookThroughPlayerEyes = (JsonObject args)
+        // -> {
+        // String playerName = gson.fromJson(args.get("playerName"), String.class);
+        // Player player = GPTGOD.SERVER.getPlayer(playerName);
+        // ImageUtils.takePicture(player);
         // };
-        private static Function<JsonObject> lookAtStructure = (JsonObject args) -> {
+        private static SimpFunction<JsonObject> lookAtStructure = (JsonObject args) -> {
                 String structureName = gson.fromJson(args.get("structureName"), String.class);
                 if (structureName == null) {
                         GPTGOD.LOGGER.warn("gptGod called lookAtStructure with null structureName");
@@ -320,9 +322,10 @@ public class GptActions {
                 }
                 Structure structure = StructureManager.getStructure(structureName);
                 if (structure == null) {
-                        GPTGOD.LOGGER.warn("gptGod called lookAtStructure with non existant structure name " + structureName);
+                        GPTGOD.LOGGER.warn("gptGod called lookAtStructure with non existant structure name "
+                                        + structureName);
                         return;
-                } 
+                }
                 ImageUtils.takePicture(structure, structureName);
         };
         private static Map<String, FunctionDeclaration> functionMap = Map.ofEntries(
@@ -441,7 +444,7 @@ public class GptActions {
                                         new Schema(Map.of("structureName",
                                                         new Schema(Schema.Type.STRING,
                                                                         "the exact name of the structure to look at"))),
-                                                                        lookAtStructure)));
+                                        lookAtStructure)));
         // private static Map<String, FunctionDeclaration> speechFunctionMap = new
         // HashMap<>(functionMap);
         // private static Map<String, FunctionDeclaration> actionFunctionMap = new

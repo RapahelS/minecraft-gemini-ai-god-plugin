@@ -1,14 +1,14 @@
 package net.bigyous.gptgodmc.utils;
 
-import net.bigyous.gptgodmc.interfaces.Function;
+import net.bigyous.gptgodmc.interfaces.SimpFunction;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 class Task<T> implements Runnable {
-    private Function<T> task;
+    private SimpFunction<T> task;
     private T object;
 
-    public Task(Function<T> task, T object) {
+    public Task(SimpFunction<T> task, T object) {
         this.task = task;
         this.object = object;
     }
@@ -19,10 +19,10 @@ class Task<T> implements Runnable {
 }
 
 public class TaskQueue<T> {
-    private Function<T> task;
+    private SimpFunction<T> task;
     private ExecutorService pool;
 
-    public TaskQueue(Function<T> task) {
+    public TaskQueue(SimpFunction<T> task) {
         this.task = task;
         this.pool = Executors.newCachedThreadPool();
     }
