@@ -29,21 +29,28 @@ Todo:
 
 - clone the repo
 - run `./gradlew` in the root of the repo
-- download [paper mc server version 1.20.4](https://papermc.io/downloads/paper)
+- download [paper mc server version 1.21.1](https://papermc.io/downloads/paper)
 - setup the server
-- download [voicechat bukkit plugin 2.5.1](https://modrinth.com/plugin/simple-voice-chat/version/bukkit-2.5.1)
-- place the jar in the plugins folder of your server
-- [install fabric for 1.20.4](https://fabricmc.net/use/installer/)
-- download [the voice chat mod version 1.20.4-2.5.4 for fabric](https://modrinth.com/plugin/simple-voice-chat/version/fabric-1.20.4-2.5.4)
-- place that in your mods folder in .minecraft
+- download [voicechat bukkit plugin 2.5.24](https://modrinth.com/plugin/simple-voice-chat/version/bukkit-2.5.24)
+- download [imagery api 1.2.1](https://github.com/jensjeflensje/minecraft_imagery/releases/tag/1.2.1)
+- 
+- place the jar files in the plugins folder of your server
+- [install fabric for 1.21.1](https://fabricmc.net/use/installer/)
+- [download the fabric api jar for extra mod compatibility](https://www.curseforge.com/minecraft/mc-mods/fabric-api/files/5848063)
+- download [the voice chat mod version 1.21.1-2.5.24 for fabric](https://modrinth.com/plugin/simple-voice-chat/version/fabric-1.21.4-2.5.24)
+- place those in your mods folder in .minecraft
+- (Optional) [install iris + sodium](https://www.irisshaders.dev/) and [BSL Shaders](https://www.curseforge.com/minecraft/shaders/bsl-shaders) for a more godly experience
 
 ## Config
 - Get a free gemini api key from [aistudio.google.com/](https://aistudio.google.com/)
 - Get a free speechify api key from [console.sws.speechify.com/tts](https://console.sws.speechify.com/tts)
+- configure primary model to be `model-name: gemini-1.5-pro` for smarter role-play output at slower speeds. Both models are fun, so give them both a try
 - configure primary model to be `model-name: gemini-1.5-flash` if you want fast model times such as `rate: 30` or below.
-    - Note: Do not go below 30-32 on the free tier pro model or you will hit your 2 requests per minute and 50 requests per day fast
+    - **NOTE:** Do not go below 30-32 on the free tier pro model or you will hit your 2 requests per minute and 50 requests per day fast
+    - **NOTE:** if you set your primary model to `gemini-1.5-flash` then set secondary to `gemini-1.5-flash-8b` as free-tier rate limits are per-model name
+    - **do not** use the `1.0` models or other models which are not [multimodal](https://cloud.google.com/use-cases/multimodal-ai) for secondary model. This program relies on the audio and visual processing of the latest Gemini 1.5 models.
     - the flash model can go below 20 and performs quite nicely with the rapid feedback
-    - for best experience try setting both models to `gemini-1.5-flash` and try a rate of about `rate: 20` to `rate: 30`
+    - for a fast-feedback experience try setting both models to `gemini-1.5-flash` and try a rate of about `rate: 20` to `rate: 30`
     - do NOT use `gemini-1.5-pro` as the secondary model
 
 ## Building
@@ -52,9 +59,38 @@ Todo:
 - the jar will appear in build/libs
 - place this jar in the plugins folder of the server
 
+## Development
+
+*development requires jdk 21 and gradle version 7.4*
+
+Workspace has been setup for VSCode as well.
+
+plugin jar releases show up under `<project_dir>\build\libs`
+
+## Windows
+A release build may be generated with the included bat file for convenience.
+```bash
+I:\DEVELOPER\PROJECTS\minecraft-gpt-god-plugin>gradlew shadowJar
+Starting a Gradle Daemon, 2 incompatible and 1 stopped Daemons could not be reused, use --status for details
+
+BUILD SUCCESSFUL in 3s
+3 actionable tasks: 3 up-to-date
+I:\DEVELOPER\PROJECTS\minecraft-gpt-god-plugin>
+```
+
+## *Nix
+
+install gradle 7.4, and jdk 21 then:
+
+```bash
+~> gradle shadowJar
+```
+
 ## Dependencies
 
-to add a dependency add it like this:
+to add an additional dependency add it like this:
+
+*build.gradle*
 
 ``` Groovy
 
@@ -72,8 +108,10 @@ shadowJar {
 
 ## Running
 
-- go to `plugins/gptgodmc/config.yml`
-- paste in your OpenAi API or Gemini key
-- run the server
-- launch minecraft with fabric
-- connect to the server at `localhost`
+- run the server once then go to `plugins/gptgodmc/config.yml`
+- paste in your ~~OpenAi API or~~ Gemini key
+- run the server again
+- launch minecraft with fabric (make sure voice chat mod is installed)
+- **NOTE:** on MacOS you need to use a [launcher such as prisim](https://prismlauncher.org/) to allow microphone access permission to for the plugin
+  - [more info here](https://modrepo.de/minecraft/voicechat/wiki/macos)
+- finally, connect to the server at `localhost`
