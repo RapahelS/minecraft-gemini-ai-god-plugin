@@ -47,7 +47,8 @@ public class GiveCameraCommand implements CommandExecutor {
     }
 
     public static boolean isItemValidCamera(ItemStack item) {
-        return item.getItemMeta().getPersistentDataContainer().get(godCameraKey, PersistentDataType.BOOLEAN).booleanValue();
+        Boolean data = item.getItemMeta().getPersistentDataContainer().get(godCameraKey, PersistentDataType.BOOLEAN);
+        return data != null && data.booleanValue();
     }
     
     @Override
