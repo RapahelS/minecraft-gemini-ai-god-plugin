@@ -84,17 +84,26 @@ public class StructureManager implements Listener {
     }
 
     // for the AI to rename a structure and declare it pretty or ugly
-    public static boolean updateStructureDetails(String originalStructureName, String newStructureName, String description, boolean isItUgly) {
-        Structure structure = structures.remove(originalStructureName);
-        if(structure == null) {
-            GPTGOD.LOGGER.error(String.format("Failed to update the %s structure %s to new name %s.", isItUgly ? "ugly" : "pretty", originalStructureName, newStructureName));
+    public static boolean updateStructureDetails(String originalStructureName, String newStructureName,
+            String description, boolean isItUgly) {
+        Structure structure = structures.get(originalStructureName);
+        if (structure == null) {
+            GPTGOD.LOGGER.error(String.format("Failed to update the %s structure %s to new name %s.",
+                    isItUgly ? "ugly" : "pretty", originalStructureName, newStructureName));
             return false;
+        }
+
+        // fall back to original structure name
+        if (newStructureName == null || newStructureName.length() < 1) {
+            newStructureName = originalStructureName;
         }
 
         structure.setCritique(isItUgly);
         structure.setDescription(description);
         // insert the structure under the new name
         structures.put(newStructureName, structure);
+        // replace structure in place
+        // structures.put(originalStructureName, structure);
 
         return true;
     }
@@ -107,6 +116,10 @@ public class StructureManager implements Listener {
 
     public static List<String> getStructures() {
         return structures.keySet().stream().filter(key -> structures.get(key).getSize() > 20).toList();
+    }
+
+    public static List<String> getAllStructures() {
+        return structures.keySet().stream().toList();
     }
 
     public static Structure getStructure(String name) {
@@ -204,25 +217,27 @@ public class StructureManager implements Listener {
         }
     }
 
-    public static String getDisplayString() {
-        Object[] structures = StructureManager.getStructures().stream().map((String key) -> {
+    public static String getDisplayString(boolean getAll) {
+        List<String> structureNames = getAll ? StructureManager.getAllStructures() : StructureManager.getStructures();
+        Object[] structures = structureNames.stream().map((String key) -> {
             Structure structure = StructureManager.getStructure(key);
 
             String critique = "";
-            if(structure.getCritique() == CiritiqueStatus.PRETTY) {
+            if (structure.getCritique() == CiritiqueStatus.PRETTY) {
                 critique = "Pretty ";
             } else if (structure.getCritique() == CiritiqueStatus.UGLY) {
                 critique = "Ugly ";
             }
 
-            return String.format("%s%s built by %s (at %s)",
-                    critique,
-                    key,
-                    structure.getBuilder().getName(),
+            return String.format("%s%s built by %s (at %s)", critique, key, structure.getBuilder().getName(),
                     structure.getLocation().toVector().toString());
         }).toArray();
 
         // explicitly tell the LLM if the array is empty
         return (structures.length > 0) ? Arrays.toString(structures) : "NONE";
+    }
+
+    public static String getDisplayString() {
+        return getDisplayString(false);
     }
 }

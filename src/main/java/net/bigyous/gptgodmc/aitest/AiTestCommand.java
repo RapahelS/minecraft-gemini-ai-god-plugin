@@ -141,7 +141,7 @@ public class AiTestCommand implements CommandExecutor {
         switch (args[0].toLowerCase()) {
         case "list":
         case "l":
-            sender.sendMessage(StructureManager.getDisplayString());
+            sender.sendMessage(StructureManager.getDisplayString(true));
             break;
         case "info":
         case "i":
