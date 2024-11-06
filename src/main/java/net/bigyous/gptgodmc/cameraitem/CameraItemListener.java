@@ -35,7 +35,8 @@ public class CameraItemListener implements Listener {
             return;
 
         Player player = event.getPlayer();
-        Instant lastTime = lastPlayerPhoto.get(player.getUniqueId());
+        UUID playerId = player.getUniqueId();
+        Instant lastTime = lastPlayerPhoto.get(playerId);
         Instant currentTime = Instant.now();
         if (lastTime == null || Duration.between(lastTime, currentTime).getSeconds() > MIN_PHOTO_DELY_SECONDS) {
             ItemStack hand = player.getInventory().getItemInMainHand();
@@ -47,7 +48,7 @@ public class CameraItemListener implements Listener {
             ImageUtils.takePicture(player);
             player.sendMessage("Snapped a photo for god");
             // set the last time a photo was taken
-            lastTime = Instant.now();
+            lastPlayerPhoto.put(playerId, Instant.now());
         } else {
             player.sendMessage(String.format("You may only take a picture every %d seconds.", MIN_PHOTO_DELY_SECONDS)
                     + ChatColor.RED);
