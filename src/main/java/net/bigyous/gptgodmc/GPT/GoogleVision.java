@@ -2,7 +2,6 @@ package net.bigyous.gptgodmc.GPT;
 
 import java.util.Arrays;
 import java.util.Map;
-import java.util.function.Function;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -10,7 +9,6 @@ import com.google.gson.JsonObject;
 import net.bigyous.gptgodmc.EventLogger;
 import net.bigyous.gptgodmc.GPTGOD;
 import net.bigyous.gptgodmc.StructureManager;
-import net.bigyous.gptgodmc.GPT.GoogleVision.CritiquePhotoParams;
 import net.bigyous.gptgodmc.GPT.Json.FunctionDeclaration;
 import net.bigyous.gptgodmc.GPT.Json.Schema;
 import net.bigyous.gptgodmc.GPT.Json.Tool;
