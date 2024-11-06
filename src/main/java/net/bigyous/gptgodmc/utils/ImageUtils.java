@@ -151,9 +151,19 @@ public class ImageUtils {
         double cameraZ = target.getZ() + dz;
 
         // get camera angle pointing at target
-        float yaw = (float) Math.toDegrees(Math.atan2(-dx, dz));
+        // float yaw = (float) Math.toDegrees(Math.atan2(-dx, dz));
         double horizontalDistance = Math.sqrt(dx * dx + dz * dz);
         float pitch = (float) Math.toDegrees(Math.atan2(dy, horizontalDistance));
+
+        // Calculate the direction vector from camera to target
+        double dirX = target.getX() - cameraX;
+        double dirY = target.getY() - cameraY;
+        double dirZ = target.getZ() - cameraZ;
+
+        // Calculate yaw
+        float yaw = (float) Math.toDegrees(Math.atan2(dirZ, dirX)) - 90; // adjust by 90 degrees for orientation
+        // Calculate pitch
+        // float pitch = (float) Math.toDegrees(Math.atan2(dirY, Math.sqrt(dirX * dirX + dirZ * dirZ)));
 
         return new Location(target.getWorld(), cameraX, cameraY, cameraZ, yaw, pitch);
     }
