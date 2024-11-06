@@ -49,7 +49,7 @@ public class ImageUtils {
 
     // takes a picture from the given camera location
     public static void takePicture(Location cameraLocation, String pictureName, Function<GoogleFile> resultCallback) {
-        ImageCapture capture = new ImageCapture(cameraLocation, ImageCaptureOptions.builder().fov(1).build());
+        ImageCapture capture = new ImageCapture(cameraLocation, ImageCaptureOptions.builder().fov(1).showDepth(true).build());
 
         // capture asynchronously as it may run for a while
         new BukkitRunnable() {
