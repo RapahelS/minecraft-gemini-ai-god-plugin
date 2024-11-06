@@ -4,10 +4,11 @@ Modified version of the [ChatGPT bukkit plugin by "BigYous"](https://github.com/
 What's Changed:
 
 - [x] Ported to google gemini from chatgpt
-    - [ ] context window is now one million for `gemini-1.5-flash` and 2 million for `gemini-1.5-pro`
+    - scrapped all openai support at the moment in favour of full gemini consistency for now
+    - [x] context window is now one million for `gemini-1.5-flash` and 2 million for `gemini-1.5-pro`
     - [x] Voice transcription requests are now bundled (to avoid api spam) and using the gemini 1.5 flash model
-      - [x] scrapped all openai support at the moment in favour of full gemini consistency
-- [x] Ported voice synthesis to Speechify (super godly narrator voice for free!)
+    
+- [x] Ported voice synthesis to Speechify (super godly narrator voice for free! IT EVEN BREATHES!)
 - [x] Improved context handling (cured the AI god of dementia)
 - [x] seperated model usage into "primary" and "secondary" model so that a cheaper model may be used for medial tasks
 - [x] decreased call count to primary model and unified commands and communication behaviour to one context 
@@ -18,12 +19,13 @@ What's Changed:
 - [x] added new decree function for the ai to drop floating commandments in the world if it is displeased
 - [x] added model tempurature configuration control to improve model creativity
 - [x] Rolling context expiry for new multi-turn when token limit is approaching
+- [x] Give the AI eyes using the papermc ImageryAPI and gemini vison api (so the AI can decide if your monuments to its honor are ugly or not)
+- [x] Created sequential but non-blocking thread queue for the api wrapper class (AsyncTaskQueue in GptAPI)
 
 Todo:
 
 - [ ] Maybe add option to choose between gemini and open ai?
-- [ ] Fix bug with events coming in after round restart
-- [ ] Give the AI eyes using the papermc ImageryAPI and gemini vison api (so the AI can decide if your monuments to its honor are ugly or not)
+- [ ] Fix bug with events coming in after round restart (cut off async threadpool of logger on reset or associate events with some kind of session id)
 
 ## Local Setup
 
