@@ -31,12 +31,12 @@ import net.bigyous.gptgodmc.GPT.Json.Tool;
 import net.bigyous.gptgodmc.interfaces.SimpFunction;
 import net.bigyous.gptgodmc.loggables.GPTActionLoggable;
 import net.bigyous.gptgodmc.utils.BukkitUtils;
-import net.bigyous.gptgodmc.utils.CommandHelper;
 import net.bigyous.gptgodmc.utils.GptObjectiveTracker;
 import net.bigyous.gptgodmc.utils.ImageUtils;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 
@@ -296,9 +296,21 @@ public class GptActions {
         private static SimpFunction<JsonObject> decreeMessage = (JsonObject args) -> {
                 String name = gson.fromJson(args.get("playerName"), String.class);
                 String message = gson.fromJson(args.get("message"), String.class);
-                CommandHelper.executeCommand(String.format(
-                                "execute at %s run summon armor_stand ~ ~1 ~ {Invisible:1b,Invulnerable:1b,NoGravity:1b,Marker:1b,CustomName:'{\"text\":\"%s\",\"color\":\"red\",\"bold\":true,\"italic\":true,\"strikethrough\":false,\"underlined\":true}',CustomNameVisible:1b}",
-                                name, message));
+                Player player = GPTGOD.SERVER.getPlayer(name);
+                if (player == null) {
+                        return;
+                }
+
+                Entity ent = player.getWorld().spawnEntity(player.getLocation(), EntityType.ARMOR_STAND);
+                ent.customName(Component.text(message).decorate(TextDecoration.BOLD, TextDecoration.UNDERLINED)
+                                .color(TextColor.color(255, 45, 45)));
+                // teehee
+                ent.setCustomNameVisible(true);
+                ent.setInvisible(true);
+                ent.setGravity(false);
+                ent.setInvulnerable(true);
+                ent.setVisualFire(true);
+                ent.setGlowing(true);
         };
         private static SimpFunction<JsonObject> detonateStructure = (JsonObject argObject) -> {
                 String structure = gson.fromJson(argObject.get("structure"), String.class);
