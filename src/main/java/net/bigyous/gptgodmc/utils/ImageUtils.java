@@ -143,6 +143,9 @@ public class ImageUtils {
     // returns the computed Location for our camera with the included look direction
     public static Location lookAt(Location target, Vector cameraDirection, double cameraDistance) {
         // translate along axis of cameraDirection (normal vec)
+        // force the cameraDirection normal vector into normal length
+        cameraDirection.normalize();
+
         double dx = cameraDirection.getX() * cameraDistance;
         double dy = cameraDirection.getY() * cameraDistance;
         double dz = cameraDirection.getZ() * cameraDistance;
@@ -151,18 +154,16 @@ public class ImageUtils {
         double cameraZ = target.getZ() + dz;
 
         // get camera angle pointing at target
-        // float yaw = (float) Math.toDegrees(Math.atan2(-dx, dz));
-        double horizontalDistance = Math.sqrt(dx * dx + dz * dz);
-        float pitch = (float) Math.toDegrees(Math.atan2(dy, horizontalDistance));
 
-        // Calculate the direction vector from camera to target
+        // Calculate the direction vector from camera to target (reverse the camera move direction)
         double reverseX = target.getX() - cameraX;
         double reverseZ = target.getZ() - cameraZ;
 
         // Calculate yaw
+        // float yaw = (float) Math.toDegrees(Math.atan2(-dx, -dz));
         float yaw = (float) Math.toDegrees(Math.atan2(reverseZ, reverseX)) - 90; // adjust by 90 degrees for orientation
-        // Calculate pitch
-        // float pitch = (float) Math.toDegrees(Math.atan2(dirY, Math.sqrt(dirX * dirX + dirZ * dirZ)));
+        double horizontalDistance = Math.sqrt(dx * dx + dz * dz);
+        float pitch = (float) Math.toDegrees(Math.atan2(dy, horizontalDistance));
 
         return new Location(target.getWorld(), cameraX, cameraY, cameraZ, yaw, pitch);
     }
