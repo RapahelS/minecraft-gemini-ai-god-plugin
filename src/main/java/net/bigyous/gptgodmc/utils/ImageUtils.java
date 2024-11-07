@@ -156,12 +156,11 @@ public class ImageUtils {
         float pitch = (float) Math.toDegrees(Math.atan2(dy, horizontalDistance));
 
         // Calculate the direction vector from camera to target
-        double dirX = target.getX() - cameraX;
-        double dirY = target.getY() - cameraY;
-        double dirZ = target.getZ() - cameraZ;
+        double reverseX = target.getX() - cameraX;
+        double reverseZ = target.getZ() - cameraZ;
 
         // Calculate yaw
-        float yaw = (float) Math.toDegrees(Math.atan2(dirZ, dirX)) - 90; // adjust by 90 degrees for orientation
+        float yaw = (float) Math.toDegrees(Math.atan2(reverseZ, reverseX)) - 90; // adjust by 90 degrees for orientation
         // Calculate pitch
         // float pitch = (float) Math.toDegrees(Math.atan2(dirY, Math.sqrt(dirX * dirX + dirZ * dirZ)));
 
