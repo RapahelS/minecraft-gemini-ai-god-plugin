@@ -17,17 +17,28 @@ import org.bukkit.util.Vector;
 
 import dev.jensderuiter.minecraft_imagery.image.ImageCapture;
 import dev.jensderuiter.minecraft_imagery.image.ImageCaptureOptions;
+import com.loohp.imageframe.ImageFrame;
+import com.loohp.imageframe.objectholders.DitheringType;
+import com.loohp.imageframe.objectholders.ImageMap;
+
 import net.bigyous.gptgodmc.GPTGOD;
 import net.bigyous.gptgodmc.Structure;
 import net.bigyous.gptgodmc.StructureManager;
 import net.bigyous.gptgodmc.GPT.GoogleFile;
 import net.bigyous.gptgodmc.GPT.GoogleVision;
+import net.bigyous.gptgodmc.image_maps.ImageBufferMap;
 import net.bigyous.gptgodmc.interfaces.SimpFunction;
 
 public class ImageUtils {
 
-    private static int fileIdx = 0;
+    // reference to image frame api
+    public static final ImageFrame IMAGE_FRAME_PLUGIN = JavaPlugin.getPlugin(ImageFrame.class);
+
     private static float fov = 1.0f;
+
+    // todo map this per image title
+    // and check what the highest index is for that title on the disk already
+    private static int fileIdx = 0;
 
     public static Path IMAGE_DATA = JavaPlugin.getPlugin(GPTGOD.class).getDataFolder().toPath()
             .resolve("ai_image_data");
@@ -48,10 +59,31 @@ public class ImageUtils {
         }
     }
 
-    // takes a picture from the given camera location
-    public static void takePicture(Location cameraLocation, String pictureName,
+    // try to give the player a copy of the image on a map
+    public static void givePhoto(BufferedImage imageBytes, Player recipient, String builderName, String photographer, String subjectName) {
+        String pictureName = String.format("PHOTO_OF_%s_%s_BY_%s", builderName, subjectName, photographer);
 
-            SimpFunction<GoogleFile> resultCallback) {
+        try {
+            ImageMap map = ImageBufferMap.create(ImageFrame.imageMapManager, pictureName, imageBytes, 1,1, DitheringType.FLOYD_STEINBERG, recipient.getUniqueId()).get();
+            ImageFrame.imageMapManager.addMap(map);
+            map.giveMaps(recipient, ImageFrame.mapItemFormat);
+        } catch (Exception e) {
+            GPTGOD.LOGGER.error("failed to create map for rendered picture", e);
+        }
+}
+
+    static class PictureCallbackData {
+        BufferedImage imageBytes;
+        GoogleFile uploadedFile;
+
+        PictureCallbackData(BufferedImage imageBytes, GoogleFile uploadedFile) {
+            this.imageBytes = imageBytes;
+            this.uploadedFile = uploadedFile;
+        }
+    }
+
+    // takes a picture from the given camera location
+    public static void takePicture(Location cameraLocation, String pictureName, SimpFunction<PictureCallbackData> resultCallback) {
         ImageCapture capture = new ImageCapture(cameraLocation,
                 ImageCaptureOptions.builder().fov(fov).showDepth(true).build());
 
@@ -60,7 +92,6 @@ public class ImageUtils {
             @Override
             public void run() {
                 BufferedImage img = capture.render();
-
                 // get bytes
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
                 try {
@@ -75,7 +106,7 @@ public class ImageUtils {
                 byte[] bytes = baos.toByteArray();
                 GoogleFile upload = new GoogleFile(bytes, "image/png", pictureName);
                 if (upload.tryUpload()) {
-                    resultCallback.run(upload);
+                    resultCallback.run(new PictureCallbackData(img, upload));
                 } else {
                     GPTGOD.LOGGER.warn("failed to upload picture of " + pictureName);
                 }
@@ -84,19 +115,28 @@ public class ImageUtils {
     }
 
     // same as takePicture(Location) but with a default picture name
-    public static void takePicture(Location location, SimpFunction<GoogleFile> resultCallback) {
+    public static void takePicture(Location location, SimpFunction<PictureCallbackData> resultCallback) {
         takePicture(location, "MINECRAFT_PICTURE", resultCallback);
     }
 
     // takes a picture through the eyes of the provided player
     public static void takePicture(Player player) {
-        takePicture(player.getEyeLocation(), (GoogleFile file) -> {
+        takePicture(player.getEyeLocation(), (PictureCallbackData result) -> {
+
+            // try and get some info about the photo
+
             // gets either the ray hit or timeout position
             Vector hitpos = player.rayTraceBlocks(256).getHitPosition();
             Location pictureCenter = new Location(player.getWorld(), hitpos.getX(), hitpos.getY(), hitpos.getZ());
-            String closestStructure = StructureManager.getClosestStructureToLocation(pictureCenter);
+            Structure closestStructure = StructureManager.getClosestStructureToLocation(pictureCenter);
+
+            // try to give the player a copy of the photo
+            String subjectName = closestStructure == null ? "SCENERY" : closestStructure.getName();
+            String creatorName = closestStructure == null ? "UNKNOWN" : closestStructure.getBuilder().getName();
+            givePhoto(result.imageBytes, player, creatorName, player.getName(), subjectName);
+
             // call gemini vision api with our user generated photography
-            GoogleVision.lookAtPhoto(player.getName(), closestStructure, file);
+            GoogleVision.lookAtPhoto(player.getName(), StructureManager.getStructureDescription(closestStructure, pictureCenter), result.uploadedFile);
         });
     }
 
@@ -105,14 +145,14 @@ public class ImageUtils {
         Location structureCenter = structure.getLocation();
         double cameraDistance = calculateCameraDistance(structure);
         Location cameraLocation = lookAt(structureCenter, cameraAngle, cameraDistance);
-        takePicture(cameraLocation, structureName, (GoogleFile file) -> {
-            GoogleVision.lookAtStructure("God", structureName, file);
+        takePicture(cameraLocation, structureName, (PictureCallbackData result) -> {
+            GoogleVision.lookAtStructure("God", structureName, result.uploadedFile);
         });
     }
 
     // takes a picture of the given structure at a default camera angle
     public static void takePicture(Structure structure, String structureName) {
-        takePicture(structure, structureName, new Vector(1,1,1).normalize());
+        takePicture(structure, structureName, new Vector(1.0, 1.0, 1.0).normalize());
     }
 
     // calculates how far the camera has to be from a structure at a specified fov
@@ -155,7 +195,8 @@ public class ImageUtils {
 
         // get camera angle pointing at target
 
-        // Calculate the direction vector from camera to target (reverse the camera move direction)
+        // Calculate the direction vector from camera to target (reverse the camera move
+        // direction)
         double reverseX = target.getX() - cameraX;
         double reverseZ = target.getZ() - cameraZ;
 

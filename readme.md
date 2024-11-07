@@ -38,7 +38,7 @@ Todo:
 - setup the server
 - download [voicechat bukkit plugin 2.5.24](https://modrinth.com/plugin/simple-voice-chat/version/bukkit-2.5.24)
 - download [imagery api 1.2.1](https://github.com/jensjeflensje/minecraft_imagery/releases/tag/1.2.1)
-- 
+- download [ImageFrame 1.7.10](https://hangar.papermc.io/LOOHP/ImageFrame/versions) for printing out photos on maps
 - place the jar files in the plugins folder of your server
 - [install fabric for 1.21.1](https://fabricmc.net/use/installer/)
 - [download the fabric api jar for extra mod compatibility](https://www.curseforge.com/minecraft/mc-mods/fabric-api/files/5848063)

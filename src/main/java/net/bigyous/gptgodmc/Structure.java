@@ -19,6 +19,7 @@ public class Structure {
 
     private HashSet<Vector> blocks;
     private Player builder;
+    private String name;
     private Location location;
     private Location[] bounds;
     private World world;
@@ -30,7 +31,7 @@ public class Structure {
     private int lastCenterCalculated = 0;
     private int lastBoundsCalcuated = 0;
 
-    public Structure(Location block, Player builder) {
+    public Structure(Location block, Player builder, String name) {
         this.blocks = new HashSet<Vector>();
         this.addBlock(block);
         this.builder = builder;
@@ -40,6 +41,10 @@ public class Structure {
 
     public Player getBuilder() {
         return builder;
+    }
+
+    public String getName() {
+        return name;
     }
 
     public CiritiqueStatus getCritique() {
@@ -78,6 +83,10 @@ public class Structure {
         this.description = description;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
     private Location calculateCentroid() {
         double x = 0;
         double y = 0;
@@ -106,6 +115,14 @@ public class Structure {
             tz = Double.max(tz, location.getZ());
         }
         return new Location[] { new Location(world, bx, by, bz), new Location(world, tx, ty, tz), };
+    }
+
+    public double getDistanceTo(Location to) {
+        return location.distance(this.getLocation());
+    }
+
+    public int getDistanceToI(Location to) {
+        return Math.toIntExact(Math.round(getDistanceTo(to)));
     }
 
     // get center of building and calculate it if the building is new or changed in

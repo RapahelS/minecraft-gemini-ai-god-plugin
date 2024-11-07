@@ -79,7 +79,8 @@ public class StructureManager implements Listener {
             }
         }
         if (parentStructure == null) {
-            structures.put(nameStructure(block), new Structure(block, builder));
+            String name = nameStructure(block);
+            structures.put(name, new Structure(block, builder, name));
         }
     }
 
@@ -100,6 +101,7 @@ public class StructureManager implements Listener {
 
         structure.setCritique(isItUgly);
         structure.setDescription(description);
+        structure.setName(newStructureName);
         // insert the structure under the new name
         structures.put(newStructureName, structure);
         // replace structure in place
@@ -151,24 +153,37 @@ public class StructureManager implements Listener {
         }
     }
 
-    public static String getClosestStructureToLocation(Location location) {
-        if (!location.getWorld().getName().equals(WorldManager.getCurrentWorld().getName()))
-            return "In a different dimension";
+    public static Structure getClosestStructureToLocation(Location location) {
         if (getStructures().isEmpty())
-            return "";
+            return null;
+
         int distance = Integer.MAX_VALUE;
-        String closest = "";
+        Structure closest = null;
         for (String key : getStructures()) {
-            int temp = Math.toIntExact(Math.round(location.distance(structures.get(key).getLocation())));
+            Structure s = structures.get(key);
+            if (s == null) continue;
+            if (!s.getLocation().getWorld().equals(location.getWorld())) continue;
+            int temp = s.getDistanceToI(location);
             if (temp < distance) {
                 distance = temp;
-                closest = key;
+                Structure newStructure = getStructure(key);;
+                if(newStructure != null) closest = newStructure;
             }
         }
+
+        return closest;
+    }
+
+    public static String getStructureDescription(Structure closestStructure, Location currentPlayerLocation) {
+        if (!currentPlayerLocation.getWorld().getName().equals(WorldManager.getCurrentWorld().getName()))
+            return "In a different dimension";
+        if(closestStructure == null) return "";
+        int distance = closestStructure.getDistanceToI(currentPlayerLocation);
+
         if (distance < 10) {
-            return String.format("Location: near %s\n", closest);
+            return String.format("Location: near %s\n", closestStructure);
         } else if (distance < 50) {
-            return String.format("Location: %d blocks away from %s\n", distance, closest);
+            return String.format("Location: %d blocks away from %s\n", distance, closestStructure);
         } else {
             return "";
         }
