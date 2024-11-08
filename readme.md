@@ -1,4 +1,4 @@
-# ![GPTGodIcon](https://github.com/user-attachments/assets/15ee2068-82d8-419a-9247-17332ec84600) GPTGOD Bukkit Plugin
+# ![GPTGodIcon](./gemini64x64.png) Gemini AI God Bukkit Plugin
 Modified version of the [ChatGPT bukkit plugin by "BigYous"](https://github.com/YOUSY0US3F/minecraft-gpt-god-plugin) which uses the google gemini (within free-tier limits) to provide an improved AI roleplay experience free of charge. Join a world ruled by the AI and hope that your new overlord is having a good day. You will be sent on missions from God, have your buildings and photos judged, be rewarded greatly, or explode spectacularly. Tread carefully....... it see's and hears everything....
 
 ![demo image of photography and decree features](./demo_images/photography.png)
