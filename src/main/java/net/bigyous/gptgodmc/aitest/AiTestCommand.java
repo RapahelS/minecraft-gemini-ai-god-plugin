@@ -45,19 +45,27 @@ public class AiTestCommand implements CommandExecutor {
 
     private Vector getAxisVector(String axis, Vector defaultVec) {
         switch (axis.toLowerCase()) {
+        case "e":
         case "x":
         case "+x":
             return new Vector(1, 0, 0);
+        case "u":
+        case "up":
         case "y":
         case "+y":
             return new Vector(0, 1, 0);
+        case "s":
         case "z":
         case "+z":
             return new Vector(0, 0, 1);
+        case "w":
         case "-x":
             return new Vector(-1, 0, 0);
+        case "d":
+        case "down":
         case "-y":
             return new Vector(0, -1, 0);
+        case "n":
         case "-z":
             return new Vector(0, 0, -1);
         default:
