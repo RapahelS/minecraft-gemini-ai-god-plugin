@@ -144,7 +144,7 @@ public class ServerInfoSummarizer {
             }
             sb.append("Health: " + health + '\n');
             if (!isDead) {
-                sb.append(StructureManager.getClosestStructureToLocation(player.getLocation()));
+                sb.append(StructureManager.getStructureDescription(StructureManager.getClosestStructureToLocation(player.getLocation()),player.getLocation()));
                 // sb.append("\tDead? " + isDead + "\n");
                 // sb.append("\tInventory: " + inventoryInfo + "\n");
                 // sb.append(isDead? "Dead\n" : "Alive\n");

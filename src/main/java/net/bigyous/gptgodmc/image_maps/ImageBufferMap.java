@@ -61,7 +61,7 @@ public class ImageBufferMap extends ImageMap {
                 throw new RuntimeException(e);
             }
         }
-        ImageBufferMap map = new ImageBufferMap(manager, -1, name, new FileLazyMappedBufferedImage[mapsCount], mapViews, mapIds, markers, width, height, ditheringType, creator, Collections.emptyMap(), System.currentTimeMillis());
+        ImageBufferMap map = new ImageBufferMap(manager, -1, name, imageBytes, new FileLazyMappedBufferedImage[mapsCount], mapViews, mapIds, markers, width, height, ditheringType, creator, Collections.emptyMap(), System.currentTimeMillis());
         return FutureUtils.callAsyncMethod(() -> {
             FutureUtils.callSyncMethod(() -> {
                 for (int i = 0; i < mapViews.size(); i++) {
@@ -73,8 +73,9 @@ public class ImageBufferMap extends ImageMap {
         });
     }
 
-    public ImageBufferMap(ImageMapManager manager, int imageIndex, String name, FileLazyMappedBufferedImage[] cachedImages, List<MapView> mapViews, List<Integer> mapIds, List<Map<String, MapCursor>> mapMarkers, int width, int height, DitheringType ditheringType, UUID creator, Map<UUID, ImageMapAccessPermissionType> hasAccess, long creationTime) {
+    public ImageBufferMap(ImageMapManager manager, int imageIndex, String name, BufferedImage imageBytes, FileLazyMappedBufferedImage[] cachedImages, List<MapView> mapViews, List<Integer> mapIds, List<Map<String, MapCursor>> mapMarkers, int width, int height, DitheringType ditheringType, UUID creator, Map<UUID, ImageMapAccessPermissionType> hasAccess, long creationTime) {
         super(manager, imageIndex, name, mapViews, mapIds, mapMarkers, width, height, ditheringType, creator, hasAccess, creationTime);
+        this.image = imageBytes;
         this.cachedImages = cachedImages;
     }
 
