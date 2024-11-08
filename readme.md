@@ -34,6 +34,7 @@ Todo:
 - [ ] spawn sound and particle effects on camera shutter
 - [ ] Add ability to save favourite structures and scatter them across the new map on round start
 - [ ] Add option to renderer to ignore all blocks not in a structure (so that trees don't block the view and make the ai think you built a bush)
+- [ ] Give god a tool to give a user the camera they would otherwise get from `/givecamera`
 
 ## Local Setup
 
@@ -62,6 +63,8 @@ Todo:
     - the flash model can go below 20 and performs quite nicely with the rapid feedback
     - for a fast-feedback experience try setting both models to `gemini-1.5-flash` and try a rate of about `rate: 20` to `rate: 30`
     - do NOT use `gemini-1.5-pro` as the secondary model
+
+![game-play example photo 2](./demo_images/god_hates_me.png)
 
 ## Building
 
