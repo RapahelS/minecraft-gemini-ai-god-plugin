@@ -30,6 +30,8 @@ Todo:
 
 - [ ] Maybe add option to choose between gemini and open ai?
 - [ ] Fix bug with events coming in after round restart (cut off async threadpool of logger on reset or associate events with some kind of session id)
+- [ ] selfie mode for god camera
+- [ ] spawn sound and particle effects on camera shutter
 - [ ] Add ability to save favourite structures and scatter them across the new map on round start
 
 ## Local Setup
