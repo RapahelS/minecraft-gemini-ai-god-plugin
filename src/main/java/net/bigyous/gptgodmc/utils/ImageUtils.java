@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 
 import javax.imageio.ImageIO;
 
@@ -95,13 +96,16 @@ public class ImageUtils {
 
     // takes a picture from the given camera location
     public static void takePicture(Location cameraLocation, String pictureName, boolean dayLightCycleAware,
-            SimpFunction<PictureCallbackData> resultCallback) {
+            List<Player> worldPlayers, SimpFunction<PictureCallbackData> resultCallback) {
         ImageCaptureOptionsBuilder builder = ImageCaptureOptions.builder().fov(fov)
                 .dayLightCycleAware(dayLightCycleAware).showDepth(true);
 
-        builder.blocksOverrides(null);
-
-        ImageCapture capture = new ImageCapture(cameraLocation, builder.build());
+        ImageCapture capture;
+        if (worldPlayers == null) {
+            capture = new ImageCapture(cameraLocation, builder.build());
+        } else {
+            capture = new ImageCapture(cameraLocation, worldPlayers, builder.build());
+        }
 
         // capture asynchronously as it may run for a while
         new BukkitRunnable() {
@@ -130,6 +134,17 @@ public class ImageUtils {
         }.runTaskAsynchronously(JavaPlugin.getPlugin(GPTGOD.class));
     }
 
+    public static void takePicture(Location cameraLocation, String pictureName, boolean dayLightCycleAware,
+            SimpFunction<PictureCallbackData> resultCallback) {
+        takePicture(cameraLocation, pictureName, dayLightCycleAware, null, resultCallback);
+    }
+
+    // same as takePicture(Location) but with a default picture name
+    public static void takePicture(Location location, List<Player> worldPlayers,
+            SimpFunction<PictureCallbackData> resultCallback) {
+        takePicture(location, "MINECRAFT_PICTURE", true, worldPlayers, resultCallback);
+    }
+
     // same as takePicture(Location) but with a default picture name
     public static void takePicture(Location location, SimpFunction<PictureCallbackData> resultCallback) {
         takePicture(location, "MINECRAFT_PICTURE", true, resultCallback);
@@ -137,7 +152,13 @@ public class ImageUtils {
 
     // takes a picture through the eyes of the provided player
     public static void takePicture(Player player) {
-        takePicture(player.getEyeLocation(), (PictureCallbackData result) -> {
+        // get players to include in the render
+        List<Player> worldPlayers = player.getWorld().getPlayers();
+        // make sure to remove the player that's taking the picture
+        // when you take a picture from the player's perspective
+        worldPlayers.remove(player);
+
+        takePicture(player.getEyeLocation(), worldPlayers, (PictureCallbackData result) -> {
 
             // try and get some info about the photo
 
