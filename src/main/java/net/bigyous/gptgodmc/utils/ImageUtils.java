@@ -10,6 +10,7 @@ import java.nio.file.Path;
 import javax.imageio.ImageIO;
 
 import org.bukkit.Location;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -42,8 +43,14 @@ public class ImageUtils {
     // and check what the highest index is for that title on the disk already
     private static int fileIdx = 0;
 
-    public static Path IMAGE_DATA = JavaPlugin.getPlugin(GPTGOD.class).getDataFolder().toPath()
-            .resolve("ai_image_data");
+    private static GPTGOD gptGodPlugin = JavaPlugin.getPlugin(GPTGOD.class);
+
+    private static FileConfiguration config = gptGodPlugin.getConfig();
+
+    // flag to turn on image saving to see what kind of output the camera and the ai sees
+    private static boolean enableDebugImageSaving = config.getBoolean("enable-debug-image");
+
+    public static Path IMAGE_DATA = gptGodPlugin.getDataFolder().toPath().resolve("ai_image_data");
 
     public static Path getImageFile(String title, int fileNumber) {
 
@@ -106,7 +113,7 @@ public class ImageUtils {
                 try {
                     ImageIO.write(img, "png", baos);
                     // output to file for testing
-                    ImageIO.write(img, "png", getImageOutputStream(pictureName, fileIdx++));
+                    if(enableDebugImageSaving) ImageIO.write(img, "png", getImageOutputStream(pictureName, fileIdx++));
                 } catch (IOException e) {
                     GPTGOD.LOGGER.error("failed to output image bytes on capture", e);
                     return;
