@@ -15,6 +15,7 @@ import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.block.BlockBurnEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 
+import net.bigyous.gptgodmc.Structure.CiritiqueStatus;
 import net.bigyous.gptgodmc.loggables.GenericEventLoggable;
 
 import org.bukkit.entity.Player;
@@ -78,8 +79,35 @@ public class StructureManager implements Listener {
             }
         }
         if (parentStructure == null) {
-            structures.put(nameStructure(block), new Structure(block, builder));
+            String name = nameStructure(block);
+            structures.put(name, new Structure(block, builder, name));
         }
+    }
+
+    // for the AI to rename a structure and declare it pretty or ugly
+    public static boolean updateStructureDetails(String originalStructureName, String newStructureName,
+            String description, boolean isItUgly) {
+        Structure structure = structures.get(originalStructureName);
+        if (structure == null) {
+            GPTGOD.LOGGER.error(String.format("Failed to update the %s structure %s to new name %s.",
+                    isItUgly ? "ugly" : "pretty", originalStructureName, newStructureName));
+            return false;
+        }
+
+        // fall back to original structure name
+        if (newStructureName == null || newStructureName.length() < 1) {
+            newStructureName = originalStructureName;
+        }
+
+        structure.setCritique(isItUgly);
+        structure.setDescription(description);
+        structure.setName(newStructureName);
+        // insert the structure under the new name
+        structures.put(newStructureName, structure);
+        // replace structure in place
+        // structures.put(originalStructureName, structure);
+
+        return true;
     }
 
     private String nameStructure(Location block) {
@@ -90,6 +118,10 @@ public class StructureManager implements Listener {
 
     public static List<String> getStructures() {
         return structures.keySet().stream().filter(key -> structures.get(key).getSize() > 20).toList();
+    }
+
+    public static List<String> getAllStructures() {
+        return structures.keySet().stream().toList();
     }
 
     public static Structure getStructure(String name) {
@@ -121,24 +153,37 @@ public class StructureManager implements Listener {
         }
     }
 
-    public static String getClosestStructureToLocation(Location location) {
-        if (!location.getWorld().getName().equals(WorldManager.getCurrentWorld().getName()))
-            return "In a different dimension";
+    public static Structure getClosestStructureToLocation(Location location) {
         if (getStructures().isEmpty())
-            return "";
+            return null;
+
         int distance = Integer.MAX_VALUE;
-        String closest = "";
+        Structure closest = null;
         for (String key : getStructures()) {
-            int temp = Math.toIntExact(Math.round(location.distance(structures.get(key).getLocation())));
+            Structure s = structures.get(key);
+            if (s == null) continue;
+            if (!s.getLocation().getWorld().equals(location.getWorld())) continue;
+            int temp = s.getDistanceToI(location);
             if (temp < distance) {
                 distance = temp;
-                closest = key;
+                Structure newStructure = getStructure(key);;
+                if(newStructure != null) closest = newStructure;
             }
         }
+
+        return closest;
+    }
+
+    public static String getStructureDescription(Structure closestStructure, Location currentPlayerLocation) {
+        if (!currentPlayerLocation.getWorld().getName().equals(WorldManager.getCurrentWorld().getName()))
+            return "In a different dimension";
+        if(closestStructure == null) return "";
+        int distance = closestStructure.getDistanceToI(currentPlayerLocation);
+
         if (distance < 10) {
-            return String.format("Location: near %s\n", closest);
+            return String.format("Location: near %s\n", closestStructure);
         } else if (distance < 50) {
-            return String.format("Location: %d blocks away from %s\n", distance, closest);
+            return String.format("Location: %d blocks away from %s\n", distance, closestStructure);
         } else {
             return "";
         }
@@ -187,13 +232,27 @@ public class StructureManager implements Listener {
         }
     }
 
-    public static String getDisplayString() {
-        Object[] structures = StructureManager.getStructures().stream().map((String key) -> {
-            return String.format("%s: (%s)", key,
-                    StructureManager.getStructure(key).getLocation().toVector().toString());
+    public static String getDisplayString(boolean getAll) {
+        List<String> structureNames = getAll ? StructureManager.getAllStructures() : StructureManager.getStructures();
+        Object[] structures = structureNames.stream().map((String key) -> {
+            Structure structure = StructureManager.getStructure(key);
+
+            String critique = "";
+            if (structure.getCritique() == CiritiqueStatus.PRETTY) {
+                critique = "Pretty ";
+            } else if (structure.getCritique() == CiritiqueStatus.UGLY) {
+                critique = "Ugly ";
+            }
+
+            return String.format("%s%s built by %s (at %s)", critique, key, structure.getBuilder().getName(),
+                    structure.getLocation().toVector().toString());
         }).toArray();
 
         // explicitly tell the LLM if the array is empty
         return (structures.length > 0) ? Arrays.toString(structures) : "NONE";
+    }
+
+    public static String getDisplayString() {
+        return getDisplayString(false);
     }
 }

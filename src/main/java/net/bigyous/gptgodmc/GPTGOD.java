@@ -20,6 +20,9 @@ import org.bukkit.event.player.PlayerQuitEvent;
 
 import javax.annotation.Nullable;
 
+import net.bigyous.gptgodmc.aitest.AiTestCommand;
+import net.bigyous.gptgodmc.cameraitem.CameraItemListener;
+import net.bigyous.gptgodmc.cameraitem.GiveCameraCommand;
 import net.bigyous.gptgodmc.enums.GptGameMode;
 import net.bigyous.gptgodmc.utils.DebugCommand;
 import net.bigyous.gptgodmc.utils.NicknameCommand;
@@ -59,6 +62,8 @@ public final class GPTGOD extends JavaPlugin {
         saveConfig();
         getCommand("try").setExecutor(new DebugCommand());
         getCommand("nickname").setExecutor(new NicknameCommand());
+        getCommand("givecamera").setExecutor(new GiveCameraCommand());
+        getCommand("aitest").setExecutor(new AiTestCommand());
         if (getConfig().getString("startingWorld").isBlank() || !getConfig().getBoolean("Rounds")) {
             String message = getConfig().getBoolean("Rounds")
                     ? "can't use Round system since startingWorld is not set. Go to %s to fix this."
@@ -72,6 +77,7 @@ public final class GPTGOD extends JavaPlugin {
         }
         gameMode = GptGameMode.valueOf(getConfig().getString("gamemode"));
         SERVER.getPluginManager().registerEvents(new LoggableEventHandler(), this);
+        SERVER.getPluginManager().registerEvents(new CameraItemListener(), this);
         SERVER.getPluginManager().registerEvents(new StartGameLoop(), this);
         SERVER.getPluginManager().registerEvents(new StructureManager(), this);
 
@@ -100,6 +106,7 @@ public final class GPTGOD extends JavaPlugin {
             voicechatPlugin.stop();
             getServer().getServicesManager().unregister(voicechatPlugin);
             LOGGER.info("Successfully unregistered monitor plugin");
+            GameLoop.close();
         }
     }
 

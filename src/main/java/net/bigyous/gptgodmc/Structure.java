@@ -10,12 +10,28 @@ import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
 public class Structure {
+
+    public enum CiritiqueStatus {
+        UNDECIDED,
+        PRETTY,
+        UGLY
+    }
+
     private HashSet<Vector> blocks;
     private Player builder;
+    private String name;
     private Location location;
+    private Location[] bounds;
     private World world;
+    private CiritiqueStatus critiqueStatus = CiritiqueStatus.UNDECIDED;
+    private String description = "";
 
-    public Structure(Location block, Player builder) {
+    // for tracking when to recalculate the centroid
+    private static final int minimumBlocksForRecalculate = 4;
+    private int lastCenterCalculated = 0;
+    private int lastBoundsCalcuated = 0;
+
+    public Structure(Location block, Player builder, String name) {
         this.blocks = new HashSet<Vector>();
         this.addBlock(block);
         this.builder = builder;
@@ -25,6 +41,18 @@ public class Structure {
 
     public Player getBuilder() {
         return builder;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public CiritiqueStatus getCritique() {
+        return this.critiqueStatus;
+    }
+
+    public String getDescription() {
+        return this.description;
     }
 
     public boolean containsBlock(Location block) {
@@ -43,6 +71,22 @@ public class Structure {
             world = block.getWorld();
     }
 
+    public void setCritique(boolean isItUgly) {
+        if(isItUgly) {
+            this.critiqueStatus = CiritiqueStatus.UGLY;
+        } else {
+            this.critiqueStatus = CiritiqueStatus.PRETTY;
+        }
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
     private Location calculateCentroid() {
         double x = 0;
         double y = 0;
@@ -56,10 +100,49 @@ public class Structure {
         return new Location(world, x / size, y / size, z / size);
     }
 
+    // returns the upper and lower bound of the structure
+    private Location[] calculateBounds() {
+        // walk up to top xyz
+        double tx = 0, ty = 0, tz = 0;
+        // walk down to bottom xyz
+        double bx = Double.MAX_VALUE, by = Double.MAX_VALUE, bz = Double.MAX_VALUE;
+        for (Vector location : blocks) {
+            bx = Double.min(bx, location.getX());
+            tx = Double.max(tx, location.getX());
+            by = Double.min(by, location.getY());
+            ty = Double.max(ty, location.getY());
+            bz = Double.min(bz, location.getZ());
+            tz = Double.max(tz, location.getZ());
+        }
+        return new Location[] { new Location(world, bx, by, bz), new Location(world, tx, ty, tz), };
+    }
+
+    public double getDistanceTo(Location to) {
+        return location.distance(this.getLocation());
+    }
+
+    public int getDistanceToI(Location to) {
+        return Math.toIntExact(Math.round(getDistanceTo(to)));
+    }
+
+    // get center of building and calculate it if the building is new or changed in
+    // size
     public Location getLocation() {
-        if (location == null)
+        int blockCount = blocks.size();
+        if (location == null || (blockCount - minimumBlocksForRecalculate) > lastCenterCalculated) {
             location = calculateCentroid();
+            lastCenterCalculated = blockCount;
+        }
         return location;
+    }
+
+    public Location[] getBounds() {
+        int blockCount = blocks.size();
+        if( bounds == null || (blockCount - minimumBlocksForRecalculate) > lastBoundsCalcuated) {
+            bounds = calculateBounds();
+            lastBoundsCalcuated = blockCount;
+        }
+        return bounds;
     }
 
     public boolean isBlockConnected(Location block) {
@@ -101,7 +184,7 @@ public class Structure {
 
     @Override
     public String toString() {
-        return String.format("Structure: Location: %s Size: %d Builder: %s", this.getLocation().toVector().toString(),
-                this.getSize(), this.getBuilder().getName());
+        return String.format("Structure: Location: %s Size: %d Builder: %s Critique: %s", this.getLocation().toVector().toString(),
+                this.getSize(), this.getBuilder().getName(), this.critiqueStatus.toString());
     }
 }

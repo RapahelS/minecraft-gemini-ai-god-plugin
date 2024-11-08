@@ -17,6 +17,15 @@ processResources {
     }
 }
 
+// fix carls stupid custom domain name
+configurations.all {
+    resolutionStrategy.eachDependency { DependencyResolveDetails details ->
+        if (details.requested.group == 'me.carleslc.Simple-YAML' && details.requested.name == 'Simple-Yaml') {
+            details.useTarget 'com.github.Carleslc.Simple-YAML:Simple-Configuration:1.8.1'
+        }
+    }
+}
+
 dependencies {
     implementation 'com.github.mizosoft.methanol:methanol:1.7.0'
     implementation 'com.google.code.findbugs:jsr305:3.0.2'
@@ -30,6 +39,9 @@ dependencies {
     // Use this dependency if you don't want to compile bukkit
     implementation "io.papermc.paper:paper-api:${bukkit_version}"
     implementation "de.maxhenkel.voicechat:voicechat-api:${voicechat_api_version}"
+    implementation "com.github.jensjeflensje:minecraft_imagery:${minecraft_imagery_api_version}"
+    implementation "com.loohp:ImageFrame:${image_frame_api_version}"
+	// implementation 'me.carleslc.Simple-YAML:Simple-Yaml:1.8.1'
     implementation 'com.google.code.gson:gson:2.10.1'
     implementation group: 'com.knuddels', name: 'jtokkit', version: '1.0.0'
 
@@ -37,14 +49,22 @@ dependencies {
 
 repositories {
     mavenCentral()
+    // for voice chat api
     maven {
         name = "henkelmax.public"
         url = 'https://maven.maxhenkel.de/repository/public'
+    }
+    // for ImageFrame api
+    maven {
+        name = "loohp-repo"
+        url = "https://repo.loohpjames.com/repository"
     }
     // You need this maven repository if you want to use the paper dependency
     maven {
         url = uri("https://papermc.io/repo/repository/maven-public/")
     }
+    // for github and stuff
+    maven { url 'https://jitpack.io' }
     mavenLocal()
 }
 

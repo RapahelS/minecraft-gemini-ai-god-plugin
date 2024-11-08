@@ -81,9 +81,15 @@ public class GameLoop {
             return;
         GPTGOD.SERVER.getScheduler().cancelTask(taskId);
         EventLogger.reset();
+        // clear the ai memory
+        GPT_API.flush();
         GPT_API = null;
         isRunning = false;
         GPTGOD.LOGGER.info("GameLoop Stoppped");
+    }
+
+    public static void close() {
+        GPT_API.close();
     }
 
     public static void logAction(String actionLog) {

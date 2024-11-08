@@ -1,29 +1,40 @@
 # ![GPTGodIcon](https://github.com/user-attachments/assets/15ee2068-82d8-419a-9247-17332ec84600) GPTGOD Bukkit Plugin
-Modified version of the [ChatGPT bukkit plugin by "BigYous"](https://github.com/YOUSY0US3F/minecraft-gpt-god-plugin) which uses the google gemini (within free-tier limits) to provide a similar AI roleplay experience free of charge.
+Modified version of the [ChatGPT bukkit plugin by "BigYous"](https://github.com/YOUSY0US3F/minecraft-gpt-god-plugin) which uses the google gemini (within free-tier limits) to provide an improved AI roleplay experience free of charge. Join a world ruled by the AI and hope that your new overlord is having a good day. You will be sent on missions from God, have your buildings and photos judged, be rewarded greatly, or explode spectacularly. Tread carefully....... it see's and hears everything....
+
+![demo image of photography and decree features](./demo_images/photography.png)
 
 What's Changed:
 
 - [x] Ported to google gemini from chatgpt
-    - [ ] context window is now one million for `gemini-1.5-flash` and 2 million for `gemini-1.5-pro`
+    - scrapped all openai support at the moment in favour of full gemini consistency for now
+    - [x] context window is now one million for `gemini-1.5-flash` and 2 million for `gemini-1.5-pro`
     - [x] Voice transcription requests are now bundled (to avoid api spam) and using the gemini 1.5 flash model
-      - [x] scrapped all openai support at the moment in favour of full gemini consistency
-- [x] Ported voice synthesis to Speechify (super godly narrator voice for free!)
+    
+- [x] Ported voice synthesis to Speechify (super godly narrator voice for free! IT EVEN BREATHES!)
 - [x] Improved context handling (cured the AI god of dementia)
-- [x] seperated model usage into "primary" and "secondary" model so that a cheaper model may be used for medial tasks
+- [x] separated model usage into "primary" and "secondary" model so that a cheaper model may be used for medial tasks
 - [x] decreased call count to primary model and unified commands and communication behaviour to one context 
 - [x] Added real multi-turn mode (including model responses in context)
 - [x] Improved system instruction prompt design for better roleplay output
 - [x] Gave the AI a better sense of time using minecraft time of day timestamps
-- [x] various bug fixes and codbase improvements
+- [x] various bug fixes and codebase improvements
 - [x] added new decree function for the ai to drop floating commandments in the world if it is displeased
-- [x] added model tempurature configuration control to improve model creativity
+- [x] added model temperature configuration control to improve model creativity
 - [x] Rolling context expiry for new multi-turn when token limit is approaching
+- [x] Give the AI eyes using the papermc ImageryAPI and gemini vision api (so the AI can decide if your monuments to its honor are ugly or not)
+  - [x] Added player camera item (get with `/givecamera`) for fun photography for god missions
+  - [x] Functioning structure rendering with automatic camera positioning
+- [x] Created sequential but non-blocking thread queue for the api wrapper class (AsyncTaskQueue in GptAPI)
 
 Todo:
 
 - [ ] Maybe add option to choose between gemini and open ai?
-- [ ] Fix bug with events coming in after round restart
-- [ ] Give the AI eyes using the papermc ImageryAPI and gemini vison api (so the AI can decide if your monuments to its honor are ugly or not)
+- [ ] Fix bug with events coming in after round restart (cut off async threadpool of logger on reset or associate events with some kind of session id)
+- [ ] selfie mode for god camera
+- [ ] spawn sound and particle effects on camera shutter
+- [ ] Add ability to save favourite structures and scatter them across the new map on round start
+- [ ] Add option to renderer to ignore all blocks not in a structure (so that trees don't block the view and make the ai think you built a bush)
+- [ ] Give god a tool to give a user the camera they would otherwise get from `/givecamera`
 
 ## Local Setup
 
@@ -33,7 +44,7 @@ Todo:
 - setup the server
 - download [voicechat bukkit plugin 2.5.24](https://modrinth.com/plugin/simple-voice-chat/version/bukkit-2.5.24)
 - download [imagery api 1.2.1](https://github.com/jensjeflensje/minecraft_imagery/releases/tag/1.2.1)
-- 
+- download [ImageFrame 1.7.10](https://hangar.papermc.io/LOOHP/ImageFrame/versions) for printing out photos on maps
 - place the jar files in the plugins folder of your server
 - [install fabric for 1.21.1](https://fabricmc.net/use/installer/)
 - [download the fabric api jar for extra mod compatibility](https://www.curseforge.com/minecraft/mc-mods/fabric-api/files/5848063)
@@ -52,6 +63,8 @@ Todo:
     - the flash model can go below 20 and performs quite nicely with the rapid feedback
     - for a fast-feedback experience try setting both models to `gemini-1.5-flash` and try a rate of about `rate: 20` to `rate: 30`
     - do NOT use `gemini-1.5-pro` as the secondary model
+
+![game-play example photo 2](./demo_images/god_hates_me.png)
 
 ## Building
 
@@ -84,26 +97,6 @@ install gradle 7.4, and jdk 21 then:
 
 ```bash
 ~> gradle shadowJar
-```
-
-## Dependencies
-
-to add an additional dependency add it like this:
-
-*build.gradle*
-
-``` Groovy
-
-dependencies {
-    implementation 'com.google.code.gson:gson:2.10.1'
-}
-
-shadowJar {
-    dependencies {
-        include(dependency('com.google.code.gson:.*'))
-    }
-}
-
 ```
 
 ## Running

@@ -27,7 +27,7 @@ import net.bigyous.gptgodmc.GPT.Json.GenerateContentResponse;
 import net.bigyous.gptgodmc.GPT.Json.GptModel;
 import net.bigyous.gptgodmc.GPT.Json.Schema;
 import net.bigyous.gptgodmc.GPT.Json.Tool;
-import net.bigyous.gptgodmc.interfaces.Function;
+import net.bigyous.gptgodmc.interfaces.SimpFunction;
 import net.bigyous.gptgodmc.loggables.ChatLoggable;
 
 public class Transcription {
@@ -44,7 +44,7 @@ public class Transcription {
 
     }
 
-    private static Function<JsonObject> submitTranscriptions = (JsonObject args) -> {
+    private static SimpFunction<JsonObject> submitTranscriptions = (JsonObject args) -> {
         TranscriptionResult[] messages = gson.fromJson(args.get("transcriptionResults"), TranscriptionResult[].class);
 
         for (TranscriptionResult message : messages) {

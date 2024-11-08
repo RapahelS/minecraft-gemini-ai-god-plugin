@@ -3,6 +3,7 @@ package net.bigyous.gptgodmc.GPT.Json;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.bigyous.gptgodmc.GPT.GoogleFile;
 import net.bigyous.gptgodmc.GPT.Json.Content.Role;
 // import net.bigyous.gptgodmc.GPT.Json.SafetySetting.HarmBlockThreshold;
 // import net.bigyous.gptgodmc.GPT.Json.SafetySetting.HarmCategory;
@@ -130,6 +131,19 @@ public class GenerateContentRequest {
         ArrayList<Part> parts = new ArrayList<Part>();
         parts.add(textPart);
         parts.add(fileDataPart);
+        contents.add(new Content(parts));
+        return this;
+    }
+
+    // shortcut to append a prompt and file to message contents
+    public GenerateContentRequest addFilesWithPrompt(String text, GoogleFile[] files) {
+        ArrayList<Part> parts = new ArrayList<Part>();
+        Part textPart = new Part(text);
+        parts.add(textPart);
+        for(GoogleFile file : files) {
+            Part fileDataPart = new Part(new FileData(file.getMimeType(), file.getUri()));
+            parts.add(fileDataPart);
+        }
         contents.add(new Content(parts));
         return this;
     }

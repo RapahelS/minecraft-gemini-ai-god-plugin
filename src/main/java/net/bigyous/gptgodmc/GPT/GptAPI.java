@@ -5,8 +5,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpResponse;
@@ -36,6 +34,7 @@ import net.bigyous.gptgodmc.GPT.Json.ParameterExclusion;
 import net.bigyous.gptgodmc.GPT.Json.Part;
 import net.bigyous.gptgodmc.GPT.Json.Tool;
 import net.bigyous.gptgodmc.GPT.Json.ToolConfig;
+import net.bigyous.gptgodmc.utils.AsyncTaskQueue;
 import net.bigyous.gptgodmc.utils.GPTUtils;
 import net.bigyous.gptgodmc.GPT.Json.Content.Role;
 import net.bigyous.gptgodmc.GPT.Json.FunctionCallingConfig.Mode;
@@ -45,7 +44,7 @@ public class GptAPI {
 
     private GptModel model;
     private GenerateContentRequest body;
-    private String BASE_URL = "https://generativelanguage.googleapis.com/v1beta/models/";
+    private static String BASE_URL = "https://generativelanguage.googleapis.com/v1beta/models/";
     // keep track of what index each type of context is stored at
     // should never have an index greater than contextHeight
     private Map<String, Integer> messageMap = new HashMap<String, Integer>();
@@ -55,8 +54,50 @@ public class GptAPI {
     private int totalTokens = 0;
 
     private boolean isSending = false;
-    private static ExecutorService pool = Executors.newCachedThreadPool();
     private static JavaPlugin plugin = JavaPlugin.getPlugin(GPTGOD.class);
+
+    // handles the submission of the gpt content request
+    // and ensures that each request is fired sequentially
+    // without the call to the request blocking (call async)
+    private AsyncTaskQueue<Map<String, FunctionDeclaration>> gptTasks = new AsyncTaskQueue<Map<String, FunctionDeclaration>>(
+            (Map<String, FunctionDeclaration> funcs) -> {
+                // wait for previous sender to return
+                while (this.isSending) {
+                    Thread.onSpinWait();
+                }
+                this.isSending = true;
+
+                GsonBuilder gson = new GsonBuilder();
+                CloseableHttpClient client = HttpClientBuilder.create().build();
+
+                FileConfiguration config = JavaPlugin.getPlugin(GPTGOD.class).getConfig();
+                StringEntity data = new StringEntity(gson.create().toJson(body), ContentType.APPLICATION_JSON);
+                GPTGOD.LOGGER.info("POSTING " + gson.setPrettyPrinting().create().toJson(body));
+                HttpPost post = new HttpPost(
+                        BASE_URL + model.getName() + ":generateContent" + "?key=" + config.getString("geminiKey"));
+                post.setHeader(HttpHeaders.CONTENT_TYPE, "application/json");
+                GPTGOD.LOGGER.info("Making POST request");
+                post.setEntity(data);
+                try {
+                    HttpResponse response = client.execute(post);
+                    String out = new String(response.getEntity().getContent().readAllBytes());
+                    EntityUtils.consume(response.getEntity());
+                    GPTGOD.LOGGER.info("recieved response from Gemini: " + out);
+                    if (response.getStatusLine().getStatusCode() != 200) {
+                        GPTGOD.LOGGER.warn("API call failed");
+                        this.isSending = false;
+                    }
+                    processResponse(out, funcs);
+                    client.close();
+                    // after everything finishes, executing the request is finished
+                    Bukkit.getScheduler().runTaskLater(JavaPlugin.getPlugin(GPTGOD.class), () -> {
+                        this.isSending = false;
+                    }, 20);
+                } catch (IOException e) {
+                    GPTGOD.LOGGER.error("There was an error making a request to GPT", e);
+                    this.isSending = false;
+                }
+            });
 
     public GptAPI(GptModel model, double temperature) {
         Tool allTools = GptActions.GetAllTools();
@@ -143,6 +184,16 @@ public class GptAPI {
         return this.body.removeMessage(contextHeight);
     }
 
+    // clear all chat messages except context
+    public void flush() {
+        // pop until null
+        try {
+            while (popOldestContent() != null) {
+            }
+        } catch (IndexOutOfBoundsException e) {
+        }
+    }
+
     // remove and return the oldest chat history until we are within the token limit
     // excepting any entires under the contextHeight
     // if provided, nextTokenLength ensures that there is room for the next token
@@ -226,6 +277,12 @@ public class GptAPI {
 
     public GptAPI addFileWithContext(String context, String fileMimeType, String fileUri) {
         this.body.addFileWithPrompt(context, fileMimeType, fileUri);
+        totalTokens += GPTUtils.countTokens(context);
+        return this;
+    }
+
+    public GptAPI addFilesWithContext(String context, GoogleFile[] files) {
+        this.body.addFilesWithPrompt(context, files);
         totalTokens += GPTUtils.countTokens(context);
         return this;
     }
@@ -345,74 +402,12 @@ public class GptAPI {
         return this.body.isLatestMessageFromModel();
     }
 
-    public void send() {
-        CloseableHttpClient client = HttpClientBuilder.create().build();
-
-        this.isSending = true;
-        pool.execute(() -> {
-            FileConfiguration config = JavaPlugin.getPlugin(GPTGOD.class).getConfig();
-            StringEntity data = new StringEntity(gson.create().toJson(body), ContentType.APPLICATION_JSON);
-            GPTGOD.LOGGER.info("POSTING " + gson.setPrettyPrinting().create().toJson(body));
-            HttpPost post = new HttpPost(
-                    BASE_URL + model.getName() + ":generateContent" + "?key=" + config.getString("geminiKey"));
-            post.setHeader(HttpHeaders.CONTENT_TYPE, "application/json");
-            GPTGOD.LOGGER.info("Making POST request");
-            post.setEntity(data);
-            try {
-                HttpResponse response = client.execute(post);
-                String out = new String(response.getEntity().getContent().readAllBytes());
-                EntityUtils.consume(response.getEntity());
-                GPTGOD.LOGGER.info("recieved response from Gemini: " + out);
-                if (response.getStatusLine().getStatusCode() != 200) {
-                    GPTGOD.LOGGER.warn("API call failed");
-                    this.isSending = false;
-                }
-                processResponse(out);
-                client.close();
-                // after everything finishes executing, the request is finished
-                Bukkit.getScheduler().runTaskLater(JavaPlugin.getPlugin(GPTGOD.class), () -> {
-                    this.isSending = false;
-                }, 10);
-            } catch (IOException e) {
-                GPTGOD.LOGGER.error("There was an error making a request to GPT", e);
-                this.isSending = false;
-            }
-        });
+    public void send(Map<String, FunctionDeclaration> functions) {
+        gptTasks.insert(functions);
     }
 
-    public void send(Map<String, FunctionDeclaration> functions) {
-        CloseableHttpClient client = HttpClientBuilder.create().build();
-
-        this.isSending = true;
-        pool.execute(() -> {
-            FileConfiguration config = JavaPlugin.getPlugin(GPTGOD.class).getConfig();
-            StringEntity data = new StringEntity(gson.create().toJson(body), ContentType.APPLICATION_JSON);
-            GPTGOD.LOGGER.info("POSTING " + gson.setPrettyPrinting().create().toJson(body));
-            HttpPost post = new HttpPost(
-                    BASE_URL + model.getName() + ":generateContent" + "?key=" + config.getString("geminiKey"));
-            post.setHeader(HttpHeaders.CONTENT_TYPE, "application/json");
-            GPTGOD.LOGGER.info("Making POST request");
-            post.setEntity(data);
-            try {
-                HttpResponse response = client.execute(post);
-                String out = new String(response.getEntity().getContent().readAllBytes());
-                EntityUtils.consume(response.getEntity());
-                GPTGOD.LOGGER.info("recieved response from Gemini: " + out);
-                if (response.getStatusLine().getStatusCode() != 200) {
-                    GPTGOD.LOGGER.warn("API call failed");
-                    this.isSending = false;
-                }
-                processResponse(out, functions);
-                client.close();
-                // after everything finishes, executing the request is finished
-                Bukkit.getScheduler().runTaskLater(JavaPlugin.getPlugin(GPTGOD.class), () -> {
-                    this.isSending = false;
-                }, 20);
-            } catch (IOException e) {
-                GPTGOD.LOGGER.error("There was an error making a request to GPT", e);
-                this.isSending = false;
-            }
-        });
+    public void send() {
+        this.send(GptActions.getFunctionMap());
     }
 
     public boolean isSending() {
@@ -422,51 +417,6 @@ public class GptAPI {
     // DEBUG method
     public void checkRequestBody() {
         GPTGOD.LOGGER.info("POSTING " + gson.setPrettyPrinting().create().toJson(body));
-    }
-
-    private void processResponse(String response) {
-        // shadow gson builder with gson
-        Gson gson = this.gson.create();
-
-        GenerateContentResponse responseObject = gson.fromJson(response, GenerateContentResponse.class);
-
-        if (responseObject.isError()) {
-            GPTGOD.LOGGER.error(responseObject.getError().toString());
-            if (responseObject.getError().getStatus() == "INVALID_ARGUMENT") {
-                GPTGOD.LOGGER.info(
-                        "GEMINI API RETURNED INVALID ARGUMENT! Suggestion: Double check that the gemini model names are correct.");
-            }
-            return;
-        }
-
-        // overwrite our rough guess of a total with the actual token total from the
-        // last request
-        int promptTokenCount = responseObject.getUsageMetadata().getPromptTokenCount();
-        if (promptTokenCount > 0) {
-            GPTGOD.LOGGER.info("setting GPT token count to " + promptTokenCount);
-            this.totalTokens = promptTokenCount;
-        }
-
-        // run all candidates for now if their parts are not null
-        for (Candidate choice : responseObject.getCandidates()) {
-            ArrayList<Part> parts = choice.getContent().getParts();
-            if (parts == null) {
-                continue;
-            }
-
-            // add non null candidates to response history for multi-turn
-            this.addResponse(choice.getContent());
-
-            for (Part call : parts) {
-                FunctionCall func = call.getFunctionCall();
-                if (func == null) {
-                    continue;
-                }
-                System.out
-                        .println("Trying to execute function " + func.getName() + " with args: " + func.getArguments());
-                GptActions.run(func.getName(), func.getArguments());
-            }
-        }
     }
 
     private void processResponse(String response, Map<String, FunctionDeclaration> functions) {
@@ -487,26 +437,32 @@ public class GptAPI {
             this.totalTokens = promptTokenCount;
         }
 
-        for (Candidate cand : responseObject.getCandidates()) {
-            ArrayList<Part> parts = cand.getContent().getParts();
-            if (parts == null) {
+        Candidate[] cands = responseObject.getCandidates();
+        Content cont = cands[0].getContent();
+        ArrayList<Part> parts = cont.getParts();
+        if (parts == null) {
+            return;
+        }
+
+        // add non null candidates to response history for multi-turn
+        this.addResponse(cont); // THIS COMES BACK IN A NON-DETERMINISTIC ORDER!!! TODO FIX
+
+        for (Part call : parts) {
+            FunctionCall func = call.getFunctionCall();
+            if (func == null) {
                 continue;
             }
-
-            // add non null candidates to response history for multi-turn
-            this.addResponse(cand.getContent());
-
-            for (Part call : parts) {
-                FunctionCall func = call.getFunctionCall();
-                if (func == null) {
-                    continue;
-                }
-                Bukkit.getScheduler().runTask(plugin, () -> {
-                    System.out.println("Trying to execute function " + func.getName() + " from map with args: "
-                            + func.getArguments());
-                    functions.get(func.getName()).runFunction(func.getArguments());
-                });
-            }
+            Bukkit.getScheduler().runTask(plugin, () -> {
+                System.out.println(
+                        "Trying to execute function " + func.getName() + " from map with args: " + func.getArguments());
+                functions.get(func.getName()).runFunction(func.getArguments());
+            });
         }
+
+    }
+
+    // cleanup
+    public void close() {
+        gptTasks.close();
     }
 }
