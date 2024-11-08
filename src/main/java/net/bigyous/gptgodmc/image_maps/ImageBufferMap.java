@@ -3,6 +3,7 @@ package net.bigyous.gptgodmc.image_maps;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -35,6 +36,10 @@ public class ImageBufferMap extends ImageMap {
     protected final FileLazyMappedBufferedImage[] cachedImages;
 
     protected byte[][] cachedColors = null;
+
+    // increment per map name to ensure unique names for this session
+    // god photos do not persist so this is good enough
+    private static HashMap<String, Integer> nameCounters = new HashMap<>();
 
     public static Future<? extends ImageBufferMap> create(ImageMapManager manager, String name, BufferedImage imageBytes, int width, int height, DitheringType ditheringType, UUID creator) throws Exception {
         World world = MapUtils.getMainWorld();
@@ -73,8 +78,19 @@ public class ImageBufferMap extends ImageMap {
         });
     }
 
+    static String ensureUniqueMapName(String name) {
+        Integer mapValue = nameCounters.get(name);
+        int currentInt = 0;
+        if(mapValue != null) {
+            currentInt = mapValue.intValue();
+        }
+        String newName =  name + "_" + currentInt++;
+        nameCounters.put(name, currentInt);
+        return newName;
+    }
+
     public ImageBufferMap(ImageMapManager manager, int imageIndex, String name, BufferedImage imageBytes, FileLazyMappedBufferedImage[] cachedImages, List<MapView> mapViews, List<Integer> mapIds, List<Map<String, MapCursor>> mapMarkers, int width, int height, DitheringType ditheringType, UUID creator, Map<UUID, ImageMapAccessPermissionType> hasAccess, long creationTime) {
-        super(manager, imageIndex, name, mapViews, mapIds, mapMarkers, width, height, ditheringType, creator, hasAccess, creationTime);
+        super(manager, imageIndex, ensureUniqueMapName(name), mapViews, mapIds, mapMarkers, width, height, ditheringType, creator, hasAccess, creationTime);
         this.image = imageBytes;
         this.cachedImages = cachedImages;
     }
