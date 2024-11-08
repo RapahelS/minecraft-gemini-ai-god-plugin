@@ -17,6 +17,8 @@ import org.bukkit.util.Vector;
 
 import dev.jensderuiter.minecraft_imagery.image.ImageCapture;
 import dev.jensderuiter.minecraft_imagery.image.ImageCaptureOptions;
+import dev.jensderuiter.minecraft_imagery.image.ImageCaptureOptions.ImageCaptureOptionsBuilder;
+
 import com.loohp.imageframe.ImageFrame;
 import com.loohp.imageframe.objectholders.DitheringType;
 import com.loohp.imageframe.objectholders.ImageMap;
@@ -60,17 +62,19 @@ public class ImageUtils {
     }
 
     // try to give the player a copy of the image on a map
-    public static void givePhoto(BufferedImage imageBytes, Player recipient, String builderName, String photographer, String subjectName) {
+    public static void givePhoto(BufferedImage imageBytes, Player recipient, String builderName, String photographer,
+            String subjectName) {
         String pictureName = String.format("PHOTO_OF_%s_%s_BY_%s", builderName, subjectName, photographer);
 
         try {
-            ImageMap map = ImageBufferMap.create(ImageFrame.imageMapManager, pictureName, imageBytes, 1,1, DitheringType.FLOYD_STEINBERG, recipient.getUniqueId()).get();
+            ImageMap map = ImageBufferMap.create(ImageFrame.imageMapManager, pictureName, imageBytes, 1, 1,
+                    DitheringType.FLOYD_STEINBERG, recipient.getUniqueId()).get();
             ImageFrame.imageMapManager.addMap(map);
             map.giveMaps(recipient, ImageFrame.mapItemFormat);
         } catch (Exception e) {
             GPTGOD.LOGGER.error("failed to create map for rendered picture", e);
         }
-}
+    }
 
     static class PictureCallbackData {
         BufferedImage imageBytes;
@@ -83,9 +87,14 @@ public class ImageUtils {
     }
 
     // takes a picture from the given camera location
-    public static void takePicture(Location cameraLocation, String pictureName, SimpFunction<PictureCallbackData> resultCallback) {
-        ImageCapture capture = new ImageCapture(cameraLocation,
-                ImageCaptureOptions.builder().fov(fov).showDepth(true).build());
+    public static void takePicture(Location cameraLocation, String pictureName, boolean dayLightCycleAware,
+            SimpFunction<PictureCallbackData> resultCallback) {
+        ImageCaptureOptionsBuilder builder = ImageCaptureOptions.builder().fov(fov)
+                .dayLightCycleAware(dayLightCycleAware).showDepth(true);
+
+        builder.blocksOverrides(null);
+
+        ImageCapture capture = new ImageCapture(cameraLocation, builder.build());
 
         // capture asynchronously as it may run for a while
         new BukkitRunnable() {
@@ -116,7 +125,7 @@ public class ImageUtils {
 
     // same as takePicture(Location) but with a default picture name
     public static void takePicture(Location location, SimpFunction<PictureCallbackData> resultCallback) {
-        takePicture(location, "MINECRAFT_PICTURE", resultCallback);
+        takePicture(location, "MINECRAFT_PICTURE", true, resultCallback);
     }
 
     // takes a picture through the eyes of the provided player
@@ -136,7 +145,8 @@ public class ImageUtils {
             givePhoto(result.imageBytes, player, creatorName, player.getName(), subjectName);
 
             // call gemini vision api with our user generated photography
-            GoogleVision.lookAtPhoto(player.getName(), StructureManager.getStructureDescription(closestStructure, pictureCenter), result.uploadedFile);
+            GoogleVision.lookAtPhoto(player.getName(),
+                    StructureManager.getStructureDescription(closestStructure, pictureCenter), result.uploadedFile);
         });
     }
 
@@ -145,7 +155,7 @@ public class ImageUtils {
         Location structureCenter = structure.getLocation();
         double cameraDistance = calculateCameraDistance(structure);
         Location cameraLocation = lookAt(structureCenter, cameraAngle, cameraDistance);
-        takePicture(cameraLocation, structureName, (PictureCallbackData result) -> {
+        takePicture(cameraLocation, structureName, false, (PictureCallbackData result) -> {
             GoogleVision.lookAtStructure("God", structureName, result.uploadedFile);
         });
     }
