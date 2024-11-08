@@ -33,6 +33,7 @@ Todo:
 - [ ] selfie mode for god camera
 - [ ] spawn sound and particle effects on camera shutter
 - [ ] Add ability to save favourite structures and scatter them across the new map on round start
+- [ ] Add option to renderer to ignore all blocks not in a structure (so that trees don't block the view and make the ai think you built a bush)
 
 ## Local Setup
 
