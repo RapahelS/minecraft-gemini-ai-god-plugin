@@ -35,6 +35,8 @@ Todo:
 - [ ] Add ability to save favourite structures and scatter them across the new map on round start
 - [ ] Add option to renderer to ignore all blocks not in a structure (so that trees don't block the view and make the ai think you built a bush)
 - [ ] Give god a tool to give a user the camera they would otherwise get from `/givecamera`
+- [ ] allow custom voices on speechify api (fetch available voices and check for customs by display name)
+- [ ] tell gemini to output speech in SSML format for speechify
 
 ## Local Setup
 
