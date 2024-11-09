@@ -35,6 +35,10 @@ public class AiTestCommand implements CommandExecutor {
                 /aitest t [text to speak] ex /tts hello there mortals, how are you?
             """;
 
+    private static final String voicesHelpText = """
+                /aitest v [list|set]
+            """;
+
     private static final String commandUsage = """
                 /aitest [s|structure|t|tts] [subcommand args]
                 Structure Command:
@@ -190,6 +194,21 @@ public class AiTestCommand implements CommandExecutor {
         return true;
     }
 
+    // helper command so that users can easily find out what voices are available to
+    // them
+    // or find out the real id (not just display name) of their custom voices
+    public boolean handleVoicesCommand(CommandSender sender, Command command, @NotNull String[] args) {
+        if (args.length < 1) {
+            sender.sendMessage("please include a subcommand for the voices command");
+            sender.sendMessage(voicesHelpText);
+            return false;
+        }
+
+        sender.sendMessage("TODO");
+
+        return true;
+    }
+
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label,
             @NotNull String[] args) {
@@ -213,10 +232,13 @@ public class AiTestCommand implements CommandExecutor {
         case "s":
         case "structure":
             return handleStructureCommand(sender, command, subArgs);
+        case "v":
+        case "voice":
+        case "voices":
+            return handleVoicesCommand(sender, command, subArgs);
         case "t":
         case "tts":
             return handleTtsCommand(sender, command, subArgs);
-
         case "r":
         case "render":
             sender.sendMessage("todo. try structure render. Standalone render function may not be needed");
