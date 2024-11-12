@@ -12,7 +12,6 @@ import org.jetbrains.annotations.NotNull;
 
 import com.google.gson.JsonObject;
 
-import net.bigyous.gptgodmc.GPTGOD;
 import net.bigyous.gptgodmc.Structure;
 import net.bigyous.gptgodmc.StructureManager;
 import net.bigyous.gptgodmc.GPT.GptActions;
