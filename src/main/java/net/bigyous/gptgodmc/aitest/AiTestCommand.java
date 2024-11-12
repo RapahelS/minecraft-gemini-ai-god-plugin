@@ -236,10 +236,8 @@ public class AiTestCommand implements CommandExecutor {
                 break;
             default:
                 sender.sendMessage(voicesHelpText);
-                break;
+                return false;
         }
-
-        sender.sendMessage("TODO");
 
         return true;
     }
