@@ -34,6 +34,7 @@ public class Speechify {
     private static String VOICES_ENDPOINT = "https://api.sws.speechify.com/v1/voices";
     private static VoicechatApi api = GPTGOD.VC_SERVER;
     private static FileConfiguration config = JavaPlugin.getPlugin(GPTGOD.class).getConfig();
+    private static SpeechifyVoiceInfo[] cachedVoices = null;
 
     public static byte[] resampleWavToPCM(byte[] wavBytes, int targetSampleRate)
             throws UnsupportedAudioFileException, IOException {
@@ -110,6 +111,11 @@ public class Speechify {
     }
 
     public static SpeechifyVoiceInfo[] requestAllVoices() {
+
+        if(cachedVoices != null) {
+            return cachedVoices;
+        }
+
         String responseBody = "";
         try {
         HttpRequest request = HttpRequest.newBuilder().uri(URI.create(VOICES_ENDPOINT)).header("accept", "*/*")
@@ -123,6 +129,9 @@ public class Speechify {
 
         responseBody = response.body();
         SpeechifyVoiceInfo[] voices = gson.create().fromJson(responseBody, SpeechifyVoiceInfo[].class);
+        if(voices != null && voices.length > 0) {
+            cachedVoices = voices;
+        }
 
         return voices;
 
