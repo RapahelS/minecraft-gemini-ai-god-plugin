@@ -51,7 +51,7 @@ public class AiTestCommand implements CommandExecutor {
 
                 TTS Args:
             """ + ttsHelpText + """
-                
+
                 Voice Args:
             """ + voicesHelpText;
 
@@ -212,31 +212,50 @@ public class AiTestCommand implements CommandExecutor {
             return false;
         }
 
-        boolean personalOnly = (args.length > 1 && args[1].toLowerCase() == "p");
-
-        switch (args[0].toLowerCase()) {
-            case "l":
-            case "list":
-                // todo thread this blocking web request
-                SpeechifyVoiceInfo[] voices = Speechify.requestAllVoices();
-                List<String> voicesMsg = new ArrayList<>();
-                if(personalOnly) {
-                    voicesMsg.add("Listing personal voices only:");
-                } else {
-                    voicesMsg.add("All Speechify voices:");
-                }
-                for(SpeechifyVoiceInfo voice : voices) {
-                    if(!personalOnly || voice.getType() == VoiceType.personal) voicesMsg.add(String.format("%s: %s", voice.getDisplay_name(), voice.getId()));
-                }
-                sender.sendMessage(voicesMsg.toArray(new String[voicesMsg.size()]));
-                break;
-            case "s":
-            case "set":
-                sender.sendMessage("TODO");
+        boolean personalOnly = false;
+        int page = 0;
+        int pageSize = 10;
+        if (args.length > 1) {
+            switch (args[1].toLowerCase()) {
+            case "p":
+            case "personal":
+                personalOnly = true;
                 break;
             default:
-                sender.sendMessage(voicesHelpText);
-                return false;
+                try {
+                    int getPage = Integer.parseUnsignedInt(commandUsage);
+                    if(getPage > 0) page = getPage;
+                } catch(NumberFormatException e) {}
+                break;
+            }
+        }
+
+        switch (args[0].toLowerCase()) {
+        case "l":
+        case "list":
+            // todo thread this blocking web request
+            SpeechifyVoiceInfo[] voices = Speechify.requestAllVoices();
+            List<String> voicesMsg = new ArrayList<>();
+            if (personalOnly) {
+                voicesMsg.add("Listing personal voices only:");
+            } else {
+                voicesMsg.add("All Speechify voices:");
+            }
+            int pageStart = page * pageSize;
+            for (int i = pageStart; i < voices.length && i < (pageStart + pageSize); i++) {
+                if (!personalOnly || voices[i].getType() == VoiceType.personal) {
+                    voicesMsg.add(String.format("%s: %s", voices[i].getDisplay_name(), voices[i].getId()));
+                }
+            }
+            sender.sendMessage(voicesMsg.toArray(new String[voicesMsg.size()]));
+            break;
+        case "s":
+        case "set":
+            sender.sendMessage("TODO");
+            break;
+        default:
+            sender.sendMessage(voicesHelpText);
+            return false;
         }
 
         return true;
