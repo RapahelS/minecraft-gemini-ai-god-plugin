@@ -23,6 +23,7 @@ import net.bigyous.gptgodmc.AudioFileManager;
 import net.bigyous.gptgodmc.GPTGOD;
 import net.bigyous.gptgodmc.GPT.Json.SpeechifyGenerateRequest;
 import net.bigyous.gptgodmc.GPT.Json.SpeechifyGenerateResponse;
+import net.bigyous.gptgodmc.GPT.Json.SpeechifyVoiceInfo;
 import net.bigyous.gptgodmc.utils.QueuedAudio;
 import javax.sound.sampled.*;
 
@@ -30,6 +31,7 @@ public class Speechify {
     private static GsonBuilder gson = new GsonBuilder();
     private static ExecutorService pool = Executors.newCachedThreadPool();
     private static String SPEECH_ENDPOINT = "https://api.sws.speechify.com/v1/audio/speech";
+    private static String VOICES_ENDPOINT = "https://api.sws.speechify.com/v1/voices";
     private static VoicechatApi api = GPTGOD.VC_SERVER;
     private static FileConfiguration config = JavaPlugin.getPlugin(GPTGOD.class).getConfig();
 
@@ -105,6 +107,29 @@ public class Speechify {
                 GPTGOD.LOGGER.error("There was an error processing the Speechify response " + responseBody, e);
             }
         });
+    }
+
+    public static SpeechifyVoiceInfo[] requestAllVoices() {
+        String responseBody = "";
+        try {
+        HttpRequest request = HttpRequest.newBuilder().uri(URI.create(VOICES_ENDPOINT)).header("accept", "*/*")
+                .header("Authorization", "Bearer " + config.getString("speechify-key")).GET().build();
+        HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
+
+        if(response.statusCode() != 200) {
+            GPTGOD.LOGGER.error("There was an error (" +  + response.statusCode() + ") fetching the voices list from Speechify");
+            return null;
+        }
+
+        responseBody = response.body();
+        SpeechifyVoiceInfo[] voices = gson.create().fromJson(responseBody, SpeechifyVoiceInfo[].class);
+
+        return voices;
+
+        } catch (Exception e) {
+            GPTGOD.LOGGER.error("There was an error fetching the voices list from Speechify", e);
+            return null;
+        }
     }
 
 }

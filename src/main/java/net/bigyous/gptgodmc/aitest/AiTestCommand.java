@@ -1,6 +1,8 @@
 package net.bigyous.gptgodmc.aitest;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -13,14 +15,17 @@ import com.google.gson.JsonObject;
 import net.bigyous.gptgodmc.Structure;
 import net.bigyous.gptgodmc.StructureManager;
 import net.bigyous.gptgodmc.GPT.GptActions;
+import net.bigyous.gptgodmc.GPT.Json.SpeechifyVoiceInfo;
+import net.bigyous.gptgodmc.GPT.Json.SpeechifyVoiceInfo.VoiceType;
 import net.bigyous.gptgodmc.utils.ImageUtils;
+import net.bigyous.gptgodmc.GPT.Speechify;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 
 public class AiTestCommand implements CommandExecutor {
 
-    private static final String subcommandsList = "structure render tts";
+    private static final String subcommandsList = "structure render tts voices";
 
     private static final String structureHelpText = """
             optional parameters have ? on them
@@ -36,16 +41,19 @@ public class AiTestCommand implements CommandExecutor {
             """;
 
     private static final String voicesHelpText = """
-                /aitest v [list|set]
+                /aitest v [list|set] (p)
             """;
 
     private static final String commandUsage = """
-                /aitest [s|structure|t|tts] [subcommand args]
+                /aitest [s|structure|t|tts|v|voices] [subcommand args]
                 Structure Command:
             """ + structureHelpText + """
 
                 TTS Args:
-            """ + ttsHelpText;
+            """ + ttsHelpText + """
+                
+                Voice Args:
+            """ + voicesHelpText;
 
     private Vector getAxisVector(String axis, Vector defaultVec) {
         switch (axis.toLowerCase()) {
@@ -202,6 +210,33 @@ public class AiTestCommand implements CommandExecutor {
             sender.sendMessage("please include a subcommand for the voices command");
             sender.sendMessage(voicesHelpText);
             return false;
+        }
+
+        boolean personalOnly = (args.length > 1 && args[1].toLowerCase() == "p");
+
+        switch (args[0].toLowerCase()) {
+            case "l":
+            case "list":
+                // todo thread this blocking web request
+                SpeechifyVoiceInfo[] voices = Speechify.requestAllVoices();
+                List<String> voicesMsg = new ArrayList<>();
+                if(personalOnly) {
+                    voicesMsg.add("Listing personal voices only:");
+                } else {
+                    voicesMsg.add("All Speechify voices:");
+                }
+                for(SpeechifyVoiceInfo voice : voices) {
+                    if(!personalOnly || voice.getType() == VoiceType.personal) voicesMsg.add(String.format("%s: %s", voice.getDisplay_name(), voice.getId()));
+                }
+                sender.sendMessage(voicesMsg.toArray(new String[voicesMsg.size()]));
+                break;
+            case "s":
+            case "set":
+                sender.sendMessage("TODO");
+                break;
+            default:
+                sender.sendMessage(voicesHelpText);
+                break;
         }
 
         sender.sendMessage("TODO");
