@@ -12,6 +12,7 @@ import org.jetbrains.annotations.NotNull;
 
 import com.google.gson.JsonObject;
 
+import net.bigyous.gptgodmc.GPTGOD;
 import net.bigyous.gptgodmc.Structure;
 import net.bigyous.gptgodmc.StructureManager;
 import net.bigyous.gptgodmc.GPT.GptActions;
@@ -41,7 +42,7 @@ public class AiTestCommand implements CommandExecutor {
             """;
 
     private static final String voicesHelpText = """
-                /aitest v [list|set] (p)
+                /aitest v [list|set] (personal|page-num)
             """;
 
     private static final String commandUsage = """
@@ -223,9 +224,11 @@ public class AiTestCommand implements CommandExecutor {
                 break;
             default:
                 try {
-                    int getPage = Integer.parseUnsignedInt(commandUsage);
-                    if(getPage > 0) page = getPage;
-                } catch(NumberFormatException e) {}
+                    int getPage = Integer.parseUnsignedInt(args[1]);
+                    if(getPage > 0) page = getPage-1;
+                } catch(NumberFormatException e) {
+                    sender.sendMessage(Component.text("invalid page number!").color(TextColor.color(255, 40, 40)));
+                }
                 break;
             }
         }
@@ -239,7 +242,7 @@ public class AiTestCommand implements CommandExecutor {
             if (personalOnly) {
                 voicesMsg.add("Listing personal voices only:");
             } else {
-                voicesMsg.add("All Speechify voices:");
+                voicesMsg.add(String.format("All Speechify voices (Page %d of %d):", page+1, voices.length / pageSize));
             }
             int pageStart = page * pageSize;
             for (int i = pageStart; i < voices.length && i < (pageStart + pageSize); i++) {
