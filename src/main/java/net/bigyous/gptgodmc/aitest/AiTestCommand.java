@@ -239,10 +239,11 @@ public class AiTestCommand implements CommandExecutor {
             // todo thread this blocking web request
             SpeechifyVoiceInfo[] voices = Speechify.requestAllVoices();
             List<String> voicesMsg = new ArrayList<>();
+            int pageCount = 1 + voices.length / pageSize;
             if (personalOnly) {
                 voicesMsg.add("Listing personal voices only:");
             } else {
-                voicesMsg.add(String.format("All Speechify voices (Page %d of %d):", page+1, voices.length / pageSize));
+                voicesMsg.add(String.format("All Speechify voices (Page %d of %d):", page+1, pageCount));
             }
             int pageStart = page * pageSize;
             for (int i = pageStart; i < voices.length && i < (pageStart + pageSize); i++) {
