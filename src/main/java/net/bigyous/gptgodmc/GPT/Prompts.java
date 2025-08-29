@@ -22,6 +22,13 @@ public class Prompts {
         if (config.isSet("promptOverride") && !config.getString("promptOverride").isBlank()) {
             return config.getString("promptOverride") + TOOL_ONLY;
         }
+        String key = "prompts.gamemode." + gamemode.name();
+        if (config.isSet(key)) {
+            String override = config.getString(key);
+            if (override != null && !override.isBlank()) {
+                return override + TOOL_ONLY;
+            }
+        }
         return Prompts.get(gamemode) + TOOL_ONLY;
     }
 }

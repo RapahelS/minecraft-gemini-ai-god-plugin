@@ -3,6 +3,8 @@ Modified version of the [ChatGPT bukkit plugin by "BigYous"](https://github.com/
 
 ![demo image of photography and decree features](./demo_images/photography.png)
 
+For a concise overview of game modes, code structure, and build/deploy steps, see `ARCHITECTURE.md`.
+
 What's Changed:
 
 - [x] Ported to google gemini from chatgpt
@@ -67,40 +69,53 @@ Todo:
     - do NOT use `gemini-1.5-pro` as the secondary model
 - custom voices: if you create a custom voice on speechify, you can find it's real id (not display name) using the `/aitest voice list p` command to use as the voice id
 
+New config keys:
+- `speechify-model`: one of `simba-english`, `simba-base`, `simba-multilingual` (default), `simba-turbo`.
+- `prompts`: optional overrides for AI prompts. Leave values empty to use defaults.
+  - `prompts.gamemode.SANDBOX` and `prompts.gamemode.DEATHMATCH`
+  - `prompts.base.PROMPT_BASE`, `REQUIREMENTS`, `GUIDANCE`, `STYLE`, `ESCALATION`, `ROLEPLAY`
+  - `prompts.commands.CONTEXT`, `prompts.vision.CONTEXT`, `prompts.summarize.CONTEXT`,
+    `prompts.transcription.MANY_CONTEXT`, `prompts.transcription.SINGLE_CONTEXT`
+
 ![game-play example photo 2](./demo_images/god_hates_me.png)
 
 ## Building
 
-- use the shadowjar task to build
-- the jar will appear in build/libs
-- place this jar in the plugins folder of the server
+- Prerequisite: JDK 21 (server and build both use Java 21)
+- Build with the Gradle wrapper:
+  - Windows (PowerShell): `./gradlew clean shadowJar`
+  - Linux/macOS: `./gradlew clean shadowJar`
+- Output: `build/libs/gptgodmc-<version>-all.jar` (fat/shaded jar)
+  - Use the `-all.jar` in your server's `plugins` folder.
+  - Remove any thin jar (without `-all`) to avoid missing dependency errors.
 
 ## Development
 
-*development requires jdk 21 and gradle version 7.4*
+Development requires JDK 21. The repo includes the Gradle wrapper (currently 8.7), so you don't need a system Gradle install.
 
 Workspace has been setup for VSCode as well.
 
 plugin jar releases show up under `<project_dir>\build\libs`
 
 ## Windows
-A release build may be generated with the included bat file for convenience.
-```bash
-I:\DEVELOPER\PROJECTS\minecraft-gpt-god-plugin>gradlew shadowJar
-Starting a Gradle Daemon, 2 incompatible and 1 stopped Daemons could not be reused, use --status for details
-
-BUILD SUCCESSFUL in 3s
-3 actionable tasks: 3 up-to-date
-I:\DEVELOPER\PROJECTS\minecraft-gpt-god-plugin>
+Use PowerShell from the project root:
+```powershell
+./gradlew shadowJar
 ```
+The plugin will be at `build\libs\gptgodmc-<version>-all.jar`.
 
 ## *Nix
 
-install gradle 7.4, and jdk 21 then:
+JDK 21 required. Use the wrapper, no system Gradle needed:
 
 ```bash
-~> gradle shadowJar
+./gradlew shadowJar
 ```
+
+## Troubleshooting
+
+- NoClassDefFoundError: `com.knuddels.jtokkit.Encodings`
+  - Ensure you're deploying the shaded `-all.jar`. The build shades `jtokkit` and other runtime deps.
 
 ## Running
 

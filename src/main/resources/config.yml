@@ -109,8 +109,30 @@ tts: true
 # default: benjamin
 speechify-voice: benjamin
 
+# The Speechify audio model to use [simba-english, simba-base, simba-multilingual, simba-turbo]
+# default: simba-multilingual
+speechify-model: simba-multilingual
+
 # write your own game-mode prompt here instead of the deafault game-mode prompt
 promptOverride: ""
+
+# Optional: override specific prompt blocks used by the AI god. Leave commented or blank to use defaults.
+prompts:
+  gamemode:
+    SANDBOX: ""
+    DEATHMATCH: ""
+  base:
+    PROMPT_BASE: ""
+    REQUIREMENTS: ""
+    GUIDANCE: ""
+    STYLE: ""
+    ESCALATION: ""
+    ROLEPLAY: ""
+  summarize:
+    CONTEXT: ""
+  transcription:
+    MANY_CONTEXT: ""
+    SINGLE_CONTEXT: ""
 # old gpt configurations
 
 # your OpenAi API key from https://platform.openai.com/api-keys

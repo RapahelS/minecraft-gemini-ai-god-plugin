@@ -10,9 +10,12 @@ import net.bigyous.gptgodmc.GPT.Json.Tool;
 import net.bigyous.gptgodmc.interfaces.SimpFunction;
 
 import java.util.Map;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.plugin.java.JavaPlugin;
 
 public class SummarizeLogs {
-        private static String context = """
+        private static FileConfiguration config = JavaPlugin.getPlugin(GPTGOD.class).getConfig();
+        private static String DEFAULT_CONTEXT = """
                         You are a helpful assistant that will recieve a log of events from a minecraft server, \
                         or a historical summary and a log of events. \
                         You will create a short summary based on this information that preserves the plot detailed by both, you are viewing these logs from the perspective of a god that rewards %s and punishes %s \
@@ -33,8 +36,18 @@ public class SummarizeLogs {
                         "submitSummary", "input the summary, keep the summary below 1000 tokens",
                         new Schema(Map.of("summary", new Schema(Schema.Type.STRING, "the summary"))), submitSummary));
         private static Tool tools = GptActions.wrapFunctions(functionMap);
+        private static String getOverrideOrDefault(String key, String def) {
+                if (config.isSet(key)) {
+                        String v = config.getString(key);
+                        if (v != null && !v.isBlank()) return v;
+                }
+                return def;
+        }
+
+        private static String CONTEXT_TEMPLATE = getOverrideOrDefault("prompts.summarize.CONTEXT", DEFAULT_CONTEXT);
+
         private static GptAPI gpt = new GptAPI(GPTModels.getSecondaryModel(), tools)
-                        .setSystemContext(String.format(context, String.join(",", Personality.getLikes()),
+                        .setSystemContext(String.format(CONTEXT_TEMPLATE, String.join(",", Personality.getLikes()),
                                         String.join(",", Personality.getDislikes())))
                         .setToolChoice("submitSummary");
 

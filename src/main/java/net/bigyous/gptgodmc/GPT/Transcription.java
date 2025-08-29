@@ -66,6 +66,14 @@ public class Transcription {
                     submitTranscriptions));
     private static Tool tools = GptActions.wrapFunctions(functionMap);
 
+    private static String getOverrideOrDefault(String key, String def) {
+        if (config.isSet(key)) {
+            String v = config.getString(key);
+            if (v != null && !v.isBlank()) return v;
+        }
+        return def;
+    }
+
     public static void TranscribeAndSubmitMany(TranscriptionRequest[] playerAudioData) {
         if (config.getString("geminiKey").isBlank()) {
             GPTGOD.LOGGER.warn("No API Key");
@@ -73,7 +81,7 @@ public class Transcription {
         }
 
         GptAPI gpt = new GptAPI(GPTModels.getSecondaryModel(), tools)
-                .setSystemContext(
+                .setSystemContext(getOverrideOrDefault("prompts.transcription.MANY_CONTEXT",
                         """
                                 you are a voice chat transcriber. You will receive a series of voice chat inputs from various players in series with a minecraft 24hr time marker ([HH:MM]).
                                 Transcribe what words you hear from the input audio as closly as possible to what you think people are saying.
@@ -82,7 +90,7 @@ public class Transcription {
                                 Try to group voice chat results from the same user together if no other player spoke inbetween them.
                                 Return a list of transcribed messages of what each player said in sequence
                                 for example: [23:06] John said: how are you doing? [23:10] Jane said: i'm doing okay.
-                                """)
+                                """))
                 .setTools(tools).setToolChoice("submitTranscriptions");
 
         for (TranscriptionRequest req : playerAudioData) {
@@ -112,14 +120,14 @@ public class Transcription {
             }
 
             // Create the content request object
-            GenerateContentRequest contentRequest = new GenerateContentRequest()
-                    .setSystemInstruction(
-                            """
-                                    you are a voice chat transcriber.
-                                    Try to transcribe what you hear from the input audio as closly as possible to what you think people are saying.
-                                    If no words are heard then you may return descriptions of what you hear inbetween of astrix cahracters e.x. *birds chirping* or *nothing*.
-                                    DO NOT make stuff up, rather prefer an empty transcription over made up sounds if no words are heard.
-                                    """)
+        GenerateContentRequest contentRequest = new GenerateContentRequest()
+            .setSystemInstruction(getOverrideOrDefault("prompts.transcription.SINGLE_CONTEXT",
+                """
+                    you are a voice chat transcriber.
+                    Try to transcribe what you hear from the input audio as closly as possible to what you think people are saying.
+                    If no words are heard then you may return descriptions of what you hear inbetween of astrix cahracters e.x. *birds chirping* or *nothing*.
+                    DO NOT make stuff up, rather prefer an empty transcription over made up sounds if no words are heard.
+                    """))
                     .addFileWithPrompt("transcribe this audio clip", "audio/wav", file.getUri());
             String jsonBody = gson.toJson(contentRequest);
             System.out.println("jsonBody");

@@ -22,6 +22,7 @@ import de.maxhenkel.voicechat.api.VoicechatApi;
 import net.bigyous.gptgodmc.AudioFileManager;
 import net.bigyous.gptgodmc.GPTGOD;
 import net.bigyous.gptgodmc.GPT.Json.SpeechifyGenerateRequest;
+import net.bigyous.gptgodmc.GPT.Json.AudioModel;
 import net.bigyous.gptgodmc.GPT.Json.SpeechifyGenerateResponse;
 import net.bigyous.gptgodmc.GPT.Json.SpeechifyVoiceInfo;
 import net.bigyous.gptgodmc.utils.QueuedAudio;
@@ -71,7 +72,17 @@ public class Speechify {
     public static void makeSpeech(String input, Player player) {
         Collection<? extends Player> online = GPTGOD.SERVER.getOnlinePlayers();
         Player[] players = player == null ? online.toArray(new Player[online.size()]) : new Player[] { player };
-        makeTTsRequest(new SpeechifyGenerateRequest(input, config.getString("speechify-voice")), players);
+        String voice = config.getString("speechify-voice");
+        String modelStr = config.getString("speechify-model");
+        AudioModel model = AudioModel.simba_multilingual;
+        if (modelStr != null && !modelStr.isBlank()) {
+            try {
+                model = AudioModel.valueOf(modelStr.trim().toLowerCase().replace('-', '_'));
+            } catch (IllegalArgumentException ex) {
+                GPTGOD.LOGGER.warn("Invalid speechify-model in config: '" + modelStr + "', defaulting to " + model);
+            }
+        }
+        makeTTsRequest(new SpeechifyGenerateRequest(input, voice, model), players);
     }
 
     private static void makeTTsRequest(SpeechifyGenerateRequest body, Player[] players) {

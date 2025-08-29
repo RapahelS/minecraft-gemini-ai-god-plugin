@@ -23,9 +23,12 @@ import java.util.Arrays;
 import java.util.Map;
 
 import org.bukkit.command.CommandException;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.plugin.java.JavaPlugin;
 
 public class GenerateCommands {
         private static Gson gson = new Gson();
+        private static FileConfiguration config = JavaPlugin.getPlugin(GPTGOD.class).getConfig();
         private static SimpFunction<JsonObject> inputCommands = (JsonObject args) -> {
                 String[] commands = gson.fromJson(args.get("commands"), String[].class);
                 try {
@@ -54,25 +57,43 @@ public class GenerateCommands {
                                         Schema.Type.STRING))),
                         inputCommands));
         private static Tool tools = GptActions.wrapFunctions(functionMap);
+        private static String getOverrideOrDefault(String key, String def) {
+                if (config.isSet(key)) {
+                        String v = config.getString(key);
+                        if (v != null && !v.isBlank())
+                                return v;
+                }
+                return def;
+        }
+        private static String getLanguageDirective() {
+                String lang = config.getString("language");
+                if (lang == null || lang.isBlank())
+                        lang = "en";
+                return String.format(
+                                "Language: %s. Respond only in %s. Ensure any player-visible text inside generated commands (titles, tellraw, bossbars, signs, books, etc.) is written in %s.",
+                                lang, lang, lang);
+        }
+        private static String DEFAULT_CONTEXT =
+                        """
+                                        You are a helpful assistant that will generate
+                                        one or more minecraft java edition commands based on a prompt inputted by the user,
+                                        even if the prompt seems impossible in minecraft try to approximate it as close as possible
+                                        with functioning minecraft commands. A wrong answer is better than no answer.
+                                        The commands must be compatible with minecraft.
+                                        There must always be at least one command in the response and no other types of responses.
+                                        If the description calls for multiple events then make multiple commands but try not to go far past 24.
+                                        Try to offset dangerous spawns from the exact player position.
+                                        Make sure that title text displays fit in the screen.
+                                        Ensure that positionaly dependent code is executed relative to the specific player.
+                                        Only use a tool call in one json response, other responses will be ignored.
+                                        The response must be valid minecraft command syntax.
+                                        Do not use item frames with books to display text.
+                                        Pay VERY close attention to opening and closing delimeters in the syntax and make sure they match up.
+                                        Prefer the use of 'single quotes' over \" or " when possible.
+                                        """;
         private static GptAPI gpt = new GptAPI(GPTModels.getSecondaryModel(), tools)
-                        .setSystemContext(
-                                        """
-                                                        You are a helpful assistant that will generate
-                                                        one or more minecraft java edition commands based on a prompt inputted by the user,
-                                                        even if the prompt seems impossible in minecraft try to approximate it as close as possible
-                                                        with functioning minecraft commands. A wrong answer is better than no answer.
-                                                        The commands must be compatible with minecraft.
-                                                        There must always be at least one command in the response and no other types of responses.
-                                                        If the description calls for multiple events then make multiple commands but try not to go far past 24.
-                                                        Try to offset dangerous spawns from the exact player position.
-                                                        Make sure that title text displays fit in the screen.
-                                                        Ensure that positionaly dependent code is executed relative to the specific player.
-                                                        Only use a tool call in one json response, other responses will be ignored.
-                                                        The response must be valid minecraft command syntax.
-                                                        Do not use item frames with books to display text.
-                                                        Pay VERY close attention to opening and closing delimeters in the syntax and make sure they match up.
-                                                        Prefer the use of 'single quotes' over \\" or " when possible.
-                                                        """)
+                        .setSystemContext(new String[] { getLanguageDirective(),
+                                        getOverrideOrDefault("prompts.commands.CONTEXT", DEFAULT_CONTEXT) })
                         .setTools(tools)
                         .addMessages(new String[] {
                                         "write Minecraft commands that: make a fireworks display all around MoistPyro" })

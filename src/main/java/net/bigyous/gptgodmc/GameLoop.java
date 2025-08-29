@@ -60,13 +60,21 @@ public class GameLoop {
     public static void init() {
         if (isRunning || !config.getBoolean("enabled"))
             return;
+    // load optional prompt overrides
+    PROMPT_BASE = getOverrideOrDefault("prompts.base.PROMPT_BASE", PROMPT_BASE);
+    REQUIREMENTS = getOverrideOrDefault("prompts.base.REQUIREMENTS", REQUIREMENTS);
+    GUIDANCE = getOverrideOrDefault("prompts.base.GUIDANCE", GUIDANCE);
+    STYLE = getOverrideOrDefault("prompts.base.STYLE", STYLE);
+    ESCALATION = getOverrideOrDefault("prompts.base.ESCALATION", ESCALATION);
+    ROLEPLAY = getOverrideOrDefault("prompts.base.ROLEPLAY", ROLEPLAY);
         GPT_API = new GptAPI(GPTModels.getMainModel(), tempurature);
         BukkitTask task = GPTGOD.SERVER.getScheduler().runTaskTimerAsynchronously(plugin, new GPTTask(),
                 BukkitUtils.secondsToTicks(30), BukkitUtils.secondsToTicks(rate));
         taskId = task.getTaskId();
         personality = Personality.generatePersonality();
         PROMPT = Prompts.getGamemodePrompt(GPTGOD.gameMode);
-        String[] systemPrompt = new String[] { PROMPT, personality, PROMPT_BASE, REQUIREMENTS, GUIDANCE, STYLE,
+    String languageDirective = getLanguageDirective();
+    String[] systemPrompt = new String[] { languageDirective, PROMPT, personality, PROMPT_BASE, REQUIREMENTS, GUIDANCE, STYLE,
                 ESCALATION, ROLEPLAY };
         GPT_API.setSystemContext(systemPrompt);
         // set tool only mode
@@ -74,6 +82,20 @@ public class GameLoop {
 
         isRunning = true;
         GPTGOD.LOGGER.info("GameLoop Started, the minecraft god has awoken");
+    }
+
+    private static String getOverrideOrDefault(String key, String defaultVal) {
+        if (config.isSet(key)) {
+            String v = config.getString(key);
+            if (v != null && !v.isBlank()) return v;
+        }
+        return defaultVal;
+    }
+
+    private static String getLanguageDirective() {
+        String lang = config.getString("language");
+        if (lang == null || lang.isBlank()) lang = "en";
+        return String.format("Language: %s. Respond only in %s. Ensure ALL player-facing text and ALL tool arguments (whisper, announce, decree, objective descriptions, names, and any other messages) are written in %s.", lang, lang, lang);
     }
 
     public static void stop() {

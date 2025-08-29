@@ -8,6 +8,8 @@ import com.google.gson.JsonObject;
 
 import net.bigyous.gptgodmc.EventLogger;
 import net.bigyous.gptgodmc.GPTGOD;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.plugin.java.JavaPlugin;
 import net.bigyous.gptgodmc.StructureManager;
 import net.bigyous.gptgodmc.GPT.Json.FunctionDeclaration;
 import net.bigyous.gptgodmc.GPT.Json.Schema;
@@ -24,6 +26,7 @@ import net.kyori.adventure.text.format.TextDecoration;
 // and we may be smited >:D
 public class GoogleVision {
     private static Gson gson = new Gson();
+    private static FileConfiguration config = JavaPlugin.getPlugin(GPTGOD.class).getConfig();
 
     // the parameters that the vision model returns
     class DescribeStructureParams {
@@ -159,7 +162,14 @@ public class GoogleVision {
                                     "The executive decision on wether or not this structure is ugly or not in it's current state. Return a value of true to indicate that you think it is ugly, or false if it is pretty."))),
                     critiquePhoto));
     private static Tool tools = GptActions.wrapFunctions(functionMap);
-    private static GptAPI gpt = new GptAPI(GPTModels.getSecondaryModel(), tools).setSystemContext("""
+    private static String getOverrideOrDefault(String key, String def) {
+        if (config.isSet(key)) {
+            String v = config.getString(key);
+            if (v != null && !v.isBlank()) return v;
+        }
+        return def;
+    }
+    private static String DEFAULT_CONTEXT = """
             You are a helpful assistant that will generate opinions and descriptions about minecraft structures.
             Using the provided renderings of Minecraft structures,
             please answer the below questions succinctly excluding
@@ -170,7 +180,10 @@ public class GoogleVision {
             based solely on its construction, without regard to the photo quality itself?
             You MUST choose one or the other and explain. Do not base this decision on chance.
             Only use a tool call in one json response, other responses will be ignored.
-            """).setTools(tools).setToolChoice("describeStructure");
+            """;
+    private static GptAPI gpt = new GptAPI(GPTModels.getSecondaryModel(), tools)
+            .setSystemContext(getOverrideOrDefault("prompts.vision.CONTEXT", DEFAULT_CONTEXT))
+            .setTools(tools).setToolChoice("describeStructure");
 
     // have the ai model rate a structure with multiple different camera angles
     // available to it
