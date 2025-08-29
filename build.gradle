@@ -79,6 +79,7 @@ repositories {
 }
 
 shadowJar {
+    archiveClassifier.set('all')
     dependencies {
         include(dependency('org.apache.commons:.*'))
         include(dependency('com.google.code.gson:.*'))
@@ -87,4 +88,9 @@ shadowJar {
         include(dependency('org.apache.httpcomponents:.*'))
         include(dependency('commons-io:commons-io'))
     }
+}
+
+// Always build the shaded jar on `build`
+tasks.named('build') {
+    dependsOn tasks.named('shadowJar')
 }
