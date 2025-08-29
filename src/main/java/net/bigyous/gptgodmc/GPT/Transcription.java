@@ -80,8 +80,12 @@ public class Transcription {
             return;
         }
 
-        GptAPI gpt = new GptAPI(GPTModels.getSecondaryModel(), tools)
-                .setSystemContext(getOverrideOrDefault("prompts.transcription.MANY_CONTEXT",
+    String languageDirective = getOverrideOrDefault("language",
+        "en");
+    GptAPI gpt = new GptAPI(GPTModels.getSecondaryModel(), tools)
+        .setSystemContext(new String[] {
+            String.format("Language: %s. Transcribe into %s. Do not translate proper names.", languageDirective, languageDirective),
+            getOverrideOrDefault("prompts.transcription.MANY_CONTEXT",
                         """
                                 you are a voice chat transcriber. You will receive a series of voice chat inputs from various players in series with a minecraft 24hr time marker ([HH:MM]).
                                 Transcribe what words you hear from the input audio as closly as possible to what you think people are saying.
@@ -90,7 +94,8 @@ public class Transcription {
                                 Try to group voice chat results from the same user together if no other player spoke inbetween them.
                                 Return a list of transcribed messages of what each player said in sequence
                                 for example: [23:06] John said: how are you doing? [23:10] Jane said: i'm doing okay.
-                                """))
+                """)
+        })
                 .setTools(tools).setToolChoice("submitTranscriptions");
 
         for (TranscriptionRequest req : playerAudioData) {
@@ -120,14 +125,19 @@ public class Transcription {
             }
 
             // Create the content request object
+        String lang = config.getString("language");
+        if (lang == null || lang.isBlank()) lang = "en";
         GenerateContentRequest contentRequest = new GenerateContentRequest()
-            .setSystemInstruction(getOverrideOrDefault("prompts.transcription.SINGLE_CONTEXT",
+            .setSystemInstruction(new String[] {
+                String.format("Language: %s. Transcribe into %s. Do not translate proper names.", lang, lang),
+                getOverrideOrDefault("prompts.transcription.SINGLE_CONTEXT",
                 """
                     you are a voice chat transcriber.
                     Try to transcribe what you hear from the input audio as closly as possible to what you think people are saying.
                     If no words are heard then you may return descriptions of what you hear inbetween of astrix cahracters e.x. *birds chirping* or *nothing*.
                     DO NOT make stuff up, rather prefer an empty transcription over made up sounds if no words are heard.
-                    """))
+                    """
+            )})
                     .addFileWithPrompt("transcribe this audio clip", "audio/wav", file.getUri());
             String jsonBody = gson.toJson(contentRequest);
             System.out.println("jsonBody");

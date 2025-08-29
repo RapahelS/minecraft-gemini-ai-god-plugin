@@ -45,10 +45,16 @@ public class SummarizeLogs {
         }
 
         private static String CONTEXT_TEMPLATE = getOverrideOrDefault("prompts.summarize.CONTEXT", DEFAULT_CONTEXT);
+        private static String getLanguageDirective() {
+                String lang = config.getString("language");
+                if (lang == null || lang.isBlank()) lang = "en";
+                return String.format("Language: %s. Respond only in %s.", lang, lang);
+        }
 
         private static GptAPI gpt = new GptAPI(GPTModels.getSecondaryModel(), tools)
-                        .setSystemContext(String.format(CONTEXT_TEMPLATE, String.join(",", Personality.getLikes()),
-                                        String.join(",", Personality.getDislikes())))
+                        .setSystemContext(new String[]{ getLanguageDirective(),
+                                        String.format(CONTEXT_TEMPLATE, String.join(",", Personality.getLikes()),
+                                        String.join(",", Personality.getDislikes())) })
                         .setToolChoice("submitSummary");
 
         public static void summarize(String log, String summary) {

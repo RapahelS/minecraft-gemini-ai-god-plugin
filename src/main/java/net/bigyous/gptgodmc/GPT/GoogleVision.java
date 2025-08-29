@@ -181,8 +181,13 @@ public class GoogleVision {
             You MUST choose one or the other and explain. Do not base this decision on chance.
             Only use a tool call in one json response, other responses will be ignored.
             """;
+    private static String getLanguageDirective() {
+        String lang = config.getString("language");
+        if (lang == null || lang.isBlank()) lang = "en";
+        return String.format("Language: %s. Respond only in %s. Any tool outputs containing text (names, descriptions) must be in %s.", lang, lang, lang);
+    }
     private static GptAPI gpt = new GptAPI(GPTModels.getSecondaryModel(), tools)
-            .setSystemContext(getOverrideOrDefault("prompts.vision.CONTEXT", DEFAULT_CONTEXT))
+            .setSystemContext(new String[] { getLanguageDirective(), getOverrideOrDefault("prompts.vision.CONTEXT", DEFAULT_CONTEXT) })
             .setTools(tools).setToolChoice("describeStructure");
 
     // have the ai model rate a structure with multiple different camera angles
