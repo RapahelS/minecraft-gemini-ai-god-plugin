@@ -93,7 +93,7 @@ public class ServerInfoSummarizer {
     }
 
     private static String getPlayerHealth(Player player) {
-        double maxHealth = player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue();
+    double maxHealth = player.getMaxHealth();
         double health = player.getHealth();
         double healthRatio = health / maxHealth;
         if (healthRatio > 0.50) {

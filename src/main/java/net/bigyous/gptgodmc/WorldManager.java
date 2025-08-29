@@ -7,7 +7,7 @@ import java.util.HashMap;
 
 import org.bukkit.GameRule;
 import org.bukkit.World;
-import org.bukkit.attribute.Attribute;
+// import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -94,7 +94,7 @@ public class WorldManager {
         if (!player.isDead()) {
             player.getInventory().clear();
             player.updateInventory();
-            player.setHealth(player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue());
+            player.setHealth(player.getMaxHealth());
             player.clearActiveItem();
             player.clearActivePotionEffects();
             player.setLevel(0);

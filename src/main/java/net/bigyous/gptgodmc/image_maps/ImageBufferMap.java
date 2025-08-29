@@ -1,5 +1,6 @@
 package net.bigyous.gptgodmc.image_maps;
 
+import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -24,18 +25,17 @@ import com.loohp.imageframe.objectholders.FileLazyMappedBufferedImage;
 import com.loohp.imageframe.objectholders.ImageMap;
 import com.loohp.imageframe.objectholders.ImageMapAccessPermissionType;
 import com.loohp.imageframe.objectholders.ImageMapManager;
+import com.loohp.imageframe.objectholders.NonUpdatableStaticImageMap;
 import com.loohp.imageframe.utils.FutureUtils;
 import com.loohp.imageframe.utils.MapUtils;
 
 import net.bigyous.gptgodmc.GPTGOD;
 
-public class ImageBufferMap extends ImageMap {
+public class ImageBufferMap extends NonUpdatableStaticImageMap {
 
     private BufferedImage image;
 
-    protected final FileLazyMappedBufferedImage[] cachedImages;
-
-    protected byte[][] cachedColors = null;
+    // cachedImages and cachedColors are inherited from NonUpdatableStaticImageMap
 
     // increment per map name to ensure unique names for this session
     // god photos do not persist so this is good enough
@@ -90,16 +90,20 @@ public class ImageBufferMap extends ImageMap {
     }
 
     public ImageBufferMap(ImageMapManager manager, int imageIndex, String name, BufferedImage imageBytes, FileLazyMappedBufferedImage[] cachedImages, List<MapView> mapViews, List<Integer> mapIds, List<Map<String, MapCursor>> mapMarkers, int width, int height, DitheringType ditheringType, UUID creator, Map<UUID, ImageMapAccessPermissionType> hasAccess, long creationTime) {
-        super(manager, imageIndex, ensureUniqueMapName(name), mapViews, mapIds, mapMarkers, width, height, ditheringType, creator, hasAccess, creationTime);
+        super(manager, imageIndex, ensureUniqueMapName(name), cachedImages, mapViews, mapIds, mapMarkers, width, height, ditheringType, creator, hasAccess, creationTime);
         this.image = imageBytes;
-        this.cachedImages = cachedImages;
     }
 
-    @Override
-    public void cacheColors() {}
+    // Cache management is implemented by NonUpdatableStaticImageMap
 
-    @Override
-    public void clearCachedColors() {}
+    // Public accessors for renderer (avoid accessing protected fields across packages)
+    public byte[] getCachedColorsAt(int index) {
+        return (this.cachedColors != null && index >= 0 && index < this.cachedColors.length) ? this.cachedColors[index] : null;
+    }
+
+    public FileLazyMappedBufferedImage getCachedImageAt(int index) {
+        return (this.cachedImages != null && index >= 0 && index < this.cachedImages.length) ? this.cachedImages[index] : null;
+    }
 
     @Override
     public ImageMap deepClone(String arg0, UUID arg1) throws Exception {
@@ -119,12 +123,43 @@ public class ImageBufferMap extends ImageMap {
                 cachedImages[i++] = FileLazyMappedBufferedImage.fromImage(MapUtils.getSubImage(image, x, y));
             }
         }
-        cacheColors();
+        // build/refresh color cache for all tiles
+        buildColorCache();
         Bukkit.getPluginManager().callEvent(new ImageMapUpdatedEvent(this));
         send(getViewers());
         if (save) {
             save();
         }
+    }
+
+    private void buildColorCache() {
+        if (this.cachedImages == null || this.cachedImages.length == 0) {
+            this.cachedColors = null;
+            return;
+        }
+        if (this.cachedImages[0] == null) {
+            this.cachedColors = null;
+            return;
+        }
+        byte[][] cachedColors = new byte[this.cachedImages.length][];
+        BufferedImage combined = new BufferedImage(width * MapUtils.MAP_WIDTH, height * MapUtils.MAP_WIDTH, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g = combined.createGraphics();
+        int index = 0;
+        for (FileLazyMappedBufferedImage img : this.cachedImages) {
+            g.drawImage(img.get(), (index % width) * MapUtils.MAP_WIDTH, (index / width) * MapUtils.MAP_WIDTH, null);
+            index++;
+        }
+        g.dispose();
+        byte[] combinedData = MapUtils.toMapPaletteBytes(combined, ditheringType);
+        for (int i = 0; i < index; i++) {
+            byte[] data = new byte[MapUtils.MAP_WIDTH * MapUtils.MAP_WIDTH];
+            for (int y = 0; y < MapUtils.MAP_WIDTH; y++) {
+                int offset = ((i / width) * MapUtils.MAP_WIDTH + y) * (width * MapUtils.MAP_WIDTH) + ((i % width) * MapUtils.MAP_WIDTH);
+                System.arraycopy(combinedData, offset, data, y * MapUtils.MAP_WIDTH, MapUtils.MAP_WIDTH);
+            }
+            cachedColors[i] = data;
+        }
+        this.cachedColors = cachedColors;
     }
     
 }

@@ -77,7 +77,7 @@ public class GptActions {
         private static SimpFunction<JsonObject> whisper = (JsonObject args) -> {
                 TypeToken<Map<String, String>> mapType = new TypeToken<Map<String, String>>() {
                 };
-                Map<String, String> argsMap = gson.fromJson(args, mapType);
+                Map<String, String> argsMap = gson.fromJson(args, mapType.getType());
                 String message = argsMap.get("message");
                 String playerName = argsMap.get("playerName");
                 if (playerName == null) {
@@ -153,7 +153,7 @@ public class GptActions {
                 TypeToken<List<String>> stringArrayType = new TypeToken<List<String>>() {
                 };
                 String playerName = gson.fromJson(argObject.get("playerName"), String.class);
-                List<String> itemNames = gson.fromJson(argObject.get("items"), stringArrayType);
+                List<String> itemNames = gson.fromJson(argObject.get("items"), stringArrayType.getType());
                 boolean fullStacks = gson.fromJson(argObject.get("fullStacks"), Boolean.class) != null
                                 ? gson.fromJson(argObject.get("fullStacks"), Boolean.class)
                                 : false;
@@ -238,7 +238,7 @@ public class GptActions {
         private static SimpFunction<JsonObject> revive = (JsonObject args) -> {
                 TypeToken<Map<String, String>> mapType = new TypeToken<Map<String, String>>() {
                 };
-                Map<String, String> argsMap = gson.fromJson(args, mapType);
+                Map<String, String> argsMap = gson.fromJson(args, mapType.getType());
                 String playerName = argsMap.get("playerName");
                 Player player = GPTGOD.SERVER.getPlayer(playerName);
                 if (player.getGameMode().equals(GameMode.SURVIVAL)) {
@@ -256,7 +256,7 @@ public class GptActions {
         private static SimpFunction<JsonObject> teleport = (JsonObject args) -> {
                 TypeToken<Map<String, String>> mapType = new TypeToken<Map<String, String>>() {
                 };
-                Map<String, String> argsMap = gson.fromJson(args, mapType);
+                Map<String, String> argsMap = gson.fromJson(args, mapType.getType());
                 String playerName = argsMap.get("playerName");
                 String destName = argsMap.get("destination");
                 Player player = GPTGOD.SERVER.getPlayer(playerName);

@@ -2,7 +2,6 @@ package net.bigyous.gptgodmc.GPT;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 
 import net.bigyous.gptgodmc.EventLogger;
 import net.bigyous.gptgodmc.GPTGOD;
@@ -100,7 +99,7 @@ public class GenerateCommands {
                         // add an example of the correct type of output we are looking for
                         .addResponse(new Content(Role.model,
                                         new Part[] { new Part(new FunctionCall("inputCommands",
-                                                        JsonParser.parseString(
+                                                        new Gson().fromJson(
                                                                         """
                                                                                                 {
                                                                                                         "commands": [
@@ -115,8 +114,8 @@ public class GenerateCommands {
                                                                                                                 "execute at MoistPyro run summon firework_rocket ~ ~-2 ~ {Firework:{Flight:1,Explosions:[{Type:1,Colors:[9,10,11,12],Flicker:false,Trail:false}]}}"
                                                                                                         ]
                                                                                                 }
-                                                                                        """)
-                                                                        .getAsJsonObject())) }))
+                                                                                        """,
+                                                                        JsonObject.class))) }))
                         .setToolChoice("inputCommands");
 
         public static void generate(String prompt) {

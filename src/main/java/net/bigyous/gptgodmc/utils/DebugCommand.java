@@ -9,7 +9,7 @@ import org.jetbrains.annotations.NotNull;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonParseException;
-import com.google.gson.JsonParser;
+import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 
 import net.bigyous.gptgodmc.GPTGOD;
@@ -32,7 +32,7 @@ public class DebugCommand implements CommandExecutor {
 
         GPTGOD.LOGGER.info("trying command " + commandName + " with args " + jsonArgs);
         try {
-            GptActions.run(commandName, JsonParser.parseString(jsonArgs).getAsJsonObject());
+            GptActions.run(commandName, new Gson().fromJson(jsonArgs, JsonObject.class));
         } catch (JsonSyntaxException e) {
             GPTGOD.LOGGER.error("syntax error in json args " + jsonArgs, e);
         } catch (JsonParseException e) {

@@ -17,7 +17,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
 
 import net.bigyous.gptgodmc.GPTGOD;
@@ -64,7 +63,7 @@ public class Moderation {
     }
 
     private static String processResponse(String rawResponse) {
-        JsonObject moderationObject = JsonParser.parseString(rawResponse).getAsJsonObject();
+    JsonObject moderationObject = new Gson().fromJson(rawResponse, JsonObject.class);
         JsonArray array = moderationObject.get("results").getAsJsonArray();
         ModerationResult results = gson.fromJson(array.get(0), ModerationResult.class);
         if (results.isFlagged())

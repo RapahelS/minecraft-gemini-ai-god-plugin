@@ -20,10 +20,11 @@ public class ImageBufferMapRenderer extends ImageMap.ImageMapRenderer {
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public MutablePair<byte[], Collection<MapCursor>> renderMap(MapView mapView, Player player) {
         byte[] colors;
-        if (this.parent.cachedColors != null && this.parent.cachedColors[this.index] != null) {
-            colors = this.parent.cachedColors[this.index];
-        } else if (this.parent.cachedImages[this.index] != null) {
-            colors = MapUtils.toMapPaletteBytes(this.parent.cachedImages[this.index].get(), this.parent.getDitheringType());
+        byte[] cached = this.parent.getCachedColorsAt(this.index);
+        if (cached != null) {
+            colors = cached;
+        } else if (this.parent.getCachedImageAt(this.index) != null) {
+            colors = MapUtils.toMapPaletteBytes(this.parent.getCachedImageAt(this.index).get(), this.parent.getDitheringType());
         } else {
             colors = null;
         }
